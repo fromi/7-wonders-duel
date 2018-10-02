@@ -329,6 +329,75 @@ class SevenWondersDuelTest {
 
     @Test
     fun end_of_age_I() {
+        var game = SevenWondersDuel(structure = createStructure(AGE_I, listOf(GARRISON)))
+        game = game.discard(GARRISON)
+        assertThat(game.structure.sumBy { it.size }).isEqualTo(20)
+        assertThat(game.structure.flatMap { it.values }).allMatch { it.deck == AGE_II }
+    }
 
+    @Test
+    fun end_of_age_II() {
+        var game = SevenWondersDuel(structure = createStructure(AGE_I, listOf(TEMPLE)))
+        game = game.discard(TEMPLE)
+        assertThat(game.structure.sumBy { it.size }).isEqualTo(20)
+        assertThat(game.structure.flatMap { it.values }.count { it.deck == AGE_III }).isEqualTo(17)
+        assertThat(game.structure.flatMap { it.values }.count { it.deck == BuildingDeck.GUILD }).isEqualTo(3)
+    }
+
+    @Test
+    fun weakest_military_chooses_which_player_begins_the_next_age() {
+        var game = SevenWondersDuel(structure = createStructure(AGE_I, listOf(GARRISON)), currentPlayerNumber = 1, conflictPawnPosition = 3)
+        game = game.discard(GARRISON)
+        assertThat(game.currentPlayerNumber).isEqualTo(2)
+        assertThat(game.letOpponentBegin().currentPlayerNumber).isEqualTo(1)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_let_opponent_begin_during_wonder_selection_phase() {
+        newGame.letOpponentBegin()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_let_opponent_begin_in_the_middle_of_an_age() {
+        val game = SevenWondersDuel(structure = createStructure(AGE_II, listOf(LIBRARY, SAWMILL)))
+        game.letOpponentBegin()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_let_opponent_begin_if_military_equal() {
+        val game = SevenWondersDuel(structure = createStructure(AGE_II), conflictPawnPosition = 0)
+        game.letOpponentBegin()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_let_opponent_begin_if_stronger_than_him() {
+        val game = SevenWondersDuel(structure = createStructure(AGE_II), conflictPawnPosition = 3, currentPlayerNumber = 1)
+        game.letOpponentBegin()
+    }
+
+    @Test
+    fun the_conflict_pawn_moves_when_a_shield_is_build() {
+        var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayerNumber = 1, conflictPawnPosition = 0)
+        game = game.build(GARRISON)
+        assertThat(game.conflictPawnPosition).isEqualTo(1)
+    }
+
+    @Test
+    fun the_conflict_pawn_enter_a_zone_with_a_token() {
+        var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayerNumber = 1, conflictPawnPosition = 2,
+                players = listOf(Player(1), Player(2, militaryTokensLooted = 0, coins = 7)))
+        game = game.build(GARRISON)
+        assertThat(game.conflictPawnPosition).isEqualTo(3)
+        assertThat(game.players[1].militaryTokensLooted).isEqualTo(1)
+        assertThat(game.players[1].coins).isEqualTo(5)
+    }
+
+    @Test
+    fun two_military_token_might_be_looted_at_once() {
+        var game = SevenWondersDuel(currentPlayerNumber = 1, conflictPawnPosition = 3,
+                players = listOf(Player(1), Player(2, militaryTokensLooted = 0, coins = 6)))
+        game = game.moveConflictPawn(4)
+        assertThat(game.players[1].militaryTokensLooted).isEqualTo(2)
+        assertThat(game.players[1].coins).isEqualTo(0)
     }
 }
