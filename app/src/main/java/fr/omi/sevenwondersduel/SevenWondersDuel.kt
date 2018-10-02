@@ -12,69 +12,122 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
                             val progressTokensAvailable: Set<ProgressToken> = ProgressToken.values().toList().shuffled().asSequence().take(5).toSet(),
                             val currentPlayerNumber: Int = 1,
                             val wondersAvailable: Set<Wonder> = Wonder.values().toList().shuffled().asSequence().take(4).toSet(),
-                            val structure: List<Map<Int, Building>> = emptyList()) {
-
-    private fun currentPlayer(): Player {
-        return players.first { it.number == currentPlayerNumber }
-    }
+                            val structure: List<Map<Int, Building>> = emptyList(),
+                            val discardedCards: List<Building> = emptyList()) {
 
     fun choose(wonder: Wonder): SevenWondersDuel {
-        require(wondersAvailable.contains(wonder))
+        require(wondersAvailable.contains(wonder)) { "This wonder is not available" }
         return copy(wondersAvailable = when {
             wondersAvailable.size > 2 -> wondersAvailable.minus(wonder)
-            players.sumBy { it.wonders.size } < 4 -> remainingWonder().shuffled().asSequence().take(4).toSet()
+            players.sumBy { it.wonders.size } < 4 -> remainingWonders().shuffled().asSequence().take(4).toSet()
             else -> emptySet()
         }, players = players.map { player ->
             when {
-                player == currentPlayer() -> player.copy(wonders = player.wonders.plus(wonder))
+                player == currentPlayer() -> player.copy(wonders = player.wonders.plus(BuildableWonder(wonder)))
                 wondersAvailable.size > 2 -> player
-                else -> player.copy(wonders = player.wonders.plus(wondersAvailable.first { it != wonder }))
+                else -> player.copy(wonders = player.wonders.plus(BuildableWonder(wondersAvailable.first { it != wonder })))
             }
         }, currentPlayerNumber = if (players.sumBy { it.wonders.size } in 0..3) 2 else 1,
                 structure = createStructure(AGE_I))
     }
 
-    private fun remainingWonder() = Wonder.values().toList().filter { players.none { player -> player.wonders.contains(it) } && !wondersAvailable.contains(it) }
-
     fun build(building: Building): SevenWondersDuel {
-        require(accessibleBuilding().contains(building))
-        return copy(structure = structure.map { row -> row.minus(row.keys.filter { row[it] == building }) },
-                players = players.map { if (it == currentPlayer()) it.copy(buildings = it.buildings.plus(building), coins = it.coins - it.cost(building, opponentOf(it))) else it },
-                currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1)
+        val player = currentPlayer()
+        val opponent = opponentOf(player)
+        return take(building)
+                .copy(players = listOf(player.build(building, opponent), opponent).sortedBy { it.number })
+                .nextPlayer()
     }
+
+    fun discard(building: Building): SevenWondersDuel {
+        val player = currentPlayer()
+        val opponent = opponentOf(player)
+        return take(building)
+                .copy(players = listOf(player.discard(), opponent).sortedBy { it.number },
+                        discardedCards = discardedCards.plus(building))
+                .nextPlayer()
+    }
+
+    fun build(wonder: Wonder, buildingUsed: Building): SevenWondersDuel {
+        val player = currentPlayer()
+        val opponent = opponentOf(player)
+        return take(buildingUsed)
+                .copy(players = listOf(player.build(wonder, buildingUsed, opponent), opponent).sortedBy { it.number })
+                .discardIf7WondersBuilt()
+                .nextPlayer()
+    }
+
+    private fun currentPlayer(): Player {
+        return players.first { it.number == currentPlayerNumber }
+    }
+
+    private fun remainingWonders() = Wonder.values().toList().filter { wonder -> !wondersAvailable.contains(wonder) && players.none { player -> player.wonders.any { it.wonder == wonder } } }
 
     private fun opponentOf(player: Player) = players.first { it != player }
 
-    fun accessibleBuilding(): Collection<Building> {
+    fun accessibleBuildings(): Collection<Building> {
         return structure.mapIndexed { index, row -> row.filterKeys { index == structure.size - 1 || !(structure[index + 1].contains(it - 1) || structure[index + 1].contains(it + 1)) }.values }.flatten()
     }
+
+    private fun take(building: Building): SevenWondersDuel {
+        require(accessibleBuildings().contains(building)) { "This building cannot be taken" }
+        return copy(structure = structure.map { row -> row.minus(row.keys.filter { row[it] == building }) })
+    }
+
+    private fun nextPlayer(): SevenWondersDuel {
+        return copy(currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1)
+    }
+
+    private fun discardIf7WondersBuilt(): SevenWondersDuel =
+            if (players.sumBy { player -> player.wonders.count {it.isBuild()} } == 7)
+                SevenWondersDuel(players = players.map { it.discardUnfinishedWonder() })
+            else this
 }
 
-data class Player(val number: Int, val militaryTokensLooted: Int = 0, val coins: Int = 7, val wonders: Set<Wonder> = emptySet(), val buildings: Set<Building> = emptySet()) {
-    fun cost(building: Building, opponent: Player): Int {
-        return building.cost.coins + resourcesCost(building, opponent)
+data class Player(val number: Int, val militaryTokensLooted: Int = 0, val coins: Int = 7, val wonders: List<BuildableWonder> = emptyList(), val buildings: Set<Building> = emptySet()) {
+    fun build(building: Building, opponent: Player): Player =
+            if (buildings.contains(building.freeLink)) build(building) else pay(building.cost, opponent).build(building)
+
+    fun discard(): Player = copy(coins = coins + 2 + buildings.count { it.type == COMMERCIAL })
+
+    fun build(wonder: Wonder, buildingUsed: Building, opponent: Player): Player {
+        require(wonders.any { it.wonder == wonder }) { "You do not have this wonder" }
+        return pay(wonder.cost, opponent).copy(wonders = wonders.map { if (it.wonder == wonder) it.buildWith(buildingUsed) else it })
     }
 
-    private fun resourcesCost(building: Building, opponent: Player): Int {
-        return Resource.Type.values().sumBy { cost(it, building, opponent) }
+    private fun pay(cost: Cost, opponent: Player): Player {
+        val totalCost = cost.coins + tradingCost(cost.resources, opponent)
+        //val totalCost = cost.coins + cost.resourcesTrading(this, opponent)
+        require(coins >= totalCost) { "Not enough coins" }
+        return copy(coins = coins - totalCost)
     }
 
-    private fun cost(resourceType: Resource.Type, building: Building, opponent: Player): Int {
-        return building.cost.resources.filter { it.key.type == resourceType }
-                .flatMap { entry -> List(entry.value - productionOf(entry.key)) { cost(entry.key, opponent) } }
+    private fun tradingCost(resourcesCost: Map<Resource, Int>, opponent: Player): Int {
+        return tradingCost(RAW_GOOD, resourcesCost, opponent) + tradingCost(MANUFACTURED_GOOD, resourcesCost, opponent)
+    }
+
+    private fun tradingCost(resourceType: Type, resourcesCost: Map<Resource, Int>, opponent: Player): Int {
+        return resourcesCost.filter { it.key.type == resourceType }
+                .flatMap { entry -> List(entry.value - productionOf(entry.key)) { tradingCost(entry.key, opponent) } }
                 .sorted().dropLast(effects().count { it is ProductionOfAny && it.resourceType == resourceType })
                 .sum()
     }
 
-    private fun cost(resource: Resource, opponent: Player): Int {
-        return if (effects().any { it is FixTradingCostTo1 && it.resource == resource }) 1 else 2 + opponent.productionOf(resource)
+    private fun build(building: Building): Player {
+        return copy(buildings = buildings.plus(building))
     }
 
-    private fun productionOf(resource: Resource): Int {
-        return effects().asSequence().filterIsInstance<Production>().filter { it.resource == resource }.sumBy { it.quantity }
-    }
+    private fun tradingCost(resource: Resource, opponent: Player): Int =
+            if (effects().any { it is FixTradingCostTo1 && it.resource == resource }) 1 else 2 + opponent.productionOf(resource)
+
+    private fun productionOf(resource: Resource): Int =
+            effects().asSequence().filterIsInstance<Production>().filter { it.resource == resource }.sumBy { it.quantity }
 
     private fun effects() = buildings.flatMap { it.effects.toList() }
+
+    fun discardUnfinishedWonder(): Player {
+        return copy(wonders = wonders.filter { it.isBuild() })
+    }
 }
 
 fun createStructure(age: BuildingDeck): List<Map<Int, Building>> {
@@ -103,12 +156,31 @@ enum class ProgressToken {
     AGRICULTURE, ARCHITECTURE, ECONOMY, LAW, MASONRY, MATHEMATICS, PHILOSOPHY, STRATEGY, THEOLOGY, URBANISM
 }
 
-enum class Wonder {
-    THE_APPIAN_WAY, CIRCUS_MAXIMUS, THE_COLOSSUS, THE_GREAT_LIBRARY, THE_GREAT_LIGHTHOUSE, THE_HANGING_GARDENS,
-    THE_MAUSOLEUM, PIRAEUS, THE_PYRAMIDS, THE_SPHINX, THE_STATUE_OF_ZEUS, THE_TEMPLE_OF_ARTEMIS
+enum class Wonder(val cost: Cost) {
+    THE_APPIAN_WAY(Cost(resources = mapOf(PAPYRUS to 1, CLAY to 2, STONE to 2))),
+    CIRCUS_MAXIMUS(Cost(resources = mapOf(GLASS to 1, WOOD to 1, STONE to 2))),
+    THE_COLOSSUS(Cost(resources = mapOf(GLASS to 1, CLAY to 3))),
+    THE_GREAT_LIBRARY(Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 3))),
+    THE_GREAT_LIGHTHOUSE(Cost(resources = mapOf(PAPYRUS to 2, STONE to 1, WOOD to 1))),
+    THE_HANGING_GARDENS(Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 2))),
+    THE_MAUSOLEUM(Cost(resources = mapOf(PAPYRUS to 1, GLASS to 2, CLAY to 2))),
+    PIRAEUS(Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 2))),
+    THE_PYRAMIDS(Cost(resources = mapOf(PAPYRUS to 1, STONE to 3))),
+    THE_SPHINX(Cost(resources = mapOf(GLASS to 2, CLAY to 1, STONE to 1))),
+    THE_STATUE_OF_ZEUS(Cost(resources = mapOf(PAPYRUS to 2, CLAY to 1, WOOD to 1, STONE to 1))),
+    THE_TEMPLE_OF_ARTEMIS(Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, STONE to 1, WOOD to 1)))
 }
 
-enum class Building(val deck: BuildingDeck = BuildingDeck.GUILD, val type: BuildingType = GUILD, val effects: Set<Effect> = emptySet(), val cost: Cost = Cost()) {
+data class BuildableWonder(val wonder: Wonder, val builtWith: Building? = null) {
+    fun buildWith(building: Building): BuildableWonder {
+        check(!isBuild()) { "This wonder is already built" }
+        return copy(builtWith = building)
+    }
+
+    fun isBuild(): Boolean = builtWith != null
+}
+
+enum class Building(val deck: BuildingDeck = BuildingDeck.GUILD, val type: BuildingType = GUILD, val effects: Set<Effect> = emptySet(), val cost: Cost = Cost(), val freeLink: Building? = null) {
     LUMBER_YARD(AGE_I, RAW_MATERIAL, setOf(Production(WOOD))),
     LOGGING_CAMP(AGE_I, RAW_MATERIAL, setOf(Production(WOOD)), Cost(coins = 1)),
     CLAY_POOL(AGE_I, RAW_MATERIAL, setOf(Production(CLAY))),
@@ -138,18 +210,18 @@ enum class Building(val deck: BuildingDeck = BuildingDeck.GUILD, val type: Build
     GLASSBLOWER(AGE_II, BuildingType.MANUFACTURED_GOOD, setOf(Production(GLASS))),
     DRYING_ROOM(AGE_II, BuildingType.MANUFACTURED_GOOD, setOf(Production(PAPYRUS))),
     WALLS(AGE_II, MILITARY, setOf(), Cost(resources = mapOf(STONE to 2))),
-    HORSE_BREEDERS(AGE_II, MILITARY, setOf(), Cost(resources = mapOf(CLAY to 1, WOOD to 1))),
-    BARRACKS(AGE_II, MILITARY, setOf(), Cost(coins = 3)),
+    HORSE_BREEDERS(AGE_II, MILITARY, setOf(), Cost(resources = mapOf(CLAY to 1, WOOD to 1)), freeLink = STABLE),
+    BARRACKS(AGE_II, MILITARY, setOf(), Cost(coins = 3), freeLink = GARRISON),
     ARCHERY_RANGE(AGE_II, MILITARY, setOf(), Cost(resources = mapOf(STONE to 1, WOOD to 1, PAPYRUS to 1))),
     PARADE_GROUND(AGE_II, MILITARY, setOf(), Cost(resources = mapOf(CLAY to 2, GLASS to 1))),
-    LIBRARY(AGE_II, SCIENTIFIC, setOf(), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 1))),
-    DISPENSARY(AGE_II, SCIENTIFIC, setOf(), Cost(resources = mapOf(CLAY to 2, STONE to 1))),
+    LIBRARY(AGE_II, SCIENTIFIC, setOf(), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 1)), freeLink = SCRIPTORIUM),
+    DISPENSARY(AGE_II, SCIENTIFIC, setOf(), Cost(resources = mapOf(CLAY to 2, STONE to 1)), freeLink = PHARMACIST),
     SCHOOL(AGE_II, SCIENTIFIC, setOf(), Cost(resources = mapOf(WOOD to 1, PAPYRUS to 2))),
     LABORATORY(AGE_II, SCIENTIFIC, setOf(), Cost(resources = mapOf(WOOD to 1, GLASS to 2))),
     TRIBUNAL(AGE_II, CIVILIAN, setOf(), Cost(resources = mapOf(WOOD to 2, GLASS to 1))),
-    STATUE(AGE_II, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 2))),
-    TEMPLE(AGE_II, CIVILIAN, setOf(), Cost(resources = mapOf(WOOD to 1, PAPYRUS to 1))),
-    AQUEDUCT(AGE_II, CIVILIAN, setOf(), Cost(resources = mapOf(STONE to 3))),
+    STATUE(AGE_II, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 2)), freeLink = THEATER),
+    TEMPLE(AGE_II, CIVILIAN, setOf(), Cost(resources = mapOf(WOOD to 1, PAPYRUS to 1)), freeLink = ALTAR),
+    AQUEDUCT(AGE_II, CIVILIAN, setOf(), Cost(resources = mapOf(STONE to 3)), freeLink = BATHS),
     ROSTRUM(AGE_II, CIVILIAN, setOf(), Cost(resources = mapOf(STONE to 1, WOOD to 1))),
     FORUM(AGE_II, COMMERCIAL, setOf(ProductionOfAny(MANUFACTURED_GOOD)), Cost(coins = 3, resources = mapOf(CLAY to 1))),
     CARAVANSERY(AGE_II, COMMERCIAL, setOf(ProductionOfAny(RAW_GOOD)), Cost(coins = 2, resources = mapOf(GLASS to 1, PAPYRUS to 1))),
@@ -157,24 +229,24 @@ enum class Building(val deck: BuildingDeck = BuildingDeck.GUILD, val type: Build
     BREWERY(AGE_II, COMMERCIAL, setOf()),
     ARSENAL(AGE_III, MILITARY, setOf(), Cost(resources = mapOf(CLAY to 3, WOOD to 2))),
     COURTHOUSE(AGE_III, MILITARY, setOf(), Cost(coins = 8)),
-    FORTIFICATIONS(AGE_III, MILITARY, setOf(), Cost(resources = mapOf(STONE to 2, CLAY to 1, PAPYRUS to 1))),
-    SIEGE_WORKSHOP(AGE_III, MILITARY, setOf(), Cost(resources = mapOf(WOOD to 3, GLASS to 1))),
-    CIRCUS(AGE_III, MILITARY, setOf(), Cost(resources = mapOf(CLAY to 2, STONE to 2))),
+    FORTIFICATIONS(AGE_III, MILITARY, setOf(), Cost(resources = mapOf(STONE to 2, CLAY to 1, PAPYRUS to 1)), freeLink = PALISADE),
+    SIEGE_WORKSHOP(AGE_III, MILITARY, setOf(), Cost(resources = mapOf(WOOD to 3, GLASS to 1)), freeLink = ARCHERY_RANGE),
+    CIRCUS(AGE_III, MILITARY, setOf(), Cost(resources = mapOf(CLAY to 2, STONE to 2)), freeLink = PARADE_GROUND),
     ACADEMY(AGE_III, SCIENTIFIC, setOf(), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 2))),
     STUDY(AGE_III, SCIENTIFIC, setOf(), Cost(resources = mapOf(WOOD to 2, GLASS to 1, PAPYRUS to 1))),
-    UNIVERSITY(AGE_III, SCIENTIFIC, setOf(), Cost(resources = mapOf(CLAY to 1, GLASS to 1, PAPYRUS to 1))),
-    OBSERVATORY(AGE_III, SCIENTIFIC, setOf(), Cost(resources = mapOf(STONE to 1, PAPYRUS to 2))),
+    UNIVERSITY(AGE_III, SCIENTIFIC, setOf(), Cost(resources = mapOf(CLAY to 1, GLASS to 1, PAPYRUS to 1)), freeLink = SCHOOL),
+    OBSERVATORY(AGE_III, SCIENTIFIC, setOf(), Cost(resources = mapOf(STONE to 1, PAPYRUS to 2)), freeLink = LABORATORY),
     PALACE(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1, GLASS to 2))),
     TOWN_HALL(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(STONE to 3, WOOD to 2))),
     OBELISK(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(STONE to 2, GLASS to 1))),
-    GARDENS(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 2, WOOD to 2))),
-    PANTHEON(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 1, WOOD to 1, PAPYRUS to 2))),
-    SENATE(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 2, STONE to 1, PAPYRUS to 1))),
+    GARDENS(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 2, WOOD to 2)), freeLink = STATUE),
+    PANTHEON(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 1, WOOD to 1, PAPYRUS to 2)), freeLink = TEMPLE),
+    SENATE(AGE_III, CIVILIAN, setOf(), Cost(resources = mapOf(CLAY to 2, STONE to 1, PAPYRUS to 1)), freeLink = ROSTRUM),
     CHAMBER_OF_COMMERCE(AGE_III, COMMERCIAL, setOf(), Cost(resources = mapOf(PAPYRUS to 2))),
     PORT(AGE_III, COMMERCIAL, setOf(), Cost(resources = mapOf(WOOD to 1, GLASS to 1, PAPYRUS to 1))),
     ARMORY(AGE_III, COMMERCIAL, setOf(), Cost(resources = mapOf(STONE to 2, GLASS to 1))),
-    LIGHTHOUSE(AGE_III, COMMERCIAL, setOf(), Cost(resources = mapOf(CLAY to 2, GLASS to 1))),
-    ARENA(AGE_III, COMMERCIAL, setOf(), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1))),
+    LIGHTHOUSE(AGE_III, COMMERCIAL, setOf(), Cost(resources = mapOf(CLAY to 2, GLASS to 1)), freeLink = TAVERN),
+    ARENA(AGE_III, COMMERCIAL, setOf(), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1)), freeLink = BREWERY),
     MERCHANTS_GUILD(cost = Cost(resources = mapOf(CLAY to 1, WOOD to 1, GLASS to 1, PAPYRUS to 1))),
     SHIPOWNERS_GUILD(cost = Cost(resources = mapOf(CLAY to 1, STONE to 1, GLASS to 1, PAPYRUS to 1))),
     BUILDERS_GUILD(cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, WOOD to 1, GLASS to 1))),

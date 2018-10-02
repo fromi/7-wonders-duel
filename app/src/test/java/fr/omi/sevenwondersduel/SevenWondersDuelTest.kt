@@ -48,14 +48,14 @@ class SevenWondersDuelTest {
         var game = SevenWondersDuel(wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS))
         game = game.choose(THE_PYRAMIDS)
         assertThat(game.wondersAvailable).containsExactly(THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS)
-        assertThat(game.players[0].wonders).containsExactly(THE_PYRAMIDS)
+        assertThat(game.players[0].wonders).containsExactly(BuildableWonder(THE_PYRAMIDS))
         assertThat(game.currentPlayerNumber).isEqualTo(2)
         game = game.choose(THE_GREAT_LIGHTHOUSE)
         assertThat(game.currentPlayerNumber).isEqualTo(2)
-        assertThat(game.players[1].wonders).containsExactly(THE_GREAT_LIGHTHOUSE)
+        assertThat(game.players[1].wonders).containsExactly(BuildableWonder(THE_GREAT_LIGHTHOUSE))
         game = game.choose(THE_HANGING_GARDENS)
-        assertThat(game.players[1].wonders).containsExactly(THE_GREAT_LIGHTHOUSE, THE_HANGING_GARDENS)
-        assertThat(game.players[0].wonders).containsExactly(THE_PYRAMIDS, THE_COLOSSUS)
+        assertThat(game.players[1].wonders).containsExactly(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_HANGING_GARDENS))
+        assertThat(game.players[0].wonders).containsExactly(BuildableWonder(THE_PYRAMIDS), BuildableWonder(THE_COLOSSUS))
         assertThat(game.wondersAvailable).doesNotContain(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS).size().isEqualTo(4)
         assertThat(game.currentPlayerNumber).isEqualTo(2)
     }
@@ -68,19 +68,22 @@ class SevenWondersDuelTest {
 
     @Test
     fun last_4_wonders_selection() {
-        var game = SevenWondersDuel(players = listOf(Player(number = 1, wonders = setOf(THE_COLOSSUS, THE_HANGING_GARDENS)), Player(number = 2, wonders = setOf(THE_GREAT_LIGHTHOUSE, THE_MAUSOLEUM))),
+        var game = SevenWondersDuel(players = listOf(Player(number = 1, wonders = listOf(BuildableWonder(THE_COLOSSUS), BuildableWonder(THE_HANGING_GARDENS))),
+                Player(number = 2, wonders = listOf(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_MAUSOLEUM)))),
                 wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIBRARY, THE_STATUE_OF_ZEUS, THE_TEMPLE_OF_ARTEMIS),
                 currentPlayerNumber = 2)
         game = game.choose(THE_STATUE_OF_ZEUS)
         assertThat(game.wondersAvailable).containsExactly(THE_PYRAMIDS, THE_GREAT_LIBRARY, THE_TEMPLE_OF_ARTEMIS)
-        assertThat(game.players[1].wonders).contains(THE_STATUE_OF_ZEUS)
+        assertThat(game.players[1].wonders).contains(BuildableWonder(THE_STATUE_OF_ZEUS))
         assertThat(game.currentPlayerNumber).isEqualTo(1)
         game = game.choose(THE_GREAT_LIBRARY)
         assertThat(game.wondersAvailable).containsExactly(THE_PYRAMIDS, THE_TEMPLE_OF_ARTEMIS)
-        assertThat(game.players[0].wonders).contains(THE_GREAT_LIBRARY)
+        assertThat(game.players[0].wonders).contains(BuildableWonder(THE_GREAT_LIBRARY))
         game = game.choose(THE_TEMPLE_OF_ARTEMIS)
-        assertThat(game.players[0].wonders).containsExactly(THE_COLOSSUS, THE_HANGING_GARDENS, THE_GREAT_LIBRARY, THE_TEMPLE_OF_ARTEMIS)
-        assertThat(game.players[1].wonders).containsExactly(THE_GREAT_LIGHTHOUSE, THE_MAUSOLEUM, THE_STATUE_OF_ZEUS, THE_PYRAMIDS)
+        assertThat(game.players[0].wonders).containsExactly(BuildableWonder(THE_COLOSSUS), BuildableWonder(THE_HANGING_GARDENS),
+                BuildableWonder(THE_GREAT_LIBRARY), BuildableWonder(THE_TEMPLE_OF_ARTEMIS))
+        assertThat(game.players[1].wonders).containsExactly(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_MAUSOLEUM),
+                BuildableWonder(THE_STATUE_OF_ZEUS), BuildableWonder(THE_PYRAMIDS))
         assertThat(game.currentPlayerNumber).isEqualTo(1)
         assertThat(game.structure.sumBy { it.size }).isEqualTo(20)
     }
@@ -155,7 +158,7 @@ class SevenWondersDuelTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_build_unaccessible_building() {
         val game = SevenWondersDuel(structure = sampleAge1Structure)
-        assertThat(game.accessibleBuilding()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, GARRISON)
+        assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, GARRISON)
         game.build(STABLE)
     }
 
@@ -163,10 +166,17 @@ class SevenWondersDuelTest {
     fun building_become_accessible_once_uncovered() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
         game = game.build(CLAY_PIT).build(ALTAR)
-        assertThat(game.accessibleBuilding()).containsExactlyInAnyOrder(BATHS, PRESS, GUARD_TOWER, STABLE, GARRISON)
+        assertThat(game.accessibleBuildings()).containsExactlyInAnyOrder(BATHS, PRESS, GUARD_TOWER, STABLE, GARRISON)
         game = game.build(STABLE)
         assertThat(game.players[0].buildings).containsExactly(CLAY_PIT, STABLE)
         assertThat(game.players[1].buildings).containsExactly(ALTAR)
+    }
+
+    @Test
+    fun pay_building_cost_in_coins() {
+        var game = SevenWondersDuel(structure = sampleAge1Structure)
+        game = game.build(CLAY_PIT)
+        assertThat(game.players[0].coins).isEqualTo(6)
     }
 
     @Test
@@ -186,55 +196,139 @@ class SevenWondersDuelTest {
 
     @Test
     fun trade_resource_increases_when_opponent_produces() {
-        val player = Player(number = 1, buildings = setOf())
+        val player = Player(number = 1, coins = 7, buildings = setOf())
         val opponent = Player(number = 2, buildings = setOf(QUARRY))
-        assertThat(player.cost(BATHS, opponent)).isEqualTo(3)
+        assertThat(player.build(BATHS, opponent).coins).isEqualTo(4)
         val opponent2 = Player(number = 2, buildings = setOf(QUARRY, STONE_PIT))
-        assertThat(player.cost(BATHS, opponent2)).isEqualTo(4)
+        assertThat(player.build(BATHS, opponent2).coins).isEqualTo(3)
     }
 
     @Test
     fun resource_cost_can_be_set_to_1() {
-        val player = Player(number = 1, buildings = setOf(STONE_RESERVE))
+        val player = Player(number = 1, coins = 1, buildings = setOf(STONE_RESERVE))
         val opponent = Player(number = 2, buildings = setOf(QUARRY))
-        assertThat(player.cost(BATHS, opponent)).isEqualTo(1)
+        assertThat(player.build(BATHS, opponent).coins).isEqualTo(0)
     }
 
     @Test
     fun produce_any_raw_good() {
-        val player = Player(number = 1, buildings = setOf(CARAVANSERY))
+        val player = Player(number = 1, coins = 7, buildings = setOf(CARAVANSERY))
         val opponent = Player(number = 2)
-        assertThat(player.cost(BATHS, opponent)).isEqualTo(0)
+        assertThat(player.build(BATHS, opponent).coins).isEqualTo(7)
     }
 
     @Test
     fun produce_any_raw_good_automatically_set_to_highest_resource_cost() {
-        val player = Player(number = 1, buildings = setOf(CARAVANSERY))
+        val player = Player(number = 1, coins = 8, buildings = setOf(CARAVANSERY))
         val opponent = Player(number = 2, buildings = setOf(QUARRY))
-        assertThat(player.cost(ROSTRUM, opponent)).isEqualTo(2)
+        assertThat(player.build(ROSTRUM, opponent).coins).isEqualTo(6)
     }
 
     @Test
-    fun produce_any_raw_good_as_no_impact_on_trading_cost()  {
-        val player = Player(number = 1)
+    fun produce_any_raw_good_as_no_impact_on_trading_cost() {
+        val player = Player(number = 1, coins = 7)
         val opponent = Player(number = 2, buildings = setOf(CARAVANSERY))
-        assertThat(player.cost(BATHS, opponent)).isEqualTo(2)
+        assertThat(player.build(BATHS, opponent).coins).isEqualTo(5)
     }
 
     @Test
-    fun pay_building_cost_in_coins() {
-        var game = SevenWondersDuel(structure = sampleAge1Structure)
-        game = game.build(CLAY_PIT)
-        assertThat(game.players[0].coins).isEqualTo(6)
+    fun build_for_free_with_chain() {
+        val player = Player(number = 1, coins = 5, buildings = setOf(STABLE))
+        val opponent = Player(number = 2)
+        assertThat(player.build(HORSE_BREEDERS, opponent).coins).isEqualTo(5)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun cannot_build_if_not_enough_coins() {
+        val game = SevenWondersDuel(players = listOf(Player(number = 1, coins = 1), Player(number = 2)), structure = sampleAge1Structure)
+        game.build(BATHS)
     }
 
     @Test
     fun verify_total_resources_costs_on_building() {
         assertThat(Building.values().sumBy { it.cost.coins }).isEqualTo(46)
-        assertThat(Building.values().sumBy { it.cost.resources[CLAY] ?:0 }).isEqualTo(32)
+        assertThat(Building.values().sumBy { it.cost.resources[CLAY] ?: 0 }).isEqualTo(32)
         assertThat(Building.values().sumBy { it.cost.resources[WOOD] ?: 0 }).isEqualTo(34)
         assertThat(Building.values().sumBy { it.cost.resources[STONE] ?: 0 }).isEqualTo(33)
         assertThat(Building.values().sumBy { it.cost.resources[GLASS] ?: 0 }).isEqualTo(21)
         assertThat(Building.values().sumBy { it.cost.resources[PAPYRUS] ?: 0 }).isEqualTo(21)
+    }
+
+    @Test
+    fun discard_for_coins() {
+        var game = SevenWondersDuel(structure = sampleAge1Structure)
+        game = game.discard(BATHS)
+        assertThat(game.players[0].coins).isEqualTo(9)
+        assertThat(game.discardedCards).containsExactly(BATHS)
+    }
+
+    @Test
+    fun discard_for_more_coins() {
+        var game = SevenWondersDuel(players = listOf(Player(number = 1, buildings = setOf(QUARRY, TAVERN, CLAY_RESERVE)), Player(number = 2)),
+                structure = sampleAge1Structure)
+        game = game.discard(ALTAR)
+        assertThat(game.players[0].coins).isEqualTo(11)
+        assertThat(game.discardedCards).containsExactly(ALTAR)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun cannot_discard_unaccessible_building() {
+        val game = SevenWondersDuel(structure = sampleAge1Structure)
+        assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, GARRISON)
+        game.discard(STABLE)
+    }
+
+    @Test
+    fun build_a_wonder() {
+        var game = SevenWondersDuel(players = listOf(Player(number = 1, coins = 8, wonders = listOf(BuildableWonder(PIRAEUS))), Player(number = 2)),
+                structure = sampleAge1Structure)
+        game = game.build(PIRAEUS, PRESS)
+        assertThat(game.players[0].wonders).containsExactly(BuildableWonder(PIRAEUS, builtWith = PRESS))
+        assertThat(game.players[0].coins).isEqualTo(0)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_build_a_wonder_already_built() {
+        val wonder = BuildableWonder(PIRAEUS, builtWith = PRESS)
+        wonder.buildWith(STATUE)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun cannot_build_a_wonder_I_do_not_have() {
+        val player = Player(number = 1, wonders = emptyList())
+        player.build(PIRAEUS, buildingUsed = SCHOOL, opponent = Player(number = 2))
+    }
+
+    @Test
+    fun once_7_wonders_built_remaining_wonder_is_discarded() {
+        var game = SevenWondersDuel(players = listOf(
+                Player(number = 1, coins = 20, wonders = listOf(
+                        BuildableWonder(PIRAEUS, builtWith = STATUE),
+                        BuildableWonder(THE_PYRAMIDS, builtWith = HORSE_BREEDERS),
+                        BuildableWonder(THE_STATUE_OF_ZEUS, builtWith = ALTAR),
+                        BuildableWonder(THE_COLOSSUS))),
+                Player(number = 2, wonders = listOf(
+                        BuildableWonder(THE_GREAT_LIBRARY, builtWith = PARADE_GROUND),
+                        BuildableWonder(THE_HANGING_GARDENS, builtWith = TEMPLE),
+                        BuildableWonder(THE_GREAT_LIGHTHOUSE, builtWith = GARRISON),
+                        BuildableWonder(THE_MAUSOLEUM)
+                ))
+        ), structure = sampleAge1Structure)
+        game = game.build(THE_COLOSSUS, buildingUsed = CLAY_PIT)
+        assertThat(game.players[1].wonders).doesNotContain(BuildableWonder(THE_MAUSOLEUM))
+    }
+
+    @Test
+    fun verify_total_resources_costs_on_wonders() {
+        assertThat(Wonder.values().sumBy { it.cost.resources[CLAY] ?: 0 }).isEqualTo(10)
+        assertThat(Wonder.values().sumBy { it.cost.resources[WOOD] ?: 0 }).isEqualTo(11)
+        assertThat(Wonder.values().sumBy { it.cost.resources[STONE] ?: 0 }).isEqualTo(12)
+        assertThat(Wonder.values().sumBy { it.cost.resources[GLASS] ?: 0 }).isEqualTo(9)
+        assertThat(Wonder.values().sumBy { it.cost.resources[PAPYRUS] ?: 0 }).isEqualTo(10)
+    }
+
+    @Test
+    fun end_of_age_I() {
+
     }
 }
