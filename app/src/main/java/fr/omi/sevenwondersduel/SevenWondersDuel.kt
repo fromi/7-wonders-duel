@@ -6,6 +6,7 @@ import fr.omi.sevenwondersduel.BuildingType.GUILD
 import fr.omi.sevenwondersduel.Resource.*
 import fr.omi.sevenwondersduel.Resource.Type.MANUFACTURED_GOOD
 import fr.omi.sevenwondersduel.Resource.Type.RAW_GOOD
+import fr.omi.sevenwondersduel.ScientificSymbol.*
 import kotlin.math.absoluteValue
 
 data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1), Player(number = 2)),
@@ -14,7 +15,8 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
                             val currentPlayerNumber: Int? = 1,
                             val wondersAvailable: Set<Wonder> = Wonder.values().toList().shuffled().asSequence().take(4).toSet(),
                             val structure: List<Map<Int, Building>> = emptyList(),
-                            val discardedCards: List<Building> = emptyList()) {
+                            val discardedCards: List<Building> = emptyList(),
+                            val pendingActions: List<Action> = emptyList()) {
 
     fun choose(wonder: Wonder): SevenWondersDuel {
         val player = checkNotNull(currentPlayer())
@@ -40,7 +42,7 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
         val opponent = opponentOf(player)
         return take(building)
                 .copy(players = listOf(player.build(building, opponent), opponent).sortedBy { it.number })
-                .applyEffects(building.effects)
+                .applyEffects(player, building.effects)
                 .continueGame()
     }
 
@@ -58,7 +60,7 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
         val opponent = opponentOf(player)
         return take(buildingUsed)
                 .copy(players = listOf(player.build(wonder, buildingUsed, opponent), opponent).sortedBy { it.number })
-                .applyEffects(wonder.effects)
+                .applyEffects(player, wonder.effects)
                 .discardIf7WondersBuilt()
                 .continueGame()
     }
@@ -67,6 +69,17 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
         check(structure.sumBy { it.size } == 20) { "You can only let the opponent begin when starting Age II or Age III" }
         check(if (currentPlayerNumber == 1) conflictPawnPosition < 0 else conflictPawnPosition > 0) { "You can only let the opponent begin next Age when strictly weaker than him" }
         return copy(currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1)
+    }
+
+    fun choose(progressToken: ProgressToken): SevenWondersDuel {
+        check(pendingActions.firstOrNull() is ChooseProgressToken) { "You are not currently allowed to choose a progress token" }
+        require((pendingActions.first() as ChooseProgressToken).tokens.contains(progressToken)) { "You cannot choose this progress token" }
+        val player = checkNotNull(currentPlayer())
+        val opponent = opponentOf(player)
+        return copy(progressTokensAvailable = progressTokensAvailable.minus(progressToken),
+                players = listOf(player.copy(progressTokens = player.progressTokens.plus(progressToken)), opponent).sortedBy { it.number },
+                pendingActions = pendingActions.drop(1))
+                .continueGame()
     }
 
     private fun currentPlayer(): Player? {
@@ -90,6 +103,7 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
         return when {
             isOver() -> this
             currentAgeIsOver() -> prepareNextAge()
+            pendingActions.isNotEmpty() -> this
             else -> copy(currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1)
         }
     }
@@ -114,8 +128,8 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
         })
     }
 
-    private fun applyEffects(effects: List<Effect>): SevenWondersDuel {
-        return if (effects.isEmpty()) this else effects.first().applyTo(this).applyEffects(effects.drop(1))
+    private fun applyEffects(player: Player, effects: List<Effect>): SevenWondersDuel {
+        return if (effects.isEmpty()) this else effects.first().applyTo(this, player).applyEffects(player, effects.drop(1))
     }
 
     private fun discardIf7WondersBuilt(): SevenWondersDuel =
@@ -123,8 +137,8 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
                 SevenWondersDuel(players = players.map { it.discardUnfinishedWonder() })
             else this
 
-    fun moveConflictPawn(quantity: Int): SevenWondersDuel {
-        val newConflictPosition = if (currentPlayerNumber == 1) minOf(conflictPawnPosition + quantity, 9) else maxOf(conflictPawnPosition - quantity, -9)
+    fun moveConflictPawn(player: Player, quantity: Int): SevenWondersDuel {
+        val newConflictPosition = if (player.number == 1) minOf(conflictPawnPosition + quantity, 9) else maxOf(conflictPawnPosition - quantity, -9)
         return if (newConflictPosition.absoluteValue >= 9) copy(conflictPawnPosition = newConflictPosition, currentPlayerNumber = null)
         else copy(conflictPawnPosition = newConflictPosition).lootMilitaryTokens()
     }
@@ -144,13 +158,16 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
     fun getWinner(): Player? {
         return when {
             conflictPawnPosition >= 9 -> players[0]
-            conflictPawnPosition <= 9 -> players[1]
-            else -> null
+            conflictPawnPosition <= -9 -> players[1]
+            else -> players.firstOrNull { it.countDifferentScientificSymbols() == 6 }
         }
     }
 }
 
-data class Player(val number: Int, val militaryTokensLooted: Int = 0, val coins: Int = 7, val wonders: List<BuildableWonder> = emptyList(), val buildings: Set<Building> = emptySet()) {
+data class Player(val number: Int, val militaryTokensLooted: Int = 0, val coins: Int = 7,
+                  val wonders: List<BuildableWonder> = emptyList(),
+                  val buildings: Set<Building> = emptySet(),
+                  val progressTokens: Set<ProgressToken> = emptySet()) {
     fun take(wonder: Wonder): Player {
         return copy(wonders = wonders.plus(BuildableWonder(wonder)))
     }
@@ -193,7 +210,9 @@ data class Player(val number: Int, val militaryTokensLooted: Int = 0, val coins:
     private fun productionOf(resource: Resource): Int =
             effects().asSequence().filterIsInstance<Production>().filter { it.resource == resource }.sumBy { it.quantity }
 
-    private fun effects() = buildings.flatMap { it.effects.toList() }
+    private fun effects() = buildings.flatMap { it.effects }.asSequence()
+            .plus(wonders.flatMap { it.wonder.effects })
+            .plus(progressTokens.flatMap { it.effects }).toList()
 
     fun discardUnfinishedWonder(): Player {
         return copy(wonders = wonders.filter { it.isBuild() })
@@ -207,6 +226,14 @@ data class Player(val number: Int, val militaryTokensLooted: Int = 0, val coins:
     fun lootSecondToken(): Player {
         check(militaryTokensLooted < 2) { "Second military token is already looted" }
         return if (militaryTokensLooted == 0) lootFirstToken().lootSecondToken() else copy(militaryTokensLooted = militaryTokensLooted + 1, coins = maxOf(coins - 5, 0))
+    }
+
+    fun hasScientificSymbol(scientificSymbol: ScientificSymbol): Boolean {
+        return effects().any { it == scientificSymbol }
+    }
+
+    fun countDifferentScientificSymbols(): Int {
+        return effects().asSequence().filterIsInstance<ScientificSymbol>().toSet().count()
     }
 }
 
@@ -239,8 +266,17 @@ fun createStructure(age: BuildingDeck, buildings: List<Building>): List<Map<Int,
             }.map { positions -> positions.associate { it to deck.removeAt(0) } }.toList()
 }
 
-enum class ProgressToken {
-    AGRICULTURE, ARCHITECTURE, ECONOMY, LAW, MASONRY, MATHEMATICS, PHILOSOPHY, STRATEGY, THEOLOGY, URBANISM
+enum class ProgressToken(val effects: List<Effect>) {
+    AGRICULTURE(listOf()),
+    ARCHITECTURE(listOf()),
+    ECONOMY(listOf()),
+    LAW(listOf(BALANCE)),
+    MASONRY(listOf()),
+    MATHEMATICS(listOf()),
+    PHILOSOPHY(listOf(VictoryPoints(7))),
+    STRATEGY(listOf()),
+    THEOLOGY(listOf()),
+    URBANISM(listOf())
 }
 
 enum class Wonder(val effects: List<Effect>, val cost: Cost) {
@@ -280,13 +316,13 @@ enum class Building(val deck: BuildingDeck = BuildingDeck.GUILD, val type: Build
     STABLE(AGE_I, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(WOOD to 1))),
     GARRISON(AGE_I, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(CLAY to 1))),
     PALISADE(AGE_I, MILITARY, listOf(Shield(1)), Cost(coins = 2)),
-    WORKSHOP(AGE_I, SCIENTIFIC, listOf(), Cost(resources = mapOf(PAPYRUS to 1))),
-    APOTHECARY(AGE_I, SCIENTIFIC, listOf(), Cost(resources = mapOf(GLASS to 1))),
-    SCRIPTORIUM(AGE_I, SCIENTIFIC, listOf(), Cost(coins = 2)),
-    PHARMACIST(AGE_I, SCIENTIFIC, listOf(), Cost(coins = 2)),
-    THEATER(AGE_I, CIVILIAN, listOf()),
-    ALTAR(AGE_I, CIVILIAN, listOf()),
-    BATHS(AGE_I, CIVILIAN, listOf(), Cost(resources = mapOf(STONE to 1))),
+    WORKSHOP(AGE_I, SCIENTIFIC, listOf(PENDULUM, VictoryPoints(1)), Cost(resources = mapOf(PAPYRUS to 1))),
+    APOTHECARY(AGE_I, SCIENTIFIC, listOf(WHEEL, VictoryPoints(1)), Cost(resources = mapOf(GLASS to 1))),
+    SCRIPTORIUM(AGE_I, SCIENTIFIC, listOf(INKWELL), Cost(coins = 2)),
+    PHARMACIST(AGE_I, SCIENTIFIC, listOf(MORTAR), Cost(coins = 2)),
+    THEATER(AGE_I, CIVILIAN, listOf(VictoryPoints(3))),
+    ALTAR(AGE_I, CIVILIAN, listOf(VictoryPoints(3))),
+    BATHS(AGE_I, CIVILIAN, listOf(VictoryPoints(3)), Cost(resources = mapOf(STONE to 1))),
     STONE_RESERVE(AGE_I, COMMERCIAL, listOf(FixTradingCostTo1(STONE)), Cost(coins = 3)),
     CLAY_RESERVE(AGE_I, COMMERCIAL, listOf(FixTradingCostTo1(CLAY)), Cost(coins = 3)),
     WOOD_RESERVE(AGE_I, COMMERCIAL, listOf(FixTradingCostTo1(WOOD)), Cost(coins = 3)),
@@ -301,10 +337,10 @@ enum class Building(val deck: BuildingDeck = BuildingDeck.GUILD, val type: Build
     BARRACKS(AGE_II, MILITARY, listOf(Shield(1)), Cost(coins = 3), freeLink = GARRISON),
     ARCHERY_RANGE(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(STONE to 1, WOOD to 1, PAPYRUS to 1))),
     PARADE_GROUND(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(CLAY to 2, GLASS to 1))),
-    LIBRARY(AGE_II, SCIENTIFIC, listOf(), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 1)), freeLink = SCRIPTORIUM),
-    DISPENSARY(AGE_II, SCIENTIFIC, listOf(), Cost(resources = mapOf(CLAY to 2, STONE to 1)), freeLink = PHARMACIST),
-    SCHOOL(AGE_II, SCIENTIFIC, listOf(), Cost(resources = mapOf(WOOD to 1, PAPYRUS to 2))),
-    LABORATORY(AGE_II, SCIENTIFIC, listOf(), Cost(resources = mapOf(WOOD to 1, GLASS to 2))),
+    LIBRARY(AGE_II, SCIENTIFIC, listOf(INKWELL, VictoryPoints(2)), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 1)), freeLink = SCRIPTORIUM),
+    DISPENSARY(AGE_II, SCIENTIFIC, listOf(MORTAR, VictoryPoints(2)), Cost(resources = mapOf(CLAY to 2, STONE to 1)), freeLink = PHARMACIST),
+    SCHOOL(AGE_II, SCIENTIFIC, listOf(WHEEL, VictoryPoints(1)), Cost(resources = mapOf(WOOD to 1, PAPYRUS to 2))),
+    LABORATORY(AGE_II, SCIENTIFIC, listOf(PENDULUM, VictoryPoints(1)), Cost(resources = mapOf(WOOD to 1, GLASS to 2))),
     TRIBUNAL(AGE_II, CIVILIAN, listOf(), Cost(resources = mapOf(WOOD to 2, GLASS to 1))),
     STATUE(AGE_II, CIVILIAN, listOf(), Cost(resources = mapOf(CLAY to 2)), freeLink = THEATER),
     TEMPLE(AGE_II, CIVILIAN, listOf(), Cost(resources = mapOf(WOOD to 1, PAPYRUS to 1)), freeLink = ALTAR),
@@ -319,10 +355,10 @@ enum class Building(val deck: BuildingDeck = BuildingDeck.GUILD, val type: Build
     FORTIFICATIONS(AGE_III, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(STONE to 2, CLAY to 1, PAPYRUS to 1)), freeLink = PALISADE),
     SIEGE_WORKSHOP(AGE_III, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(WOOD to 3, GLASS to 1)), freeLink = ARCHERY_RANGE),
     CIRCUS(AGE_III, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(CLAY to 2, STONE to 2)), freeLink = PARADE_GROUND),
-    ACADEMY(AGE_III, SCIENTIFIC, listOf(), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 2))),
-    STUDY(AGE_III, SCIENTIFIC, listOf(), Cost(resources = mapOf(WOOD to 2, GLASS to 1, PAPYRUS to 1))),
-    UNIVERSITY(AGE_III, SCIENTIFIC, listOf(), Cost(resources = mapOf(CLAY to 1, GLASS to 1, PAPYRUS to 1)), freeLink = SCHOOL),
-    OBSERVATORY(AGE_III, SCIENTIFIC, listOf(), Cost(resources = mapOf(STONE to 1, PAPYRUS to 2)), freeLink = LABORATORY),
+    ACADEMY(AGE_III, SCIENTIFIC, listOf(SUNDIAL, VictoryPoints(3)), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 2))),
+    STUDY(AGE_III, SCIENTIFIC, listOf(SUNDIAL, VictoryPoints(3)), Cost(resources = mapOf(WOOD to 2, GLASS to 1, PAPYRUS to 1))),
+    UNIVERSITY(AGE_III, SCIENTIFIC, listOf(GYROSCOPE, VictoryPoints(2)), Cost(resources = mapOf(CLAY to 1, GLASS to 1, PAPYRUS to 1)), freeLink = SCHOOL),
+    OBSERVATORY(AGE_III, SCIENTIFIC, listOf(GYROSCOPE, VictoryPoints(2)), Cost(resources = mapOf(STONE to 1, PAPYRUS to 2)), freeLink = LABORATORY),
     PALACE(AGE_III, CIVILIAN, listOf(), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1, GLASS to 2))),
     TOWN_HALL(AGE_III, CIVILIAN, listOf(), Cost(resources = mapOf(STONE to 3, WOOD to 2))),
     OBELISK(AGE_III, CIVILIAN, listOf(), Cost(resources = mapOf(STONE to 2, GLASS to 1))),
@@ -362,7 +398,7 @@ enum class Resource(val type: Type) {
 }
 
 interface Effect {
-    fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
+    fun applyTo(game: SevenWondersDuel, player: Player): SevenWondersDuel {
         return game
     }
 }
@@ -371,7 +407,25 @@ data class Production(val resource: Resource, val quantity: Int = 1) : Effect
 data class FixTradingCostTo1(val resource: Resource) : Effect
 data class ProductionOfAny(val resourceType: Type) : Effect
 data class Shield(val quantity: Int) : Effect {
-    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
-        return game.moveConflictPawn(quantity)
+    override fun applyTo(game: SevenWondersDuel, player: Player): SevenWondersDuel {
+        return game.moveConflictPawn(player, quantity)
     }
 }
+
+enum class ScientificSymbol : Effect {
+    MORTAR, PENDULUM, INKWELL, WHEEL, SUNDIAL, GYROSCOPE, BALANCE;
+
+    override fun applyTo(game: SevenWondersDuel, player: Player): SevenWondersDuel {
+        return when {
+            player.hasScientificSymbol(this) -> game.copy(pendingActions = game.pendingActions.plus(ChooseProgressToken(game.progressTokensAvailable)))
+            player.countDifferentScientificSymbols() == 5 -> game.copy(currentPlayerNumber = null)
+            else -> game
+        }
+    }
+}
+
+data class VictoryPoints(val quantity: Int) : Effect
+
+interface Action
+
+data class ChooseProgressToken(val tokens: Set<ProgressToken>) : Action

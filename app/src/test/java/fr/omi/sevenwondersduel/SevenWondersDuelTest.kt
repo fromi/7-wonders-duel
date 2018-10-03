@@ -4,6 +4,7 @@ import fr.omi.sevenwondersduel.Building.*
 import fr.omi.sevenwondersduel.BuildingDeck.*
 import fr.omi.sevenwondersduel.BuildingType.*
 import fr.omi.sevenwondersduel.BuildingType.GUILD
+import fr.omi.sevenwondersduel.ProgressToken.*
 import fr.omi.sevenwondersduel.Resource.*
 import fr.omi.sevenwondersduel.Wonder.*
 import org.assertj.core.api.Assertions.assertThat
@@ -143,8 +144,8 @@ class SevenWondersDuelTest {
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, TAVERN,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
-            PALISADE, PHARMACIST, STABLE, LUMBER_YARD, STONE_PIT,
-            BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, GARRISON))
+            PALISADE, GARRISON, STABLE, LUMBER_YARD, STONE_PIT,
+            BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST))
 
     @Test
     fun build_first_building() {
@@ -158,7 +159,7 @@ class SevenWondersDuelTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_build_unaccessible_building() {
         val game = SevenWondersDuel(structure = sampleAge1Structure)
-        assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, GARRISON)
+        assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST)
         game.build(STABLE)
     }
 
@@ -166,7 +167,7 @@ class SevenWondersDuelTest {
     fun building_become_accessible_once_uncovered() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
         game = game.build(CLAY_PIT).build(ALTAR)
-        assertThat(game.accessibleBuildings()).containsExactlyInAnyOrder(BATHS, PRESS, GUARD_TOWER, STABLE, GARRISON)
+        assertThat(game.accessibleBuildings()).containsExactlyInAnyOrder(BATHS, PRESS, GUARD_TOWER, STABLE, PHARMACIST)
         game = game.build(STABLE)
         assertThat(game.players[0].buildings).containsExactly(CLAY_PIT, STABLE)
         assertThat(game.players[1].buildings).containsExactly(ALTAR)
@@ -274,7 +275,7 @@ class SevenWondersDuelTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_discard_unaccessible_building() {
         val game = SevenWondersDuel(structure = sampleAge1Structure)
-        assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, GARRISON)
+        assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST)
         game.discard(STABLE)
     }
 
@@ -378,7 +379,7 @@ class SevenWondersDuelTest {
     @Test
     fun the_conflict_pawn_moves_when_a_shield_is_build() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayerNumber = 1, conflictPawnPosition = 0)
-        game = game.build(GARRISON)
+        game = game.build(GUARD_TOWER)
         assertThat(game.conflictPawnPosition).isEqualTo(1)
     }
 
@@ -386,7 +387,7 @@ class SevenWondersDuelTest {
     fun the_conflict_pawn_enter_a_zone_with_a_token() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayerNumber = 1, conflictPawnPosition = 2,
                 players = listOf(Player(1), Player(2, militaryTokensLooted = 0, coins = 7)))
-        game = game.build(GARRISON)
+        game = game.build(GUARD_TOWER)
         assertThat(game.conflictPawnPosition).isEqualTo(3)
         assertThat(game.players[1].militaryTokensLooted).isEqualTo(1)
         assertThat(game.players[1].coins).isEqualTo(5)
@@ -394,19 +395,86 @@ class SevenWondersDuelTest {
 
     @Test
     fun two_military_token_might_be_looted_at_once() {
-        var game = SevenWondersDuel(currentPlayerNumber = 1, conflictPawnPosition = 3,
-                players = listOf(Player(1), Player(2, militaryTokensLooted = 0, coins = 6)))
-        game = game.moveConflictPawn(4)
+        var game = SevenWondersDuel(conflictPawnPosition = 3,
+                players = listOf(Player(number = 1), Player(number = 2, militaryTokensLooted = 0, coins = 6)))
+        game = game.moveConflictPawn(Player(number = 1),4)
         assertThat(game.players[1].militaryTokensLooted).isEqualTo(2)
         assertThat(game.players[1].coins).isEqualTo(0)
     }
 
     @Test
     fun victory_by_military_supremacy() {
-        var game = SevenWondersDuel(currentPlayerNumber = 1, conflictPawnPosition = 7)
-        game = game.moveConflictPawn(2)
+        var game = SevenWondersDuel(conflictPawnPosition = 7)
+        game = game.moveConflictPawn(Player(number = 1), 2)
         assertThat(game.isOver()).isTrue()
         assertThat(game.getWinner()?.number).isEqualTo(1)
         assertThat(game.currentPlayerNumber).isNull()
+    }
+
+    private val sampleAge2Structure = createStructure(AGE_II, listOf(
+            BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
+            AQUEDUCT, BREWERY, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
+            WALLS, PARADE_GROUND, STATUE, TRIBUNAL,
+            ROSTRUM, SAWMILL, GLASSBLOWER,
+            CUSTOMS_HOUSE, DISPENSARY))
+
+    @Test
+    fun after_I_get_a_pair_of_science_symbol_I_choose_a_progress_token() {
+        var game = SevenWondersDuel(currentPlayerNumber = 1, structure = sampleAge2Structure,
+                progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
+                players = listOf(Player(number = 1, buildings = setOf(PHARMACIST)), Player(number = 2)))
+        game = game.build(DISPENSARY)
+        assertThat(game.currentPlayerNumber).isEqualTo(1)
+        assertThat(game.pendingActions).containsExactly(ChooseProgressToken(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
+        game = game.choose(LAW)
+        assertThat(game.players[0].progressTokens).contains(LAW)
+        assertThat(game.currentPlayerNumber).isEqualTo(2)
+    }
+
+    @Test
+    fun after_I_get_a_single_science_symbol_I_do_not_choose_a_progress_token() {
+        var game = SevenWondersDuel(structure = sampleAge1Structure)
+        game = game.build(PHARMACIST)
+        assertThat(game.pendingActions).isEmpty()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_choose_a_symbol_at_any_time() {
+        SevenWondersDuel(progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)).choose(LAW)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun cannot_choose_a_symbol_not_available() {
+        val game = SevenWondersDuel(currentPlayerNumber = 1, structure = sampleAge2Structure,
+                progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
+                players = listOf(Player(number = 1, buildings = setOf(PHARMACIST)), Player(number = 2)))
+        game.build(DISPENSARY).choose(STRATEGY)
+    }
+
+    private val sampleAge3Structure = createStructure(AGE_III, listOf(
+            CIRCUS, MERCHANTS_GUILD,
+            BUILDERS_GUILD, ARSENAL, PANTHEON,
+            ARENA, LIGHTHOUSE, SENATE, PALACE,
+            CHAMBER_OF_COMMERCE, PORT,
+            ACADEMY, SHIPOWNERS_GUILD, GARDENS, TOWN_HALL,
+            STUDY, OBSERVATORY, ARMORY,
+            UNIVERSITY, FORTIFICATIONS))
+
+    @Test
+    fun victory_by_scientific_supremacy() {
+        var game = SevenWondersDuel(currentPlayerNumber = 1, structure = sampleAge3Structure,
+                players = listOf(
+                        Player(number = 1, buildings = setOf(PHARMACIST, SCRIPTORIUM, SCHOOL, LABORATORY),
+                                progressTokens = setOf(LAW)),
+                        Player(number = 2)))
+        game = game.build(UNIVERSITY)
+        assertThat(game.isOver()).isTrue()
+        assertThat(game.getWinner()?.number).isEqualTo(1)
+        assertThat(game.currentPlayerNumber).isNull()
+    }
+
+    @Test
+    fun civilian_victory() {
+        TODO()
     }
 }
