@@ -6,33 +6,37 @@ import fr.omi.sevenwondersduel.BuildingType.GUILD
 import fr.omi.sevenwondersduel.Resource.*
 import fr.omi.sevenwondersduel.Resource.Type.MANUFACTURED_GOOD
 import fr.omi.sevenwondersduel.Resource.Type.RAW_GOOD
+import kotlin.math.absoluteValue
 
 data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1), Player(number = 2)),
                             val conflictPawnPosition: Int = 0,
                             val progressTokensAvailable: Set<ProgressToken> = ProgressToken.values().toList().shuffled().asSequence().take(5).toSet(),
-                            val currentPlayerNumber: Int = 1,
+                            val currentPlayerNumber: Int? = 1,
                             val wondersAvailable: Set<Wonder> = Wonder.values().toList().shuffled().asSequence().take(4).toSet(),
                             val structure: List<Map<Int, Building>> = emptyList(),
                             val discardedCards: List<Building> = emptyList()) {
 
     fun choose(wonder: Wonder): SevenWondersDuel {
+        val player = checkNotNull(currentPlayer())
+        val opponent = opponentOf(player)
         require(wondersAvailable.contains(wonder)) { "This wonder is not available" }
-        return copy(wondersAvailable = when {
-            wondersAvailable.size > 2 -> wondersAvailable.minus(wonder)
-            players.sumBy { it.wonders.size } < 4 -> remainingWonders().shuffled().asSequence().take(4).toSet()
-            else -> emptySet()
-        }, players = players.map { player ->
-            when {
-                player == currentPlayer() -> player.copy(wonders = player.wonders.plus(BuildableWonder(wonder)))
-                wondersAvailable.size > 2 -> player
-                else -> player.copy(wonders = player.wonders.plus(BuildableWonder(wondersAvailable.first { it != wonder })))
+        return when (wondersAvailable.size) {
+            4 -> copy(wondersAvailable = wondersAvailable.minus(wonder),
+                    players = listOf(player.take(wonder), opponent).sortedBy { it.number },
+                    currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1)
+            2 -> when (player.wonders.size) {
+                3 -> copy(wondersAvailable = emptySet(), structure = createStructure(AGE_I),
+                        players = listOf(player.take(wonder), opponent.take(wondersAvailable.first { it != wonder })).sortedBy { it.number })
+                else -> copy(wondersAvailable = remainingWonders().shuffled().asSequence().take(4).toSet(),
+                        players = listOf(player.take(wonder), opponent.take(wondersAvailable.first { it != wonder })).sortedBy { it.number })
             }
-        }, currentPlayerNumber = if (players.sumBy { it.wonders.size } in 0..3) 2 else 1,
-                structure = createStructure(AGE_I))
+            else -> copy(wondersAvailable = wondersAvailable.minus(wonder),
+                    players = listOf(player.take(wonder), opponent).sortedBy { it.number })
+        }
     }
 
     fun build(building: Building): SevenWondersDuel {
-        val player = currentPlayer()
+        val player = checkNotNull(currentPlayer())
         val opponent = opponentOf(player)
         return take(building)
                 .copy(players = listOf(player.build(building, opponent), opponent).sortedBy { it.number })
@@ -41,7 +45,7 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
     }
 
     fun discard(building: Building): SevenWondersDuel {
-        val player = currentPlayer()
+        val player = checkNotNull(currentPlayer())
         val opponent = opponentOf(player)
         return take(building)
                 .copy(players = listOf(player.discard(), opponent).sortedBy { it.number },
@@ -50,7 +54,7 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
     }
 
     fun build(wonder: Wonder, buildingUsed: Building): SevenWondersDuel {
-        val player = currentPlayer()
+        val player = checkNotNull(currentPlayer())
         val opponent = opponentOf(player)
         return take(buildingUsed)
                 .copy(players = listOf(player.build(wonder, buildingUsed, opponent), opponent).sortedBy { it.number })
@@ -60,18 +64,18 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
     }
 
     fun letOpponentBegin(): SevenWondersDuel {
-        check(structure.sumBy { it.size } == 20) {"You can only let the opponent begin when starting Age II or Age III"}
-        check(if (currentPlayerNumber == 1) conflictPawnPosition < 0 else conflictPawnPosition > 0) {"You can only let the opponent begin next Age when strictly weaker than him"}
+        check(structure.sumBy { it.size } == 20) { "You can only let the opponent begin when starting Age II or Age III" }
+        check(if (currentPlayerNumber == 1) conflictPawnPosition < 0 else conflictPawnPosition > 0) { "You can only let the opponent begin next Age when strictly weaker than him" }
         return copy(currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1)
     }
 
-    private fun currentPlayer(): Player {
-        return players.first { it.number == currentPlayerNumber }
+    private fun currentPlayer(): Player? {
+        return players.firstOrNull { it.number == currentPlayerNumber }
     }
 
-    private fun remainingWonders() = Wonder.values().toList().filter { wonder -> !wondersAvailable.contains(wonder) && players.none { player -> player.wonders.any { it.wonder == wonder } } }
+    private fun opponentOf(player: Player) = players.first { it.number != player.number }
 
-    private fun opponentOf(player: Player) = players.first { it != player }
+    private fun remainingWonders() = Wonder.values().toList().filter { wonder -> !wondersAvailable.contains(wonder) && players.none { player -> player.wonders.any { it.wonder == wonder } } }
 
     fun accessibleBuildings(): Collection<Building> {
         return structure.mapIndexed { index, row -> row.filterKeys { index == structure.size - 1 || !(structure[index + 1].contains(it - 1) || structure[index + 1].contains(it + 1)) }.values }.flatten()
@@ -83,31 +87,31 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
     }
 
     private fun continueGame(): SevenWondersDuel {
-        return if (structure.flatMap { it.values }.isEmpty()) {
-            if (getCurrentAge() == 1) {
-                prepareNextAge(AGE_II)
-            } else {
-                prepareNextAge(AGE_III)
-            }
+        return when {
+            isOver() -> this
+            currentAgeIsOver() -> prepareNextAge()
+            else -> copy(currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1)
         }
-        else copy(currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1)
-    }
-
-    private fun prepareNextAge(age: BuildingDeck): SevenWondersDuel {
-        return copy(structure = createStructure(age), currentPlayerNumber = when {
-            conflictPawnPosition < 0 -> 1
-            conflictPawnPosition > 0 -> 2
-            else -> currentPlayerNumber
-        })
     }
 
     private fun getCurrentAge(): Int {
         val cardsInPlay = discardedCards.asSequence().plus(structure.flatMap { it.values }).plus(players.flatMap { it.buildings })
         return when {
             cardsInPlay.any { it.deck == AGE_III } -> 3
-            cardsInPlay.any {it.deck == AGE_II} -> 2
+            cardsInPlay.any { it.deck == AGE_II } -> 2
             else -> 1
         }
+    }
+
+    private fun currentAgeIsOver() = structure.flatMap { it.values }.isEmpty()
+
+    private fun prepareNextAge(): SevenWondersDuel {
+        val nextAge = if (getCurrentAge() == 1) AGE_II else AGE_III
+        return copy(structure = createStructure(nextAge), currentPlayerNumber = when {
+            conflictPawnPosition < 0 -> 1
+            conflictPawnPosition > 0 -> 2
+            else -> currentPlayerNumber
+        })
     }
 
     private fun applyEffects(effects: List<Effect>): SevenWondersDuel {
@@ -120,8 +124,9 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
             else this
 
     fun moveConflictPawn(quantity: Int): SevenWondersDuel {
-        return copy(conflictPawnPosition = if (currentPlayerNumber == 1) conflictPawnPosition + quantity else conflictPawnPosition - quantity)
-                .lootMilitaryTokens()
+        val newConflictPosition = if (currentPlayerNumber == 1) minOf(conflictPawnPosition + quantity, 9) else maxOf(conflictPawnPosition - quantity, -9)
+        return if (newConflictPosition.absoluteValue >= 9) copy(conflictPawnPosition = newConflictPosition, currentPlayerNumber = null)
+        else copy(conflictPawnPosition = newConflictPosition).lootMilitaryTokens()
     }
 
     private fun lootMilitaryTokens(): SevenWondersDuel {
@@ -133,9 +138,23 @@ data class SevenWondersDuel(val players: List<Player> = listOf(Player(number = 1
             else -> this
         }
     }
+
+    fun isOver(): Boolean = currentPlayerNumber == null
+
+    fun getWinner(): Player? {
+        return when {
+            conflictPawnPosition >= 9 -> players[0]
+            conflictPawnPosition <= 9 -> players[1]
+            else -> null
+        }
+    }
 }
 
 data class Player(val number: Int, val militaryTokensLooted: Int = 0, val coins: Int = 7, val wonders: List<BuildableWonder> = emptyList(), val buildings: Set<Building> = emptySet()) {
+    fun take(wonder: Wonder): Player {
+        return copy(wonders = wonders.plus(BuildableWonder(wonder)))
+    }
+
     fun build(building: Building, opponent: Player): Player =
             if (buildings.contains(building.freeLink)) build(building) else pay(building.cost, opponent).build(building)
 
@@ -181,12 +200,12 @@ data class Player(val number: Int, val militaryTokensLooted: Int = 0, val coins:
     }
 
     fun lootFirstToken(): Player {
-        check(militaryTokensLooted < 1) {"First military token is already looted"}
+        check(militaryTokensLooted < 1) { "First military token is already looted" }
         return copy(militaryTokensLooted = militaryTokensLooted + 1, coins = maxOf(coins - 2, 0))
     }
 
     fun lootSecondToken(): Player {
-        check(militaryTokensLooted < 2) {"Second military token is already looted"}
+        check(militaryTokensLooted < 2) { "Second military token is already looted" }
         return if (militaryTokensLooted == 0) lootFirstToken().lootSecondToken() else copy(militaryTokensLooted = militaryTokensLooted + 1, coins = maxOf(coins - 5, 0))
     }
 }

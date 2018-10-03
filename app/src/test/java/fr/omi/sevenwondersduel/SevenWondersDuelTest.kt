@@ -400,4 +400,13 @@ class SevenWondersDuelTest {
         assertThat(game.players[1].militaryTokensLooted).isEqualTo(2)
         assertThat(game.players[1].coins).isEqualTo(0)
     }
+
+    @Test
+    fun victory_by_military_supremacy() {
+        var game = SevenWondersDuel(currentPlayerNumber = 1, conflictPawnPosition = 7)
+        game = game.moveConflictPawn(2)
+        assertThat(game.isOver()).isTrue()
+        assertThat(game.getWinner()?.number).isEqualTo(1)
+        assertThat(game.currentPlayerNumber).isNull()
+    }
 }
