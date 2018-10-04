@@ -35,7 +35,7 @@ class GameMaterialTest {
 
     @Test
     fun there_are_4_manufactured_good_buildings() {
-        assertThat(Building.values().filter { it.type == MANUFACTURED_GOOD }).size().isEqualTo(4)
+        assertThat(Building.values().filter { it.type == MANUFACTURE }).size().isEqualTo(4)
     }
 
     @Test

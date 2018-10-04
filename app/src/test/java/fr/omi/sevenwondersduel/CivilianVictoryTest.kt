@@ -2,7 +2,7 @@ package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.Age.AGE_III
 import fr.omi.sevenwondersduel.Building.*
-import fr.omi.sevenwondersduel.BuildingType.CIVILIAN
+import fr.omi.sevenwondersduel.BuildingType.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -49,5 +49,23 @@ class CivilianVictoryTest {
         val totalCivilianBuildingsPoints = Building.values().filter { it.type == CIVILIAN }.flatMap { it.effects }.asSequence()
                 .filterIsInstance<VictoryPoints>().sumBy { it.count(game, game.players.first) }
         assertThat(totalCivilianBuildingsPoints).isEqualTo(67)
+    }
+
+    @Test
+    fun count_scientific_buildings() {
+        val game = SevenWondersDuel(players = Pair(Player(coins = 0, buildings = setOf(SCHOOL, ACADEMY)), Player()))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(4)
+        val totalScientificBuildingsPoints = Building.values().filter { it.type == SCIENTIFIC }.flatMap { it.effects }.asSequence()
+                .filterIsInstance<VictoryPoints>().sumBy { it.count(game, game.players.first) }
+        assertThat(totalScientificBuildingsPoints).isEqualTo(18)
+    }
+
+    @Test
+    fun count_commercial_buildings() {
+        val game = SevenWondersDuel(players = Pair(Player(coins = 0, buildings = setOf(LIGHTHOUSE, PORT)), Player()))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(6)
+        val totalCommercialBuildingsPoints = Building.values().filter { it.type == COMMERCIAL }.flatMap { it.effects }.asSequence()
+                .filterIsInstance<VictoryPoints>().sumBy { it.count(game, game.players.first) }
+        assertThat(totalCommercialBuildingsPoints).isEqualTo(15)
     }
 }

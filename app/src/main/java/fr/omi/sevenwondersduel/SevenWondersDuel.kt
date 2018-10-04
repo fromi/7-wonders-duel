@@ -7,6 +7,7 @@ import fr.omi.sevenwondersduel.Resource.Type.MANUFACTURED_GOOD
 import fr.omi.sevenwondersduel.Resource.Type.RAW_GOOD
 import fr.omi.sevenwondersduel.ScientificSymbol.*
 import kotlin.math.absoluteValue
+import kotlin.math.max
 
 data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), Player()),
                             val conflictPawnPosition: Int = 0,
@@ -342,8 +343,8 @@ enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GU
     CLAY_PIT(AGE_I, RAW_MATERIAL, listOf(Production(CLAY)), Cost(coins = 1)),
     QUARRY(AGE_I, RAW_MATERIAL, listOf(Production(STONE))),
     STONE_PIT(AGE_I, RAW_MATERIAL, listOf(Production(STONE)), Cost(coins = 1)),
-    GLASSWORKS(AGE_I, BuildingType.MANUFACTURED_GOOD, listOf(Production(GLASS)), Cost(coins = 1)),
-    PRESS(AGE_I, BuildingType.MANUFACTURED_GOOD, listOf(Production(PAPYRUS)), Cost(coins = 1)),
+    GLASSWORKS(AGE_I, MANUFACTURE, listOf(Production(GLASS)), Cost(coins = 1)),
+    PRESS(AGE_I, MANUFACTURE, listOf(Production(PAPYRUS)), Cost(coins = 1)),
     GUARD_TOWER(AGE_I, MILITARY, listOf(Shield(1))),
     STABLE(AGE_I, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(WOOD to 1))),
     GARRISON(AGE_I, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(CLAY to 1))),
@@ -362,8 +363,8 @@ enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GU
     SAWMILL(AGE_II, RAW_MATERIAL, listOf(Production(WOOD, 2)), Cost(coins = 2)),
     BRICKYARD(AGE_II, RAW_MATERIAL, listOf(Production(CLAY, 2)), Cost(coins = 2)),
     SHELF_QUARRY(AGE_II, RAW_MATERIAL, listOf(Production(STONE, 2)), Cost(coins = 2)),
-    GLASSBLOWER(AGE_II, BuildingType.MANUFACTURED_GOOD, listOf(Production(GLASS))),
-    DRYING_ROOM(AGE_II, BuildingType.MANUFACTURED_GOOD, listOf(Production(PAPYRUS))),
+    GLASSBLOWER(AGE_II, MANUFACTURE, listOf(Production(GLASS))),
+    DRYING_ROOM(AGE_II, MANUFACTURE, listOf(Production(PAPYRUS))),
     WALLS(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(STONE to 2))),
     HORSE_BREEDERS(AGE_II, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(CLAY to 1, WOOD to 1)), freeLink = STABLE),
     BARRACKS(AGE_II, MILITARY, listOf(Shield(1)), Cost(coins = 3), freeLink = GARRISON),
@@ -397,18 +398,18 @@ enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GU
     GARDENS(AGE_III, CIVILIAN, listOf(VictoryPoints(6)), Cost(resources = mapOf(CLAY to 2, WOOD to 2)), freeLink = STATUE),
     PANTHEON(AGE_III, CIVILIAN, listOf(VictoryPoints(6)), Cost(resources = mapOf(CLAY to 1, WOOD to 1, PAPYRUS to 2)), freeLink = TEMPLE),
     SENATE(AGE_III, CIVILIAN, listOf(VictoryPoints(5)), Cost(resources = mapOf(CLAY to 2, STONE to 1, PAPYRUS to 1)), freeLink = ROSTRUM),
-    CHAMBER_OF_COMMERCE(AGE_III, COMMERCIAL, listOf(), Cost(resources = mapOf(PAPYRUS to 2))),
-    PORT(AGE_III, COMMERCIAL, listOf(), Cost(resources = mapOf(WOOD to 1, GLASS to 1, PAPYRUS to 1))),
-    ARMORY(AGE_III, COMMERCIAL, listOf(), Cost(resources = mapOf(STONE to 2, GLASS to 1))),
-    LIGHTHOUSE(AGE_III, COMMERCIAL, listOf(), Cost(resources = mapOf(CLAY to 2, GLASS to 1)), freeLink = TAVERN),
-    ARENA(AGE_III, COMMERCIAL, listOf(), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1)), freeLink = BREWERY),
-    MERCHANTS_GUILD(effects = listOf(), cost = Cost(resources = mapOf(CLAY to 1, WOOD to 1, GLASS to 1, PAPYRUS to 1))),
-    SHIPOWNERS_GUILD(effects = listOf(), cost = Cost(resources = mapOf(CLAY to 1, STONE to 1, GLASS to 1, PAPYRUS to 1))),
-    BUILDERS_GUILD(effects = listOf(), cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, WOOD to 1, GLASS to 1))),
-    MAGISTRATE_GUILD(effects = listOf(), cost = Cost(resources = mapOf(WOOD to 2, CLAY to 1, PAPYRUS to 1))),
-    SCIENTISTS_GUILD(effects = listOf(), cost = Cost(resources = mapOf(CLAY to 2, WOOD to 2))),
-    MONEYLENDERS_GUILD(effects = listOf(), cost = Cost(resources = mapOf(STONE to 2, WOOD to 2))),
-    TACTICIANS_GUILD(effects = listOf(), cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, PAPYRUS to 1)))
+    CHAMBER_OF_COMMERCE(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 2))),
+    PORT(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(WOOD to 1, GLASS to 1, PAPYRUS to 1))),
+    ARMORY(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(STONE to 2, GLASS to 1))),
+    LIGHTHOUSE(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(CLAY to 2, GLASS to 1)), freeLink = TAVERN),
+    ARENA(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1)), freeLink = BREWERY),
+    MERCHANTS_GUILD(effects = listOf(VictoryPointsForMajority(COMMERCIAL)), cost = Cost(resources = mapOf(CLAY to 1, WOOD to 1, GLASS to 1, PAPYRUS to 1))),
+    SHIPOWNERS_GUILD(effects = listOf(VictoryPointsForMajority(RAW_MATERIAL, MANUFACTURE)), cost = Cost(resources = mapOf(CLAY to 1, STONE to 1, GLASS to 1, PAPYRUS to 1))),
+    BUILDERS_GUILD(effects = listOf(VictoryPointsForMajority { player -> player.wonders.count { it.isBuild() } }), cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, WOOD to 1, GLASS to 1))),
+    MAGISTRATE_GUILD(effects = listOf(VictoryPointsForMajority(CIVILIAN)), cost = Cost(resources = mapOf(WOOD to 2, CLAY to 1, PAPYRUS to 1))),
+    SCIENTISTS_GUILD(effects = listOf(VictoryPointsForMajority(SCIENTIFIC)), cost = Cost(resources = mapOf(CLAY to 2, WOOD to 2))),
+    MONEYLENDERS_GUILD(effects = listOf(VictoryPointsForMajority { it.coins / 3 }), cost = Cost(resources = mapOf(STONE to 2, WOOD to 2))),
+    TACTICIANS_GUILD(effects = listOf(VictoryPointsForMajority(MILITARY)), cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, PAPYRUS to 1)))
 }
 
 interface BuildingDeck {
@@ -430,7 +431,7 @@ enum class Age : BuildingDeck {
 }
 
 enum class BuildingType {
-    RAW_MATERIAL, MANUFACTURED_GOOD, CIVILIAN, SCIENTIFIC, COMMERCIAL, MILITARY, GUILD
+    RAW_MATERIAL, MANUFACTURE, CIVILIAN, SCIENTIFIC, COMMERCIAL, MILITARY, GUILD
 }
 
 data class Cost(val coins: Int = 0, val resources: Map<Resource, Int> = emptyMap())
@@ -471,8 +472,12 @@ enum class ScientificSymbol : Effect {
     }
 }
 
-class VictoryPoints(val count: (SevenWondersDuel, Player) -> Int) : Effect {
+open class VictoryPoints(val count: (SevenWondersDuel, Player) -> Int) : Effect {
     constructor(quantity: Int) : this({ _: SevenWondersDuel, _: Player -> quantity })
+}
+
+class VictoryPointsForMajority(val majorityCount: (Player) -> Int) : VictoryPoints({ game: SevenWondersDuel, _: Player -> max(majorityCount(game.players.first), majorityCount(game.players.second)) }) {
+    constructor(vararg buildingTypes: BuildingType) : this({ player -> player.buildings.count { building -> buildingTypes.any { building.type == it } } })
 }
 
 interface Action
