@@ -300,12 +300,12 @@ fun createStructure(age: Age, buildings: List<Building>): List<Map<Int, Building
 }
 
 enum class ProgressToken(val effects: List<Effect>) {
-    AGRICULTURE(listOf()),
+    AGRICULTURE(listOf(VictoryPoints(6))),
     ARCHITECTURE(listOf()),
     ECONOMY(listOf()),
     LAW(listOf(BALANCE)),
     MASONRY(listOf()),
-    MATHEMATICS(listOf()),
+    MATHEMATICS(listOf(VictoryPoints { _, player -> player.progressTokens.size * 3})),
     PHILOSOPHY(listOf(VictoryPoints(7))),
     STRATEGY(listOf()),
     THEOLOGY(listOf()),
