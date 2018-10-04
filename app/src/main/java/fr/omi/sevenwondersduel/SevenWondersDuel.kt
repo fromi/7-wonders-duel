@@ -240,7 +240,7 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
             effects().asSequence().filterIsInstance<Production>().filter { it.resource == resource }.sumBy { it.quantity }
 
     fun effects() = buildings.flatMap { it.effects }.asSequence()
-            .plus(wonders.flatMap { it.wonder.effects })
+            .plus(wonders.filter { it.isBuild() }.flatMap { it.wonder.effects })
             .plus(progressTokens.flatMap { it.effects }).toList()
 
     fun discardUnfinishedWonder(): Player {
@@ -313,17 +313,17 @@ enum class ProgressToken(val effects: List<Effect>) {
 }
 
 enum class Wonder(val effects: List<Effect>, val cost: Cost) {
-    THE_APPIAN_WAY(listOf(), Cost(resources = mapOf(PAPYRUS to 1, CLAY to 2, STONE to 2))),
-    CIRCUS_MAXIMUS(listOf(Shield(1)), Cost(resources = mapOf(GLASS to 1, WOOD to 1, STONE to 2))),
-    THE_COLOSSUS(listOf(Shield(2)), Cost(resources = mapOf(GLASS to 1, CLAY to 3))),
-    THE_GREAT_LIBRARY(listOf(), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 3))),
-    THE_GREAT_LIGHTHOUSE(listOf(), Cost(resources = mapOf(PAPYRUS to 2, STONE to 1, WOOD to 1))),
-    THE_HANGING_GARDENS(listOf(), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 2))),
-    THE_MAUSOLEUM(listOf(), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 2, CLAY to 2))),
-    PIRAEUS(listOf(), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 2))),
-    THE_PYRAMIDS(listOf(), Cost(resources = mapOf(PAPYRUS to 1, STONE to 3))),
-    THE_SPHINX(listOf(), Cost(resources = mapOf(GLASS to 2, CLAY to 1, STONE to 1))),
-    THE_STATUE_OF_ZEUS(listOf(Shield(1)), Cost(resources = mapOf(PAPYRUS to 2, CLAY to 1, WOOD to 1, STONE to 1))),
+    THE_APPIAN_WAY(listOf(VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, CLAY to 2, STONE to 2))),
+    CIRCUS_MAXIMUS(listOf(Shield(1), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, WOOD to 1, STONE to 2))),
+    THE_COLOSSUS(listOf(Shield(2), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, CLAY to 3))),
+    THE_GREAT_LIBRARY(listOf(VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 3))),
+    THE_GREAT_LIGHTHOUSE(listOf(VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 2, STONE to 1, WOOD to 1))),
+    THE_HANGING_GARDENS(listOf(VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 2))),
+    THE_MAUSOLEUM(listOf(VictoryPoints(2)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 2, CLAY to 2))),
+    PIRAEUS(listOf(VictoryPoints(2)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 2))),
+    THE_PYRAMIDS(listOf(VictoryPoints(9)), Cost(resources = mapOf(PAPYRUS to 1, STONE to 3))),
+    THE_SPHINX(listOf(VictoryPoints(6)), Cost(resources = mapOf(GLASS to 2, CLAY to 1, STONE to 1))),
+    THE_STATUE_OF_ZEUS(listOf(Shield(1), VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 2, CLAY to 1, WOOD to 1, STONE to 1))),
     THE_TEMPLE_OF_ARTEMIS(listOf(), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, STONE to 1, WOOD to 1)))
 }
 

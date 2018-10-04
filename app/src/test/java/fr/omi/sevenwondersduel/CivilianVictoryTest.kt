@@ -3,6 +3,7 @@ package fr.omi.sevenwondersduel
 import fr.omi.sevenwondersduel.Age.AGE_III
 import fr.omi.sevenwondersduel.Building.*
 import fr.omi.sevenwondersduel.BuildingType.*
+import fr.omi.sevenwondersduel.Wonder.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -67,5 +68,19 @@ class CivilianVictoryTest {
         val totalCommercialBuildingsPoints = Building.values().filter { it.type == COMMERCIAL }.flatMap { it.effects }.asSequence()
                 .filterIsInstance<VictoryPoints>().sumBy { it.count(game, game.players.first) }
         assertThat(totalCommercialBuildingsPoints).isEqualTo(15)
+    }
+
+    @Test
+    fun count_wonders() {
+        val game = SevenWondersDuel(players = Pair(Player(coins = 0,
+                wonders = listOf(
+                        BuildableWonder(THE_PYRAMIDS, OBELISK),
+                        BuildableWonder(PIRAEUS, STABLE),
+                        BuildableWonder(THE_COLOSSUS)
+                        )), Player()))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(11)
+        val totalWondersPoints = Wonder.values().flatMap { it.effects }.asSequence()
+                .filterIsInstance<VictoryPoints>().sumBy { it.count(game, game.players.first) }
+        assertThat(totalWondersPoints).isEqualTo(42)
     }
 }
