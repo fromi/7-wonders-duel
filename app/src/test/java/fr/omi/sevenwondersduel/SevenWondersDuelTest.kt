@@ -65,8 +65,8 @@ class SevenWondersDuelTest {
 
     @Test
     fun last_4_wonders_selection() {
-        var game = SevenWondersDuel(players = Pair(Player(number = 1, wonders = listOf(BuildableWonder(THE_COLOSSUS), BuildableWonder(THE_HANGING_GARDENS))),
-                Player(number = 2, wonders = listOf(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_MAUSOLEUM)))),
+        var game = SevenWondersDuel(players = Pair(Player(wonders = listOf(BuildableWonder(THE_COLOSSUS), BuildableWonder(THE_HANGING_GARDENS))),
+                Player(wonders = listOf(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_MAUSOLEUM)))),
                 wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIBRARY, THE_STATUE_OF_ZEUS, THE_TEMPLE_OF_ARTEMIS),
                 currentPlayer = 2)
         game = game.choose(THE_STATUE_OF_ZEUS)
@@ -178,7 +178,7 @@ class SevenWondersDuelTest {
 
     @Test
     fun build_with_resources() {
-        var game = SevenWondersDuel(players = Pair(Player(number = 1, buildings = setOf(QUARRY)), Player(number = 2)),
+        var game = SevenWondersDuel(players = Pair(Player(buildings = setOf(QUARRY)), Player()),
                 structure = sampleAge1Structure)
         game = game.build(BATHS)
         assertThat(game.players.first.coins).isEqualTo(7)
@@ -194,15 +194,15 @@ class SevenWondersDuelTest {
     @Test
     fun trade_resource_increases_when_opponent_produces() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(
-                first = Player(number = 1, coins = 7),
-                second = Player(number = 2, buildings = setOf(QUARRY))
+                first = Player(coins = 7),
+                second = Player(buildings = setOf(QUARRY))
         ))
         game = game.build(BATHS)
         assertThat(game.players.first.coins).isEqualTo(4)
 
         game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(
-                first = Player(number = 1, coins = 7),
-                second = Player(number = 2, buildings = setOf(QUARRY, STONE_PIT))
+                first = Player(coins = 7),
+                second = Player(buildings = setOf(QUARRY, STONE_PIT))
         ))
         game = game.build(BATHS)
         assertThat(game.players.first.coins).isEqualTo(3)
@@ -211,8 +211,8 @@ class SevenWondersDuelTest {
     @Test
     fun resource_cost_can_be_set_to_1() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(
-                first = Player(number = 1, coins = 1, buildings = setOf(STONE_RESERVE)),
-                second = Player(number = 2, buildings = setOf(QUARRY))
+                first = Player(coins = 1, buildings = setOf(STONE_RESERVE)),
+                second = Player(buildings = setOf(QUARRY))
         ))
         game = game.build(BATHS)
         assertThat(game.players.first.coins).isEqualTo(0)
@@ -221,8 +221,8 @@ class SevenWondersDuelTest {
     @Test
     fun produce_any_raw_good() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(
-                first = Player(number = 1, coins = 7, buildings = setOf(CARAVANSERY)),
-                second = Player(number = 2)))
+                first = Player(coins = 7, buildings = setOf(CARAVANSERY)),
+                second = Player()))
         game = game.build(BATHS)
         assertThat(game.players.first.coins).isEqualTo(7)
     }
@@ -230,8 +230,8 @@ class SevenWondersDuelTest {
     @Test
     fun produce_any_raw_good_automatically_set_to_highest_resource_cost() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
-                first = Player(number = 1, coins = 8, buildings = setOf(CARAVANSERY)),
-                second = Player(number = 2, buildings = setOf(QUARRY))
+                first = Player(coins = 8, buildings = setOf(CARAVANSERY)),
+                second = Player(buildings = setOf(QUARRY))
         ))
         game = game.build(ROSTRUM)
         assertThat(game.players.first.coins).isEqualTo(6)
@@ -240,8 +240,8 @@ class SevenWondersDuelTest {
     @Test
     fun produce_any_raw_good_as_no_impact_on_trading_cost() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(
-                first = Player(number = 1, coins = 7),
-                second = Player(number = 2, buildings = setOf(CARAVANSERY))
+                first = Player(coins = 7),
+                second = Player(buildings = setOf(CARAVANSERY))
         ))
         game = game.build(BATHS)
         assertThat(game.players.first.coins).isEqualTo(5)
@@ -250,8 +250,8 @@ class SevenWondersDuelTest {
     @Test
     fun build_for_free_with_chain() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
-                first = Player(number = 1, coins = 5, buildings = setOf(PHARMACIST)),
-                second = Player(number = 2)
+                first = Player(coins = 5, buildings = setOf(PHARMACIST)),
+                second = Player()
         ))
         game = game.build(DISPENSARY)
         assertThat(game.players.first.coins).isEqualTo(5)
@@ -259,7 +259,7 @@ class SevenWondersDuelTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_build_if_not_enough_coins() {
-        val game = SevenWondersDuel(players = Pair(Player(number = 1, coins = 1), Player(number = 2)), structure = sampleAge1Structure)
+        val game = SevenWondersDuel(players = Pair(Player(coins = 1), Player()), structure = sampleAge1Structure)
         game.build(BATHS)
     }
 
@@ -283,7 +283,7 @@ class SevenWondersDuelTest {
 
     @Test
     fun discard_for_more_coins() {
-        var game = SevenWondersDuel(players = Pair(Player(number = 1, buildings = setOf(QUARRY, TAVERN, CLAY_RESERVE)), Player(number = 2)),
+        var game = SevenWondersDuel(players = Pair(Player(buildings = setOf(QUARRY, TAVERN, CLAY_RESERVE)), Player()),
                 structure = sampleAge1Structure)
         game = game.discard(ALTAR)
         assertThat(game.players.first.coins).isEqualTo(11)
@@ -299,7 +299,7 @@ class SevenWondersDuelTest {
 
     @Test
     fun build_a_wonder() {
-        var game = SevenWondersDuel(players = Pair(Player(number = 1, coins = 8, wonders = listOf(BuildableWonder(PIRAEUS))), Player(number = 2)),
+        var game = SevenWondersDuel(players = Pair(Player(coins = 8, wonders = listOf(BuildableWonder(PIRAEUS))), Player()),
                 structure = sampleAge1Structure)
         game = game.build(PIRAEUS, PRESS)
         assertThat(game.players.first.wonders).containsExactly(BuildableWonder(PIRAEUS, builtWith = PRESS))
@@ -314,19 +314,19 @@ class SevenWondersDuelTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_build_a_wonder_I_do_not_have() {
-        val player = Player(number = 1, wonders = emptyList())
+        val player = Player(wonders = emptyList())
         player.build(PIRAEUS, buildingUsed = SCHOOL)
     }
 
     @Test
     fun once_7_wonders_built_remaining_wonder_is_discarded() {
         var game = SevenWondersDuel(players = Pair(
-                Player(number = 1, coins = 20, wonders = listOf(
+                Player(coins = 20, wonders = listOf(
                         BuildableWonder(PIRAEUS, builtWith = STATUE),
                         BuildableWonder(THE_PYRAMIDS, builtWith = HORSE_BREEDERS),
                         BuildableWonder(THE_STATUE_OF_ZEUS, builtWith = ALTAR),
                         BuildableWonder(THE_COLOSSUS))),
-                Player(number = 2, wonders = listOf(
+                Player(wonders = listOf(
                         BuildableWonder(THE_GREAT_LIBRARY, builtWith = PARADE_GROUND),
                         BuildableWonder(THE_HANGING_GARDENS, builtWith = TEMPLE),
                         BuildableWonder(THE_GREAT_LIGHTHOUSE, builtWith = GARRISON),
@@ -404,7 +404,7 @@ class SevenWondersDuelTest {
     @Test
     fun the_conflict_pawn_enter_a_zone_with_a_token() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 2,
-                players = Pair(Player(1), Player(2, militaryTokensLooted = 0, coins = 7)))
+                players = Pair(Player(), Player(militaryTokensLooted = 0, coins = 7)))
         game = game.build(GUARD_TOWER)
         assertThat(game.conflictPawnPosition).isEqualTo(3)
         assertThat(game.players.second.militaryTokensLooted).isEqualTo(1)
@@ -414,7 +414,7 @@ class SevenWondersDuelTest {
     @Test
     fun two_military_token_might_be_looted_at_once() {
         var game = SevenWondersDuel(conflictPawnPosition = 3,
-                players = Pair(Player(number = 1), Player(number = 2, militaryTokensLooted = 0, coins = 6)))
+                players = Pair(Player(), Player(militaryTokensLooted = 0, coins = 6)))
         game = game.moveConflictPawn(4)
         assertThat(game.players.second.militaryTokensLooted).isEqualTo(2)
         assertThat(game.players.second.coins).isEqualTo(0)
@@ -440,7 +440,7 @@ class SevenWondersDuelTest {
     fun after_I_get_a_pair_of_science_symbol_I_choose_a_progress_token() {
         var game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
-                players = Pair(Player(number = 1, buildings = setOf(PHARMACIST)), Player(number = 2)))
+                players = Pair(Player(buildings = setOf(PHARMACIST)), Player()))
         game = game.build(DISPENSARY)
         assertThat(game.currentPlayer).isEqualTo(1)
         assertThat(game.pendingActions).containsExactly(ChooseProgressToken(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
@@ -465,7 +465,7 @@ class SevenWondersDuelTest {
     fun cannot_choose_a_symbol_not_available() {
         val game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
-                players = Pair(Player(number = 1, buildings = setOf(PHARMACIST)), Player(number = 2)))
+                players = Pair(Player(buildings = setOf(PHARMACIST)), Player()))
         game.build(DISPENSARY).choose(STRATEGY)
     }
 
@@ -482,9 +482,9 @@ class SevenWondersDuelTest {
     fun victory_by_scientific_supremacy() {
         var game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge3Structure,
                 players = Pair(
-                        Player(number = 1, buildings = setOf(PHARMACIST, SCRIPTORIUM, SCHOOL, LABORATORY),
+                        Player(buildings = setOf(PHARMACIST, SCRIPTORIUM, SCHOOL, LABORATORY),
                                 progressTokens = setOf(LAW)),
-                        Player(number = 2)))
+                        Player()))
         game = game.build(UNIVERSITY)
         assertThat(game.isOver()).isTrue()
         assertThat(game.getWinner()).isEqualTo(game.players.first)
@@ -494,11 +494,43 @@ class SevenWondersDuelTest {
     @Test
     fun civilian_victory() {
         var game = SevenWondersDuel(structure = createStructure(AGE_III, listOf(PORT)), players = Pair(
-                        Player(number = 1, coins = 3, buildings = setOf(THEATER, ROSTRUM, AQUEDUCT, PALACE, OBELISK)),
-                        Player(number = 2, coins = 0, buildings = emptySet())),
+                Player(coins = 3, buildings = setOf(THEATER, ROSTRUM, AQUEDUCT, PALACE, OBELISK)),
+                Player(coins = 0, buildings = emptySet())),
                 currentPlayer = 2, currentAge = AGE_III)
         game = game.discard(PORT)
         assertThat(game.isOver()).isTrue()
         assertThat(game.getWinner()).isEqualTo(game.players.first)
+    }
+
+    @Test
+    fun count_military_points() {
+        var game = SevenWondersDuel(conflictPawnPosition = -8, players = Pair(first = Player(coins = 0), second = Player(coins = 1)))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(0)
+        assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(10)
+        game = game.copy(conflictPawnPosition = 2)
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(2)
+        assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(0)
+        game = game.copy(conflictPawnPosition = 4)
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(5)
+        assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(0)
+    }
+
+    @Test
+    fun count_treasure() {
+        var game = SevenWondersDuel(players = Pair(Player(coins = 17), Player()))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(5)
+        game = SevenWondersDuel(players = Pair(Player(coins = 9), Player()))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(3)
+        game = SevenWondersDuel(players = Pair(Player(coins = 4), Player()))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(1)
+    }
+
+    @Test
+    fun count_civilian_buildings() {
+        val game = SevenWondersDuel(players = Pair(Player(coins = 0, buildings = setOf(THEATER, PALACE)), Player()))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(10)
+        val totalCivilianBuildingsPoints = Building.values().filter { it.type == CIVILIAN }.flatMap { it.effects }.asSequence()
+                .filterIsInstance<VictoryPoints>().sumBy { it.count(game, game.players.first) }
+        assertThat(totalCivilianBuildingsPoints).isEqualTo(67)
     }
 }
