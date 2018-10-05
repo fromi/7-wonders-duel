@@ -34,7 +34,7 @@ class WondersTest {
     }
 
     @Test
-    fun replay_effect_is_lost_at_the_end_of_an_age() {
+    fun play_again_effect_is_lost_at_the_end_of_an_age() {
         var game = SevenWondersDuel(currentAge = AGE_II, conflictPawnPosition = 1, structure = createStructure(AGE_II, listOf(FORUM)), players = Pair(
                 Player(coins = 42, buildings = setOf(PRESS, GLASSWORKS, BRICKYARD), wonders = listOf(
                         BuildableWonder(PIRAEUS),

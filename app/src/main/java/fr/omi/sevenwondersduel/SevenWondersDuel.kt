@@ -4,8 +4,6 @@ import fr.omi.sevenwondersduel.Age.*
 import fr.omi.sevenwondersduel.BuildingType.CIVILIAN
 import fr.omi.sevenwondersduel.BuildingType.COMMERCIAL
 import fr.omi.sevenwondersduel.Resource.Type
-import fr.omi.sevenwondersduel.Resource.Type.MANUFACTURED_GOOD
-import fr.omi.sevenwondersduel.Resource.Type.RAW_GOOD
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -41,16 +39,17 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             takeAndPay(building)
         }
         return game.currentPlayerDo { it.build(building) }
-                .applyEffects(building.effects)
+                .applyEffects(building)
                 .continueGame()
     }
 
     private fun takeAndPay(building: Building): SevenWondersDuel {
-        var game = take(building)
-        if (!currentPlayer().buildings.contains(building.freeLink)) {
-            game = game.pay(building.cost)
+        val game = take(building)
+        return if (currentPlayer().buildings.contains(building.freeLink)) {
+            game.applyEffects(currentPlayer().effects().filterIsInstance<ChainBuildingTriggeredEffect>().map { it.triggeredEffect }.toList())
+        } else {
+            game.pay(building)
         }
-        return game
     }
 
     fun discard(building: Building): SevenWondersDuel =
@@ -61,9 +60,9 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     fun build(wonder: Wonder, buildingUsed: Building): SevenWondersDuel =
             take(buildingUsed)
-                    .pay(wonder.cost)
+                    .pay(wonder)
                     .currentPlayerDo { it.build(wonder, buildingUsed) }
-                    .applyEffects(wonder.effects)
+                    .applyEffects(wonder)
                     .discardIf7WondersBuilt()
                     .continueGame()
 
@@ -148,9 +147,11 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         return structure.mapIndexed { index, row -> row.filterKeys { index == structure.size - 1 || !(structure[index + 1].contains(it - 1) || structure[index + 1].contains(it + 1)) }.values }.flatten()
     }
 
-    private fun pay(cost: Cost): SevenWondersDuel {
-        val player = currentPlayer().pay(cost, ::getTradingCost)
-        val opponent = opponent() // if ECONOMY blablabla
+    private fun pay(construction: Construction): SevenWondersDuel {
+        val player = currentPlayer().pay(construction, ::getTradingCost)
+        val opponent = if (opponent().effects().any { it is GainTradingCost })
+            opponent().takeCoins(currentPlayer().sumTradingCost(construction, ::getTradingCost))
+        else opponent()
         return pairInOrder(player, opponent)
     }
 
@@ -160,7 +161,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     private fun continueGame(): SevenWondersDuel {
         return when {
             isOver() -> this
-            pendingActions.isNotEmpty() -> if (pendingActions.first() == Replay) copy(pendingActions = pendingActions.drop(1)) else this
+            pendingActions.isNotEmpty() -> if (pendingActions.first() == PlayAgain) copy(pendingActions = pendingActions.drop(1)) else this
             currentAgeIsOver() -> when (currentAge) {
                 AGE_I -> prepare(AGE_II)
                 AGE_II -> prepare(AGE_III)
@@ -174,7 +175,12 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     fun isOver(): Boolean = currentPlayer == null
 
-    private fun applyEffects(effects: List<Effect>): SevenWondersDuel {
+    private fun applyEffects(construction: Construction): SevenWondersDuel {
+        val triggeredEffects = currentPlayer().effects().filterIsInstance<ConstructionTriggeredEffect>().filter { it.appliesTo(construction) }.map { it.triggeredEffect }
+        return applyEffects(construction.effects.plus(triggeredEffects))
+    }
+
+    private fun applyEffects(effects: Collection<Effect>): SevenWondersDuel {
         return if (effects.isEmpty()) this else effects.first().applyTo(this).applyEffects(effects.drop(1))
     }
 
@@ -216,7 +222,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun countVictoryPoint(player: Player): Int {
-        return militaryPoints(player) + player.effects().asSequence().filterIsInstance<VictoryPointsEffect>().sumBy { it.count(this, player) } + player.coins / 3
+        return militaryPoints(player) + player.effects().filterIsInstance<VictoryPointsEffect>().sumBy { it.count(this, player) } + player.coins / 3
     }
 
     private fun militaryPoints(player: Player): Int {
@@ -245,27 +251,28 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
         return copy(wonders = wonders.map { if (it.wonder == wonder) it.buildWith(buildingUsed) else it })
     }
 
-    fun pay(cost: Cost, getTradingCost: (resource: Resource) -> Int): Player {
-        val totalCost = cost.coins + sumTradingCost(cost.resources, getTradingCost)
+    fun pay(construction: Construction, getTradingCost: (resource: Resource) -> Int): Player {
+        val totalCost = construction.cost.coins + sumTradingCost(construction, getTradingCost)
         require(coins >= totalCost) { "Not enough coins" }
         return copy(coins = coins - totalCost)
     }
 
-    private fun sumTradingCost(resourcesCost: Map<Resource, Int>, getTradingCost: (resource: Resource) -> Int): Int =
-            sumTradingCostByType(RAW_GOOD, resourcesCost, getTradingCost) + sumTradingCostByType(MANUFACTURED_GOOD, resourcesCost, getTradingCost)
-
-    private fun sumTradingCostByType(resourceType: Type, resourcesCost: Map<Resource, Int>, getTradingCost: (resource: Resource) -> Int): Int =
-            resourcesCost.filter { it.key.type == resourceType }
-                    .flatMap { entry -> List(max(entry.value - productionOf(entry.key), 0)) { getTradingCost(entry.key) } }
-                    .sorted().dropLast(effects().count { it is ProductionOfAny && it.resourceType == resourceType })
+    fun sumTradingCost(construction: Construction, getTradingCost: (resource: Resource) -> Int): Int =
+            Resource.Type.values().flatMap { listTradingCostByType(it, construction, getTradingCost) }
+                    .sorted().dropLast(effects().filterIsInstance<ResourcesRebate>().filter { it.appliesTo(construction) }.toList().sumBy { it.quantity })
                     .sum()
 
+    private fun listTradingCostByType(resourceType: Type, construction: Construction, getTradingCost: (resource: Resource) -> Int): List<Int> =
+            construction.cost.resources.filter { it.key.type == resourceType }
+                    .flatMap { entry -> List(max(entry.value - productionOf(entry.key), 0)) { getTradingCost(entry.key) } }
+                    .sorted().dropLast(effects().count { it is ProductionOfAny && it.resourceType == resourceType })
+
     fun productionOf(resource: Resource): Int =
-            effects().asSequence().filterIsInstance<Production>().filter { it.resource == resource }.sumBy { it.quantity }
+            effects().filterIsInstance<Production>().filter { it.resource == resource }.sumBy { it.quantity }
 
     fun effects() = buildings.flatMap { it.effects }.asSequence()
             .plus(wonders.filter { it.isBuild() }.flatMap { it.wonder.effects })
-            .plus(progressTokens.flatMap { it.effects }).toList()
+            .plus(progressTokens.flatMap { it.effects })
 
     fun discardUnfinishedWonder(): Player {
         return copy(wonders = wonders.filter { it.isBuild() })
@@ -291,7 +298,7 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
     }
 
     fun countDifferentScientificSymbols(): Int {
-        return effects().asSequence().filterIsInstance<ScientificSymbol>().toSet().count()
+        return effects().filterIsInstance<ScientificSymbol>().toSet().count()
     }
 
     fun take(progressToken: ProgressToken): Player {
@@ -302,13 +309,13 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
         return copy(coins = coins + quantity)
     }
 
-    fun countCivilianBuildingsVictoryPoints(): Int {
-        return buildings.filter { it.type == CIVILIAN }.flatMap { it.effects }.asSequence().filterIsInstance<VictoryPoints>().sumBy { it.quantity }
-    }
-
     fun destroy(building: Building): Player {
         require(buildings.contains(building))
         return copy(buildings = buildings.minus(building))
+    }
+
+    fun countCivilianBuildingsVictoryPoints(): Int {
+        return buildings.filter { it.type == CIVILIAN }.flatMap { it.effects }.asSequence().filterIsInstance<VictoryPoints>().sumBy { it.quantity }
     }
 }
 

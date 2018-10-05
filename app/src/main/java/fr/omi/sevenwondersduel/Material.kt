@@ -2,27 +2,28 @@ package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.Age.*
 import fr.omi.sevenwondersduel.BuildingType.*
+import fr.omi.sevenwondersduel.Construction.Cost
 import fr.omi.sevenwondersduel.Resource.*
 import fr.omi.sevenwondersduel.Resource.Type.MANUFACTURED_GOOD
 import fr.omi.sevenwondersduel.Resource.Type.RAW_GOOD
 import fr.omi.sevenwondersduel.ScientificSymbol.*
 
-enum class Wonder(val effects: List<Effect>, val cost: Cost) {
-    THE_APPIAN_WAY(listOf(TakeCoins(3), OpponentLosesCoins(3), Replay, VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, CLAY to 2, STONE to 2))),
+enum class Wonder(override val effects: List<Effect>, override val cost: Cost) : Construction {
+    THE_APPIAN_WAY(listOf(TakeCoins(3), OpponentLosesCoins(3), PlayAgain, VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, CLAY to 2, STONE to 2))),
     CIRCUS_MAXIMUS(listOf(DestroyOpponentBuilding(MANUFACTURE), Shield(1), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, WOOD to 1, STONE to 2))),
     THE_COLOSSUS(listOf(Shield(2), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, CLAY to 3))),
     THE_GREAT_LIBRARY(listOf(ChooseGreatLibraryProgress, VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 3))),
     THE_GREAT_LIGHTHOUSE(listOf(ProductionOfAny(RAW_GOOD), VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 2, STONE to 1, WOOD to 1))),
-    THE_HANGING_GARDENS(listOf(TakeCoins(6), Replay, VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 2))),
+    THE_HANGING_GARDENS(listOf(TakeCoins(6), PlayAgain, VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 2))),
     THE_MAUSOLEUM(listOf(BuildDiscarded, VictoryPoints(2)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 2, CLAY to 2))),
-    PIRAEUS(listOf(ProductionOfAny(MANUFACTURED_GOOD), Replay, VictoryPoints(2)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 2))),
+    PIRAEUS(listOf(ProductionOfAny(MANUFACTURED_GOOD), PlayAgain, VictoryPoints(2)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 2))),
     THE_PYRAMIDS(listOf(VictoryPoints(9)), Cost(resources = mapOf(PAPYRUS to 1, STONE to 3))),
-    THE_SPHINX(listOf(Replay, VictoryPoints(6)), Cost(resources = mapOf(GLASS to 2, CLAY to 1, STONE to 1))),
+    THE_SPHINX(listOf(PlayAgain, VictoryPoints(6)), Cost(resources = mapOf(GLASS to 2, CLAY to 1, STONE to 1))),
     THE_STATUE_OF_ZEUS(listOf(DestroyOpponentBuilding(RAW_MATERIAL), Shield(1), VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 2, CLAY to 1, WOOD to 1, STONE to 1))),
-    THE_TEMPLE_OF_ARTEMIS(listOf(TakeCoins(12), Replay), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, STONE to 1, WOOD to 1)))
+    THE_TEMPLE_OF_ARTEMIS(listOf(TakeCoins(12), PlayAgain), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, STONE to 1, WOOD to 1)))
 }
 
-enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GUILD, val effects: List<Effect>, val cost: Cost = Cost(), val freeLink: Building? = null) {
+enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GUILD, override val effects: List<Effect>, override val cost: Cost = Cost(), val freeLink: Building? = null) : Construction {
     LUMBER_YARD(AGE_I, RAW_MATERIAL, listOf(Production(WOOD))),
     LOGGING_CAMP(AGE_I, RAW_MATERIAL, listOf(Production(WOOD)), Cost(coins = 1)),
     CLAY_POOL(AGE_I, RAW_MATERIAL, listOf(Production(CLAY))),
@@ -31,10 +32,10 @@ enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GU
     STONE_PIT(AGE_I, RAW_MATERIAL, listOf(Production(STONE)), Cost(coins = 1)),
     GLASSWORKS(AGE_I, MANUFACTURE, listOf(Production(GLASS)), Cost(coins = 1)),
     PRESS(AGE_I, MANUFACTURE, listOf(Production(PAPYRUS)), Cost(coins = 1)),
-    GUARD_TOWER(AGE_I, MILITARY, listOf(Shield(1))),
-    STABLE(AGE_I, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(WOOD to 1))),
-    GARRISON(AGE_I, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(CLAY to 1))),
-    PALISADE(AGE_I, MILITARY, listOf(Shield(1)), Cost(coins = 2)),
+    GUARD_TOWER(AGE_I, MILITARY, listOf(Shield())),
+    STABLE(AGE_I, MILITARY, listOf(Shield()), Cost(resources = mapOf(WOOD to 1))),
+    GARRISON(AGE_I, MILITARY, listOf(Shield()), Cost(resources = mapOf(CLAY to 1))),
+    PALISADE(AGE_I, MILITARY, listOf(Shield()), Cost(coins = 2)),
     WORKSHOP(AGE_I, SCIENTIFIC, listOf(PENDULUM, VictoryPoints(1)), Cost(resources = mapOf(PAPYRUS to 1))),
     APOTHECARY(AGE_I, SCIENTIFIC, listOf(WHEEL, VictoryPoints(1)), Cost(resources = mapOf(GLASS to 1))),
     SCRIPTORIUM(AGE_I, SCIENTIFIC, listOf(INKWELL), Cost(coins = 2)),
@@ -52,8 +53,8 @@ enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GU
     GLASSBLOWER(AGE_II, MANUFACTURE, listOf(Production(GLASS))),
     DRYING_ROOM(AGE_II, MANUFACTURE, listOf(Production(PAPYRUS))),
     WALLS(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(STONE to 2))),
-    HORSE_BREEDERS(AGE_II, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(CLAY to 1, WOOD to 1)), freeLink = STABLE),
-    BARRACKS(AGE_II, MILITARY, listOf(Shield(1)), Cost(coins = 3), freeLink = GARRISON),
+    HORSE_BREEDERS(AGE_II, MILITARY, listOf(Shield()), Cost(resources = mapOf(CLAY to 1, WOOD to 1)), freeLink = STABLE),
+    BARRACKS(AGE_II, MILITARY, listOf(Shield()), Cost(coins = 3), freeLink = GARRISON),
     ARCHERY_RANGE(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(STONE to 1, WOOD to 1, PAPYRUS to 1))),
     PARADE_GROUND(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(CLAY to 2, GLASS to 1))),
     LIBRARY(AGE_II, SCIENTIFIC, listOf(INKWELL, VictoryPoints(2)), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 1)), freeLink = SCRIPTORIUM),
@@ -100,15 +101,15 @@ enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GU
 
 enum class ProgressToken(val effects: List<Effect>) {
     AGRICULTURE(listOf(TakeCoins(6), VictoryPoints(4))),
-    ARCHITECTURE(listOf()),
-    ECONOMY(listOf()),
+    ARCHITECTURE(listOf(ResourcesRebate(2) { it is Wonder })),
+    ECONOMY(listOf(GainTradingCost)),
     LAW(listOf(BALANCE)),
-    MASONRY(listOf()),
+    MASONRY(listOf(ResourcesRebate(2) { it is Building && it.type == CIVILIAN })),
     MATHEMATICS(listOf(VictoryPointsForPlayer { it.progressTokens.size * 3 })),
     PHILOSOPHY(listOf(VictoryPoints(7))),
-    STRATEGY(listOf()),
-    THEOLOGY(listOf()),
-    URBANISM(listOf(TakeCoins(6)))
+    STRATEGY(listOf(ConstructionTriggeredEffect(Shield()) { it is Building && it.type == MILITARY })),
+    THEOLOGY(listOf(ConstructionTriggeredEffect(PlayAgain) { it is Wonder })),
+    URBANISM(listOf(TakeCoins(6), ChainBuildingTriggeredEffect(TakeCoins(4))))
 }
 
 interface BuildingDeck {
@@ -133,7 +134,13 @@ enum class BuildingType {
     RAW_MATERIAL, MANUFACTURE, CIVILIAN, SCIENTIFIC, COMMERCIAL, MILITARY, GUILD
 }
 
-data class Cost(val coins: Int = 0, val resources: Map<Resource, Int> = emptyMap())
+interface Construction {
+    data class Cost(val coins: Int = 0, val resources: Map<Resource, Int> = emptyMap())
+
+    val cost: Cost
+    val effects: List<Effect>
+}
+
 enum class Resource(val type: Type) {
     CLAY(RAW_GOOD), WOOD(RAW_GOOD), STONE(RAW_GOOD), GLASS(MANUFACTURED_GOOD), PAPYRUS(MANUFACTURED_GOOD);
 

@@ -3,7 +3,8 @@ package fr.omi.sevenwondersduel
 import fr.omi.sevenwondersduel.Age.AGE_III
 import fr.omi.sevenwondersduel.Building.*
 import fr.omi.sevenwondersduel.BuildingType.*
-import fr.omi.sevenwondersduel.ProgressToken.*
+import fr.omi.sevenwondersduel.ProgressToken.AGRICULTURE
+import fr.omi.sevenwondersduel.ProgressToken.PHILOSOPHY
 import fr.omi.sevenwondersduel.Wonder.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -83,15 +84,6 @@ class CivilianVictoryTest {
         val totalWondersPoints = Wonder.values().flatMap { it.effects }.asSequence()
                 .filterIsInstance<VictoryPoints>().sumBy { it.count(game, game.players.first) }
         assertThat(totalWondersPoints).isEqualTo(42)
-    }
-
-    @Test
-    fun count_progress() {
-        val game = SevenWondersDuel(players = Pair(
-                Player(coins = 0, progressTokens = setOf(PHILOSOPHY, MATHEMATICS)),
-                Player(coins = 0, progressTokens = setOf(AGRICULTURE, STRATEGY))))
-        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(13)
-        assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(4)
     }
 
     @Test

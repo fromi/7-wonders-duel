@@ -11,7 +11,7 @@ interface Effect {
 data class Production(val resource: Resource, val quantity: Int = 1) : Effect
 data class FixTradingCostTo1(val resource: Resource) : Effect
 data class ProductionOfAny(val resourceType: Resource.Type) : Effect
-data class Shield(val quantity: Int) : Effect {
+data class Shield(val quantity: Int = 1) : Effect {
     override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
         return game.moveConflictPawn(quantity)
     }
@@ -86,9 +86,9 @@ interface ChoiceEffect : Effect, Action {
     }
 }
 
-object Replay : ChoiceEffect {
+object PlayAgain : ChoiceEffect {
     override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
-        return if (!game.currentAgeIsOver()) super.applyTo(game) else game
+        return if (!game.currentAgeIsOver() && !game.pendingActions.contains(PlayAgain)) super.applyTo(game) else game
     }
 }
 
@@ -108,3 +108,10 @@ object ChooseGreatLibraryProgress : Effect {
 }
 
 object BuildDiscarded : ChoiceEffect
+
+class ResourcesRebate(val quantity: Int, val appliesTo: (Construction) -> Boolean) : Effect
+
+object GainTradingCost : Effect
+
+class ConstructionTriggeredEffect(val triggeredEffect: Effect, val appliesTo: (Construction) -> Boolean) : Effect
+class ChainBuildingTriggeredEffect(val triggeredEffect: Effect) : Effect
