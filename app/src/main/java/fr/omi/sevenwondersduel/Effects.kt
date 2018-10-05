@@ -30,29 +30,42 @@ enum class ScientificSymbol : Effect {
     }
 }
 
-interface VictoryPointsEffect : Effect {
+interface QuantifiableEffect : Effect {
     fun count(game: SevenWondersDuel, player: Player): Int
 }
-
-class VictoryPoints(val quantity: Int) : VictoryPointsEffect {
+open class FixQuantityEffect(val quantity: Int): QuantifiableEffect {
     override fun count(game: SevenWondersDuel, player: Player): Int {
         return quantity
     }
 }
-
-class VictoryPointsForMajority(val majorityCount: (Player) -> Int) : VictoryPointsEffect {
+open class MajorityEffect(val count: (Player) -> Int) : QuantifiableEffect {
     override fun count(game: SevenWondersDuel, player: Player): Int {
-        return max(majorityCount(game.players.first), majorityCount(game.players.second))
+        return max(count(game.players.first), count(game.players.second))
     }
-
-    constructor(vararg buildingTypes: BuildingType) : this({ player -> player.buildings.count { building -> buildingTypes.any { building.type == it } } })
 }
+open class MajorityBuildingsEffect(vararg buildingTypes: BuildingType) : MajorityEffect({player -> player.buildings.count { building -> buildingTypes.any { building.type == it } }})
 
-class VictoryPointsForPlayer(val count: (Player) -> Int): VictoryPointsEffect {
+open class QuantifiablePlayerEffect(val count: (Player) -> Int) : QuantifiableEffect {
     override fun count(game: SevenWondersDuel, player: Player): Int {
         return count(player)
     }
 }
+
+interface VictoryPointsEffect : QuantifiableEffect
+class VictoryPoints(quantity: Int) : VictoryPointsEffect, FixQuantityEffect(quantity)
+class VictoryPointsForMajority(majorityCount: (Player) -> Int) : VictoryPointsEffect, MajorityEffect(majorityCount)
+class VictoryPointsForMajorityBuildings(vararg buildingTypes: BuildingType): VictoryPointsEffect, MajorityBuildingsEffect(*buildingTypes)
+class VictoryPointsForPlayer(count: (Player) -> Int) : VictoryPointsEffect, QuantifiablePlayerEffect(count)
+
+interface TakeCoinsEffect : QuantifiableEffect {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
+        return game.takeCoins(count(game, game.currentPlayer()))
+    }
+}
+class TakeCoins(quantity: Int) : TakeCoinsEffect, FixQuantityEffect(quantity)
+class TakeCoinsForMajorityBuildings(vararg buildingTypes: BuildingType): TakeCoinsEffect, MajorityBuildingsEffect(*buildingTypes)
+class TakeCoinsForPlayer(count: (Player) -> Int) : TakeCoinsEffect, QuantifiablePlayerEffect(count)
+class TakeCoinsForPlayerBuildings(buildingType: BuildingType, quantity: Int = 1): TakeCoinsEffect, QuantifiablePlayerEffect({player -> quantity * player.buildings.count { it.type == buildingType } })
 
 interface Action
 

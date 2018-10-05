@@ -7,6 +7,7 @@ import fr.omi.sevenwondersduel.Resource.Type
 import fr.omi.sevenwondersduel.Resource.Type.MANUFACTURED_GOOD
 import fr.omi.sevenwondersduel.Resource.Type.RAW_GOOD
 import kotlin.math.absoluteValue
+import kotlin.math.max
 
 data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), Player()),
                             val conflictPawnPosition: Int = 0,
@@ -68,6 +69,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         return currentPlayerDo { it.take(progressToken) }
                 .copy(progressTokensAvailable = progressTokensAvailable.minus(progressToken),
                         pendingActions = pendingActions.drop(1))
+                .applyEffects(progressToken.effects)
                 .continueGame()
     }
 
@@ -179,6 +181,10 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         }
     }
 
+    fun takeCoins(quantity: Int): SevenWondersDuel {
+        return pairInOrder(currentPlayer().takeCoins(quantity), opponent())
+    }
+
     fun getWinner(): Player? {
         return when {
             conflictPawnPosition >= 9 -> players.first
@@ -232,7 +238,7 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     private fun sumTradingCostByType(resourceType: Type, resourcesCost: Map<Resource, Int>, getTradingCost: (resource: Resource) -> Int): Int =
             resourcesCost.filter { it.key.type == resourceType }
-                    .flatMap { entry -> List(entry.value - productionOf(entry.key)) { getTradingCost(entry.key) } }
+                    .flatMap { entry -> List(max(entry.value - productionOf(entry.key), 0)) { getTradingCost(entry.key) } }
                     .sorted().dropLast(effects().count { it is ProductionOfAny && it.resourceType == resourceType })
                     .sum()
 
@@ -267,6 +273,10 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     fun take(progressToken: ProgressToken): Player {
         return copy(progressTokens = progressTokens.plus(progressToken))
+    }
+
+    fun takeCoins(quantity: Int): Player {
+        return copy(coins = coins + quantity)
     }
 
     fun countCivilianBuildingsVictoryPoints(): Int {

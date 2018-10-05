@@ -15,7 +15,6 @@ class BuildingConstructionTest {
             PALISADE, GARRISON, STABLE, LUMBER_YARD, STONE_PIT,
             BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST))
 
-
     private val sampleAge2Structure = createStructure(AGE_II, listOf(
             BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
             AQUEDUCT, BREWERY, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
