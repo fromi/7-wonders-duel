@@ -33,17 +33,20 @@ enum class ScientificSymbol : Effect {
 interface QuantifiableEffect : Effect {
     fun count(game: SevenWondersDuel, player: Player): Int
 }
-open class FixQuantityEffect(val quantity: Int): QuantifiableEffect {
+
+open class FixQuantityEffect(val quantity: Int) : QuantifiableEffect {
     override fun count(game: SevenWondersDuel, player: Player): Int {
         return quantity
     }
 }
+
 open class MajorityEffect(val count: (Player) -> Int) : QuantifiableEffect {
     override fun count(game: SevenWondersDuel, player: Player): Int {
         return max(count(game.players.first), count(game.players.second))
     }
 }
-open class MajorityBuildingsEffect(vararg buildingTypes: BuildingType) : MajorityEffect({player -> player.buildings.count { building -> buildingTypes.any { building.type == it } }})
+
+open class MajorityBuildingsEffect(vararg buildingTypes: BuildingType) : MajorityEffect({ player -> player.buildings.count { building -> buildingTypes.any { building.type == it } } })
 
 open class QuantifiablePlayerEffect(val count: (Player) -> Int) : QuantifiableEffect {
     override fun count(game: SevenWondersDuel, player: Player): Int {
@@ -54,7 +57,7 @@ open class QuantifiablePlayerEffect(val count: (Player) -> Int) : QuantifiableEf
 interface VictoryPointsEffect : QuantifiableEffect
 class VictoryPoints(quantity: Int) : VictoryPointsEffect, FixQuantityEffect(quantity)
 class VictoryPointsForMajority(majorityCount: (Player) -> Int) : VictoryPointsEffect, MajorityEffect(majorityCount)
-class VictoryPointsForMajorityBuildings(vararg buildingTypes: BuildingType): VictoryPointsEffect, MajorityBuildingsEffect(*buildingTypes)
+class VictoryPointsForMajorityBuildings(vararg buildingTypes: BuildingType) : VictoryPointsEffect, MajorityBuildingsEffect(*buildingTypes)
 class VictoryPointsForPlayer(count: (Player) -> Int) : VictoryPointsEffect, QuantifiablePlayerEffect(count)
 
 interface TakeCoinsEffect : QuantifiableEffect {
@@ -62,11 +65,46 @@ interface TakeCoinsEffect : QuantifiableEffect {
         return game.takeCoins(count(game, game.currentPlayer()))
     }
 }
+
 class TakeCoins(quantity: Int) : TakeCoinsEffect, FixQuantityEffect(quantity)
-class TakeCoinsForMajorityBuildings(vararg buildingTypes: BuildingType): TakeCoinsEffect, MajorityBuildingsEffect(*buildingTypes)
+class TakeCoinsForMajorityBuildings(vararg buildingTypes: BuildingType) : TakeCoinsEffect, MajorityBuildingsEffect(*buildingTypes)
 class TakeCoinsForPlayer(count: (Player) -> Int) : TakeCoinsEffect, QuantifiablePlayerEffect(count)
-class TakeCoinsForPlayerBuildings(buildingType: BuildingType, quantity: Int = 1): TakeCoinsEffect, QuantifiablePlayerEffect({player -> quantity * player.buildings.count { it.type == buildingType } })
+class TakeCoinsForPlayerBuildings(buildingType: BuildingType, quantity: Int = 1) : TakeCoinsEffect, QuantifiablePlayerEffect({ player -> quantity * player.buildings.count { it.type == buildingType } })
+
+class OpponentLosesCoins(private val quantity: Int) : Effect {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
+        return game.pairInOrder(game.currentPlayer(), game.opponent().loseCoins(quantity))
+    }
+}
 
 interface Action
-
 data class ChooseProgressToken(val tokens: Set<ProgressToken>) : Action
+
+interface ChoiceEffect : Effect, Action {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
+        return game.copy(pendingActions = game.pendingActions.plus(this))
+    }
+}
+
+object Replay : ChoiceEffect {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
+        return if (!game.currentAgeIsOver()) super.applyTo(game) else game
+    }
+}
+
+data class DestroyOpponentBuilding(val type: BuildingType) : ChoiceEffect {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
+        return if (game.opponent().buildings.any { it.type == type }) super.applyTo(game) else game
+    }
+}
+
+object ChooseGreatLibraryProgress : Effect {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
+        val tokens = ProgressToken.values().asSequence()
+                .minus(game.progressTokensAvailable).minus(game.players.first.progressTokens).minus(game.players.second.progressTokens)
+                .toList().shuffled().asSequence().take(3).toSet()
+        return game.copy(pendingActions = game.pendingActions.plus(ChooseProgressToken(tokens = tokens)))
+    }
+}
+
+object BuildDiscarded : ChoiceEffect

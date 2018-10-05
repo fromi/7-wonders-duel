@@ -8,18 +8,18 @@ import fr.omi.sevenwondersduel.Resource.Type.RAW_GOOD
 import fr.omi.sevenwondersduel.ScientificSymbol.*
 
 enum class Wonder(val effects: List<Effect>, val cost: Cost) {
-    THE_APPIAN_WAY(listOf(TakeCoins(3), VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, CLAY to 2, STONE to 2))),
-    CIRCUS_MAXIMUS(listOf(Shield(1), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, WOOD to 1, STONE to 2))),
+    THE_APPIAN_WAY(listOf(TakeCoins(3), OpponentLosesCoins(3), Replay, VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, CLAY to 2, STONE to 2))),
+    CIRCUS_MAXIMUS(listOf(DestroyOpponentBuilding(MANUFACTURE), Shield(1), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, WOOD to 1, STONE to 2))),
     THE_COLOSSUS(listOf(Shield(2), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, CLAY to 3))),
-    THE_GREAT_LIBRARY(listOf(VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 3))),
-    THE_GREAT_LIGHTHOUSE(listOf(VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 2, STONE to 1, WOOD to 1))),
-    THE_HANGING_GARDENS(listOf(TakeCoins(6), VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 2))),
-    THE_MAUSOLEUM(listOf(VictoryPoints(2)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 2, CLAY to 2))),
-    PIRAEUS(listOf(VictoryPoints(2)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 2))),
+    THE_GREAT_LIBRARY(listOf(ChooseGreatLibraryProgress, VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 3))),
+    THE_GREAT_LIGHTHOUSE(listOf(ProductionOfAny(RAW_GOOD), VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 2, STONE to 1, WOOD to 1))),
+    THE_HANGING_GARDENS(listOf(TakeCoins(6), Replay, VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 2))),
+    THE_MAUSOLEUM(listOf(BuildDiscarded, VictoryPoints(2)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 2, CLAY to 2))),
+    PIRAEUS(listOf(ProductionOfAny(MANUFACTURED_GOOD), Replay, VictoryPoints(2)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 2))),
     THE_PYRAMIDS(listOf(VictoryPoints(9)), Cost(resources = mapOf(PAPYRUS to 1, STONE to 3))),
-    THE_SPHINX(listOf(VictoryPoints(6)), Cost(resources = mapOf(GLASS to 2, CLAY to 1, STONE to 1))),
-    THE_STATUE_OF_ZEUS(listOf(Shield(1), VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 2, CLAY to 1, WOOD to 1, STONE to 1))),
-    THE_TEMPLE_OF_ARTEMIS(listOf(TakeCoins(12)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, STONE to 1, WOOD to 1)))
+    THE_SPHINX(listOf(Replay, VictoryPoints(6)), Cost(resources = mapOf(GLASS to 2, CLAY to 1, STONE to 1))),
+    THE_STATUE_OF_ZEUS(listOf(DestroyOpponentBuilding(RAW_MATERIAL), Shield(1), VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 2, CLAY to 1, WOOD to 1, STONE to 1))),
+    THE_TEMPLE_OF_ARTEMIS(listOf(TakeCoins(12), Replay), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, STONE to 1, WOOD to 1)))
 }
 
 enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GUILD, val effects: List<Effect>, val cost: Cost = Cost(), val freeLink: Building? = null) {

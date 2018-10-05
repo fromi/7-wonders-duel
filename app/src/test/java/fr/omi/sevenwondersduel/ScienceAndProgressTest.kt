@@ -45,6 +45,20 @@ class ScienceAndProgressTest {
     }
 
     @Test
+    fun get_a_science_symbol_at_the_end_of_an_age() {
+        var game = SevenWondersDuel(currentPlayer = 1, currentAge = AGE_II, conflictPawnPosition = 0, structure = createStructure(AGE_II, listOf(DISPENSARY)),
+                progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
+                players = Pair(Player(buildings = setOf(PHARMACIST)), Player()))
+        game = game.build(DISPENSARY)
+        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentAge).isEqualTo(AGE_II)
+        assertThat(game.pendingActions).containsExactly(ChooseProgressToken(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
+        game = game.choose(LAW)
+        assertThat(game.currentAge).isEqualTo(AGE_III)
+        assertThat(game.currentPlayer).isEqualTo(1)
+    }
+
+    @Test
     fun after_I_get_a_single_science_symbol_I_do_not_choose_a_progress_token() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
         game = game.build(PHARMACIST)

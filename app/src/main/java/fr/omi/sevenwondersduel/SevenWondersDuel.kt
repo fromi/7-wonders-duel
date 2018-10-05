@@ -34,13 +34,23 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun build(building: Building): SevenWondersDuel {
-        var game = take(building)
-        if (!currentPlayer().buildings.contains(building.freeLink)) {
-            game = game.pay(building.cost)
+        val game = if (pendingActions.firstOrNull() == BuildDiscarded) {
+            require(discardedCards.contains(building))
+            copy(discardedCards = discardedCards.minus(building))
+        } else {
+            takeAndPay(building)
         }
         return game.currentPlayerDo { it.build(building) }
                 .applyEffects(building.effects)
                 .continueGame()
+    }
+
+    private fun takeAndPay(building: Building): SevenWondersDuel {
+        var game = take(building)
+        if (!currentPlayer().buildings.contains(building.freeLink)) {
+            game = game.pay(building.cost)
+        }
+        return game
     }
 
     fun discard(building: Building): SevenWondersDuel =
@@ -64,12 +74,20 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun choose(progressToken: ProgressToken): SevenWondersDuel {
-        check(pendingActions.firstOrNull() is ChooseProgressToken) { "You are not currently allowed to choose a progress token" }
-        require((pendingActions.first() as ChooseProgressToken).tokens.contains(progressToken)) { "You cannot choose this progress token" }
+        val chooseProgressToken = checkNotNull(pendingActions.firstOrNull() as? ChooseProgressToken) { "You are not currently allowed to choose a progress token" }
+        require(chooseProgressToken.tokens.contains(progressToken)) { "You cannot choose this progress token" }
         return currentPlayerDo { it.take(progressToken) }
                 .copy(progressTokensAvailable = progressTokensAvailable.minus(progressToken),
-                        pendingActions = pendingActions.drop(1))
+                        pendingActions = pendingActions.minus(chooseProgressToken))
                 .applyEffects(progressToken.effects)
+                .continueGame()
+    }
+
+    fun destroy(building: Building): SevenWondersDuel {
+        val destroyOpponentBuilding = checkNotNull(pendingActions.firstOrNull() as? DestroyOpponentBuilding) { "You are not currently allowed to destroy an opponent building" }
+        require(building.type == destroyOpponentBuilding.type) { "You are not allowed to destroy this kind of building" }
+        return pairInOrder(currentPlayer(), opponent().destroy(building))
+                .copy(pendingActions = pendingActions.minus(destroyOpponentBuilding), discardedCards = discardedCards.plus(building))
                 .continueGame()
     }
 
@@ -79,7 +97,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         else -> throw IllegalStateException("Game is over")
     }
 
-    private fun opponent(): Player = when (currentPlayer) {
+    fun opponent(): Player = when (currentPlayer) {
         1 -> players.second
         2 -> players.first
         else -> throw IllegalStateException("Game is over")
@@ -94,7 +112,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     private fun currentPlayerDo(action: (Player) -> Player): SevenWondersDuel =
             pairInOrder(action(currentPlayer()), opponent())
 
-    private fun pairInOrder(player: Player, opponent: Player): SevenWondersDuel =
+    fun pairInOrder(player: Player, opponent: Player): SevenWondersDuel =
             copy(players = when (currentPlayer) {
                 1 -> Pair(first = player, second = opponent)
                 2 -> Pair(first = opponent, second = player)
@@ -142,17 +160,17 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     private fun continueGame(): SevenWondersDuel {
         return when {
             isOver() -> this
+            pendingActions.isNotEmpty() -> if (pendingActions.first() == Replay) copy(pendingActions = pendingActions.drop(1)) else this
             currentAgeIsOver() -> when (currentAge) {
                 AGE_I -> prepare(AGE_II)
                 AGE_II -> prepare(AGE_III)
                 else -> copy(currentPlayer = null)
             }
-            pendingActions.isNotEmpty() -> this
             else -> copy(currentPlayer = if (currentPlayer == 1) 2 else 1)
         }
     }
 
-    private fun currentAgeIsOver() = structure.flatMap { it.values }.isEmpty()
+    fun currentAgeIsOver() = structure.flatMap { it.values }.isEmpty()
 
     fun isOver(): Boolean = currentPlayer == null
 
@@ -255,12 +273,17 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     fun lootFirstToken(): Player {
         check(militaryTokensLooted < 1) { "First military token is already looted" }
-        return copy(militaryTokensLooted = militaryTokensLooted + 1, coins = maxOf(coins - 2, 0))
+        return loseCoins(2).copy(militaryTokensLooted = militaryTokensLooted + 1)
     }
 
     fun lootSecondToken(): Player {
         check(militaryTokensLooted < 2) { "Second military token is already looted" }
-        return if (militaryTokensLooted == 0) lootFirstToken().lootSecondToken() else copy(militaryTokensLooted = militaryTokensLooted + 1, coins = maxOf(coins - 5, 0))
+        return if (militaryTokensLooted == 0) lootFirstToken().lootSecondToken()
+        else loseCoins(5).copy(militaryTokensLooted = militaryTokensLooted + 1)
+    }
+
+    fun loseCoins(quantity: Int): Player {
+        return copy(coins = maxOf(coins - quantity, 0))
     }
 
     fun count(scientificSymbol: ScientificSymbol): Int {
@@ -281,6 +304,11 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     fun countCivilianBuildingsVictoryPoints(): Int {
         return buildings.filter { it.type == CIVILIAN }.flatMap { it.effects }.asSequence().filterIsInstance<VictoryPoints>().sumBy { it.quantity }
+    }
+
+    fun destroy(building: Building): Player {
+        require(buildings.contains(building))
+        return copy(buildings = buildings.minus(building))
     }
 }
 
