@@ -1,13 +1,12 @@
 package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.Age.*
-import fr.omi.sevenwondersduel.BuildingType.*
-import fr.omi.sevenwondersduel.Resource.*
+import fr.omi.sevenwondersduel.BuildingType.CIVILIAN
+import fr.omi.sevenwondersduel.BuildingType.COMMERCIAL
+import fr.omi.sevenwondersduel.Resource.Type
 import fr.omi.sevenwondersduel.Resource.Type.MANUFACTURED_GOOD
 import fr.omi.sevenwondersduel.Resource.Type.RAW_GOOD
-import fr.omi.sevenwondersduel.ScientificSymbol.*
 import kotlin.math.absoluteValue
-import kotlin.math.max
 
 data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), Player()),
                             val conflictPawnPosition: Int = 0,
@@ -275,19 +274,6 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
     }
 }
 
-/**
- * Returns the element yielding the largest value of the given function or `null` if equals.
- */
-fun <T, R : Comparable<R>> Pair<T, T>.strictMaxBy(selector: (T) -> R): T? {
-    val firstValue = selector(first)
-    val secondValue = selector(second)
-    return when {
-        firstValue > secondValue -> first
-        firstValue < secondValue -> second
-        else -> null
-    }
-}
-
 fun createStructure(age: Age): List<Map<Int, Building>> {
     val deck = when (age) {
         AGE_I, AGE_II -> Building.values().filter { it.deck == age }.shuffled()
@@ -317,34 +303,6 @@ fun createStructure(age: Age, buildings: List<Building>): List<Map<Int, Building
             }.map { positions -> positions.associate { it to deck.removeAt(0) } }.toList()
 }
 
-enum class ProgressToken(val effects: List<Effect>) {
-    AGRICULTURE(listOf(VictoryPoints(4))),
-    ARCHITECTURE(listOf()),
-    ECONOMY(listOf()),
-    LAW(listOf(BALANCE)),
-    MASONRY(listOf()),
-    MATHEMATICS(listOf(VictoryPointsForPlayer {it.progressTokens.size * 3})),
-    PHILOSOPHY(listOf(VictoryPoints(7))),
-    STRATEGY(listOf()),
-    THEOLOGY(listOf()),
-    URBANISM(listOf())
-}
-
-enum class Wonder(val effects: List<Effect>, val cost: Cost) {
-    THE_APPIAN_WAY(listOf(VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, CLAY to 2, STONE to 2))),
-    CIRCUS_MAXIMUS(listOf(Shield(1), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, WOOD to 1, STONE to 2))),
-    THE_COLOSSUS(listOf(Shield(2), VictoryPoints(3)), Cost(resources = mapOf(GLASS to 1, CLAY to 3))),
-    THE_GREAT_LIBRARY(listOf(VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 3))),
-    THE_GREAT_LIGHTHOUSE(listOf(VictoryPoints(4)), Cost(resources = mapOf(PAPYRUS to 2, STONE to 1, WOOD to 1))),
-    THE_HANGING_GARDENS(listOf(VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, WOOD to 2))),
-    THE_MAUSOLEUM(listOf(VictoryPoints(2)), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 2, CLAY to 2))),
-    PIRAEUS(listOf(VictoryPoints(2)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 2))),
-    THE_PYRAMIDS(listOf(VictoryPoints(9)), Cost(resources = mapOf(PAPYRUS to 1, STONE to 3))),
-    THE_SPHINX(listOf(VictoryPoints(6)), Cost(resources = mapOf(GLASS to 2, CLAY to 1, STONE to 1))),
-    THE_STATUE_OF_ZEUS(listOf(Shield(1), VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 2, CLAY to 1, WOOD to 1, STONE to 1))),
-    THE_TEMPLE_OF_ARTEMIS(listOf(), Cost(resources = mapOf(PAPYRUS to 1, GLASS to 1, STONE to 1, WOOD to 1)))
-}
-
 data class BuildableWonder(val wonder: Wonder, val builtWith: Building? = null) {
     fun buildWith(building: Building): BuildableWonder {
         check(!isBuild()) { "This wonder is already built" }
@@ -354,166 +312,15 @@ data class BuildableWonder(val wonder: Wonder, val builtWith: Building? = null) 
     fun isBuild(): Boolean = builtWith != null
 }
 
-enum class Building(val deck: BuildingDeck = GUILDS, val type: BuildingType = GUILD, val effects: List<Effect>, val cost: Cost = Cost(), val freeLink: Building? = null) {
-    LUMBER_YARD(AGE_I, RAW_MATERIAL, listOf(Production(WOOD))),
-    LOGGING_CAMP(AGE_I, RAW_MATERIAL, listOf(Production(WOOD)), Cost(coins = 1)),
-    CLAY_POOL(AGE_I, RAW_MATERIAL, listOf(Production(CLAY))),
-    CLAY_PIT(AGE_I, RAW_MATERIAL, listOf(Production(CLAY)), Cost(coins = 1)),
-    QUARRY(AGE_I, RAW_MATERIAL, listOf(Production(STONE))),
-    STONE_PIT(AGE_I, RAW_MATERIAL, listOf(Production(STONE)), Cost(coins = 1)),
-    GLASSWORKS(AGE_I, MANUFACTURE, listOf(Production(GLASS)), Cost(coins = 1)),
-    PRESS(AGE_I, MANUFACTURE, listOf(Production(PAPYRUS)), Cost(coins = 1)),
-    GUARD_TOWER(AGE_I, MILITARY, listOf(Shield(1))),
-    STABLE(AGE_I, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(WOOD to 1))),
-    GARRISON(AGE_I, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(CLAY to 1))),
-    PALISADE(AGE_I, MILITARY, listOf(Shield(1)), Cost(coins = 2)),
-    WORKSHOP(AGE_I, SCIENTIFIC, listOf(PENDULUM, VictoryPoints(1)), Cost(resources = mapOf(PAPYRUS to 1))),
-    APOTHECARY(AGE_I, SCIENTIFIC, listOf(WHEEL, VictoryPoints(1)), Cost(resources = mapOf(GLASS to 1))),
-    SCRIPTORIUM(AGE_I, SCIENTIFIC, listOf(INKWELL), Cost(coins = 2)),
-    PHARMACIST(AGE_I, SCIENTIFIC, listOf(MORTAR), Cost(coins = 2)),
-    THEATER(AGE_I, CIVILIAN, listOf(VictoryPoints(3))),
-    ALTAR(AGE_I, CIVILIAN, listOf(VictoryPoints(3))),
-    BATHS(AGE_I, CIVILIAN, listOf(VictoryPoints(3)), Cost(resources = mapOf(STONE to 1))),
-    STONE_RESERVE(AGE_I, COMMERCIAL, listOf(FixTradingCostTo1(STONE)), Cost(coins = 3)),
-    CLAY_RESERVE(AGE_I, COMMERCIAL, listOf(FixTradingCostTo1(CLAY)), Cost(coins = 3)),
-    WOOD_RESERVE(AGE_I, COMMERCIAL, listOf(FixTradingCostTo1(WOOD)), Cost(coins = 3)),
-    TAVERN(AGE_I, COMMERCIAL, listOf()),
-    SAWMILL(AGE_II, RAW_MATERIAL, listOf(Production(WOOD, 2)), Cost(coins = 2)),
-    BRICKYARD(AGE_II, RAW_MATERIAL, listOf(Production(CLAY, 2)), Cost(coins = 2)),
-    SHELF_QUARRY(AGE_II, RAW_MATERIAL, listOf(Production(STONE, 2)), Cost(coins = 2)),
-    GLASSBLOWER(AGE_II, MANUFACTURE, listOf(Production(GLASS))),
-    DRYING_ROOM(AGE_II, MANUFACTURE, listOf(Production(PAPYRUS))),
-    WALLS(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(STONE to 2))),
-    HORSE_BREEDERS(AGE_II, MILITARY, listOf(Shield(1)), Cost(resources = mapOf(CLAY to 1, WOOD to 1)), freeLink = STABLE),
-    BARRACKS(AGE_II, MILITARY, listOf(Shield(1)), Cost(coins = 3), freeLink = GARRISON),
-    ARCHERY_RANGE(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(STONE to 1, WOOD to 1, PAPYRUS to 1))),
-    PARADE_GROUND(AGE_II, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(CLAY to 2, GLASS to 1))),
-    LIBRARY(AGE_II, SCIENTIFIC, listOf(INKWELL, VictoryPoints(2)), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 1)), freeLink = SCRIPTORIUM),
-    DISPENSARY(AGE_II, SCIENTIFIC, listOf(MORTAR, VictoryPoints(2)), Cost(resources = mapOf(CLAY to 2, STONE to 1)), freeLink = PHARMACIST),
-    SCHOOL(AGE_II, SCIENTIFIC, listOf(WHEEL, VictoryPoints(1)), Cost(resources = mapOf(WOOD to 1, PAPYRUS to 2))),
-    LABORATORY(AGE_II, SCIENTIFIC, listOf(PENDULUM, VictoryPoints(1)), Cost(resources = mapOf(WOOD to 1, GLASS to 2))),
-    TRIBUNAL(AGE_II, CIVILIAN, listOf(VictoryPoints(5)), Cost(resources = mapOf(WOOD to 2, GLASS to 1))),
-    STATUE(AGE_II, CIVILIAN, listOf(VictoryPoints(4)), Cost(resources = mapOf(CLAY to 2)), freeLink = THEATER),
-    TEMPLE(AGE_II, CIVILIAN, listOf(VictoryPoints(4)), Cost(resources = mapOf(WOOD to 1, PAPYRUS to 1)), freeLink = ALTAR),
-    AQUEDUCT(AGE_II, CIVILIAN, listOf(VictoryPoints(5)), Cost(resources = mapOf(STONE to 3)), freeLink = BATHS),
-    ROSTRUM(AGE_II, CIVILIAN, listOf(VictoryPoints(4)), Cost(resources = mapOf(STONE to 1, WOOD to 1))),
-    FORUM(AGE_II, COMMERCIAL, listOf(ProductionOfAny(MANUFACTURED_GOOD)), Cost(coins = 3, resources = mapOf(CLAY to 1))),
-    CARAVANSERY(AGE_II, COMMERCIAL, listOf(ProductionOfAny(RAW_GOOD)), Cost(coins = 2, resources = mapOf(GLASS to 1, PAPYRUS to 1))),
-    CUSTOMS_HOUSE(AGE_II, COMMERCIAL, listOf(FixTradingCostTo1(PAPYRUS), FixTradingCostTo1(GLASS)), Cost(coins = 4)),
-    BREWERY(AGE_II, COMMERCIAL, listOf()),
-    ARSENAL(AGE_III, MILITARY, listOf(Shield(3)), Cost(resources = mapOf(CLAY to 3, WOOD to 2))),
-    COURTHOUSE(AGE_III, MILITARY, listOf(Shield(3)), Cost(coins = 8)),
-    FORTIFICATIONS(AGE_III, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(STONE to 2, CLAY to 1, PAPYRUS to 1)), freeLink = PALISADE),
-    SIEGE_WORKSHOP(AGE_III, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(WOOD to 3, GLASS to 1)), freeLink = ARCHERY_RANGE),
-    CIRCUS(AGE_III, MILITARY, listOf(Shield(2)), Cost(resources = mapOf(CLAY to 2, STONE to 2)), freeLink = PARADE_GROUND),
-    ACADEMY(AGE_III, SCIENTIFIC, listOf(SUNDIAL, VictoryPoints(3)), Cost(resources = mapOf(STONE to 1, WOOD to 1, GLASS to 2))),
-    STUDY(AGE_III, SCIENTIFIC, listOf(SUNDIAL, VictoryPoints(3)), Cost(resources = mapOf(WOOD to 2, GLASS to 1, PAPYRUS to 1))),
-    UNIVERSITY(AGE_III, SCIENTIFIC, listOf(GYROSCOPE, VictoryPoints(2)), Cost(resources = mapOf(CLAY to 1, GLASS to 1, PAPYRUS to 1)), freeLink = SCHOOL),
-    OBSERVATORY(AGE_III, SCIENTIFIC, listOf(GYROSCOPE, VictoryPoints(2)), Cost(resources = mapOf(STONE to 1, PAPYRUS to 2)), freeLink = LABORATORY),
-    PALACE(AGE_III, CIVILIAN, listOf(VictoryPoints(7)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1, GLASS to 2))),
-    TOWN_HALL(AGE_III, CIVILIAN, listOf(VictoryPoints(7)), Cost(resources = mapOf(STONE to 3, WOOD to 2))),
-    OBELISK(AGE_III, CIVILIAN, listOf(VictoryPoints(5)), Cost(resources = mapOf(STONE to 2, GLASS to 1))),
-    GARDENS(AGE_III, CIVILIAN, listOf(VictoryPoints(6)), Cost(resources = mapOf(CLAY to 2, WOOD to 2)), freeLink = STATUE),
-    PANTHEON(AGE_III, CIVILIAN, listOf(VictoryPoints(6)), Cost(resources = mapOf(CLAY to 1, WOOD to 1, PAPYRUS to 2)), freeLink = TEMPLE),
-    SENATE(AGE_III, CIVILIAN, listOf(VictoryPoints(5)), Cost(resources = mapOf(CLAY to 2, STONE to 1, PAPYRUS to 1)), freeLink = ROSTRUM),
-    CHAMBER_OF_COMMERCE(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(PAPYRUS to 2))),
-    PORT(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(WOOD to 1, GLASS to 1, PAPYRUS to 1))),
-    ARMORY(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(STONE to 2, GLASS to 1))),
-    LIGHTHOUSE(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(CLAY to 2, GLASS to 1)), freeLink = TAVERN),
-    ARENA(AGE_III, COMMERCIAL, listOf(VictoryPoints(3)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1)), freeLink = BREWERY),
-    MERCHANTS_GUILD(effects = listOf(VictoryPointsForMajority(COMMERCIAL)), cost = Cost(resources = mapOf(CLAY to 1, WOOD to 1, GLASS to 1, PAPYRUS to 1))),
-    SHIPOWNERS_GUILD(effects = listOf(VictoryPointsForMajority(RAW_MATERIAL, MANUFACTURE)), cost = Cost(resources = mapOf(CLAY to 1, STONE to 1, GLASS to 1, PAPYRUS to 1))),
-    BUILDERS_GUILD(effects = listOf(VictoryPointsForMajority { player -> player.wonders.count { it.isBuild() } }), cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, WOOD to 1, GLASS to 1))),
-    MAGISTRATE_GUILD(effects = listOf(VictoryPointsForMajority(CIVILIAN)), cost = Cost(resources = mapOf(WOOD to 2, CLAY to 1, PAPYRUS to 1))),
-    SCIENTISTS_GUILD(effects = listOf(VictoryPointsForMajority(SCIENTIFIC)), cost = Cost(resources = mapOf(CLAY to 2, WOOD to 2))),
-    MONEYLENDERS_GUILD(effects = listOf(VictoryPointsForMajority { it.coins / 3 }), cost = Cost(resources = mapOf(STONE to 2, WOOD to 2))),
-    TACTICIANS_GUILD(effects = listOf(VictoryPointsForMajority(MILITARY)), cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, PAPYRUS to 1)))
-}
-
-interface BuildingDeck {
-    fun age(): Age
-}
-
-object GUILDS : BuildingDeck {
-    override fun age(): Age {
-        return AGE_III
+/**
+ * Returns the element yielding the largest value of the given function or `null` if equals.
+ */
+fun <T, R : Comparable<R>> Pair<T, T>.strictMaxBy(selector: (T) -> R): T? {
+    val firstValue = selector(first)
+    val secondValue = selector(second)
+    return when {
+        firstValue > secondValue -> first
+        firstValue < secondValue -> second
+        else -> null
     }
 }
-
-enum class Age : BuildingDeck {
-    AGE_I, AGE_II, AGE_III;
-
-    override fun age(): Age {
-        return this
-    }
-}
-
-enum class BuildingType {
-    RAW_MATERIAL, MANUFACTURE, CIVILIAN, SCIENTIFIC, COMMERCIAL, MILITARY, GUILD
-}
-
-data class Cost(val coins: Int = 0, val resources: Map<Resource, Int> = emptyMap())
-
-enum class Resource(val type: Type) {
-    CLAY(RAW_GOOD), WOOD(RAW_GOOD), STONE(RAW_GOOD), GLASS(MANUFACTURED_GOOD), PAPYRUS(MANUFACTURED_GOOD);
-
-    enum class Type {
-        RAW_GOOD, MANUFACTURED_GOOD
-    }
-}
-
-interface Effect {
-    fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
-        return game
-    }
-}
-
-data class Production(val resource: Resource, val quantity: Int = 1) : Effect
-data class FixTradingCostTo1(val resource: Resource) : Effect
-data class ProductionOfAny(val resourceType: Type) : Effect
-data class Shield(val quantity: Int) : Effect {
-    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
-        return game.moveConflictPawn(quantity)
-    }
-}
-
-enum class ScientificSymbol : Effect {
-    MORTAR, PENDULUM, INKWELL, WHEEL, SUNDIAL, GYROSCOPE, BALANCE;
-
-    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
-        val player = game.currentPlayer()
-        return when {
-            player.count(this) == 2 -> game.copy(pendingActions = game.pendingActions.plus(ChooseProgressToken(game.progressTokensAvailable)))
-            player.countDifferentScientificSymbols() == 6 -> game.copy(currentPlayer = null)
-            else -> game
-        }
-    }
-}
-
-interface VictoryPointsEffect : Effect {
-    fun count(game: SevenWondersDuel, player: Player): Int
-}
-
-class VictoryPoints(val quantity: Int) : VictoryPointsEffect {
-    override fun count(game: SevenWondersDuel, player: Player): Int {
-        return quantity
-    }
-}
-
-class VictoryPointsForMajority(val majorityCount: (Player) -> Int) : VictoryPointsEffect {
-    override fun count(game: SevenWondersDuel, player: Player): Int {
-        return max(majorityCount(game.players.first), majorityCount(game.players.second))
-    }
-
-    constructor(vararg buildingTypes: BuildingType) : this({ player -> player.buildings.count { building -> buildingTypes.any { building.type == it } } })
-}
-
-class VictoryPointsForPlayer(val count: (Player) -> Int): VictoryPointsEffect {
-    override fun count(game: SevenWondersDuel, player: Player): Int {
-        return count(player)
-    }
-}
-
-interface Action
-
-data class ChooseProgressToken(val tokens: Set<ProgressToken>) : Action
