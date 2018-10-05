@@ -186,13 +186,14 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             conflictPawnPosition <= -9 -> players.second
             players.first.countDifferentScientificSymbols() == 6 -> players.first
             players.second.countDifferentScientificSymbols() == 6 -> players.second
-            currentAge == AGE_III && currentAgeIsOver() -> players.toList().maxBy { countVictoryPoint(it) }
+            currentAge == AGE_III && currentAgeIsOver() -> players.strictMaxBy { countVictoryPoint(it) }
+                    ?: players.strictMaxBy { it.countCivilianBuildingsVictoryPoints() }
             else -> null
         }
     }
 
     fun countVictoryPoint(player: Player): Int {
-        return militaryPoints(player) + player.effects().asSequence().filterIsInstance<VictoryPoints>().sumBy { it.count(this, player) } + player.coins / 3
+        return militaryPoints(player) + player.effects().asSequence().filterIsInstance<VictoryPointsEffect>().sumBy { it.count(this, player) } + player.coins / 3
     }
 
     private fun militaryPoints(player: Player): Int {
@@ -268,6 +269,23 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
     fun take(progressToken: ProgressToken): Player {
         return copy(progressTokens = progressTokens.plus(progressToken))
     }
+
+    fun countCivilianBuildingsVictoryPoints(): Int {
+        return buildings.filter { it.type == CIVILIAN }.flatMap { it.effects }.asSequence().filterIsInstance<VictoryPoints>().sumBy { it.quantity }
+    }
+}
+
+/**
+ * Returns the element yielding the largest value of the given function or `null` if equals.
+ */
+fun <T, R : Comparable<R>> Pair<T, T>.strictMaxBy(selector: (T) -> R): T? {
+    val firstValue = selector(first)
+    val secondValue = selector(second)
+    return when {
+        firstValue > secondValue -> first
+        firstValue < secondValue -> second
+        else -> null
+    }
 }
 
 fun createStructure(age: Age): List<Map<Int, Building>> {
@@ -300,12 +318,12 @@ fun createStructure(age: Age, buildings: List<Building>): List<Map<Int, Building
 }
 
 enum class ProgressToken(val effects: List<Effect>) {
-    AGRICULTURE(listOf(VictoryPoints(6))),
+    AGRICULTURE(listOf(VictoryPoints(4))),
     ARCHITECTURE(listOf()),
     ECONOMY(listOf()),
     LAW(listOf(BALANCE)),
     MASONRY(listOf()),
-    MATHEMATICS(listOf(VictoryPoints { _, player -> player.progressTokens.size * 3})),
+    MATHEMATICS(listOf(VictoryPointsForPlayer {it.progressTokens.size * 3})),
     PHILOSOPHY(listOf(VictoryPoints(7))),
     STRATEGY(listOf()),
     THEOLOGY(listOf()),
@@ -472,12 +490,28 @@ enum class ScientificSymbol : Effect {
     }
 }
 
-open class VictoryPoints(val count: (SevenWondersDuel, Player) -> Int) : Effect {
-    constructor(quantity: Int) : this({ _: SevenWondersDuel, _: Player -> quantity })
+interface VictoryPointsEffect : Effect {
+    fun count(game: SevenWondersDuel, player: Player): Int
 }
 
-class VictoryPointsForMajority(val majorityCount: (Player) -> Int) : VictoryPoints({ game: SevenWondersDuel, _: Player -> max(majorityCount(game.players.first), majorityCount(game.players.second)) }) {
+class VictoryPoints(val quantity: Int) : VictoryPointsEffect {
+    override fun count(game: SevenWondersDuel, player: Player): Int {
+        return quantity
+    }
+}
+
+class VictoryPointsForMajority(val majorityCount: (Player) -> Int) : VictoryPointsEffect {
+    override fun count(game: SevenWondersDuel, player: Player): Int {
+        return max(majorityCount(game.players.first), majorityCount(game.players.second))
+    }
+
     constructor(vararg buildingTypes: BuildingType) : this({ player -> player.buildings.count { building -> buildingTypes.any { building.type == it } } })
+}
+
+class VictoryPointsForPlayer(val count: (Player) -> Int): VictoryPointsEffect {
+    override fun count(game: SevenWondersDuel, player: Player): Int {
+        return count(player)
+    }
 }
 
 interface Action

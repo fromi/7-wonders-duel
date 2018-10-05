@@ -91,6 +91,26 @@ class CivilianVictoryTest {
                 Player(coins = 0, progressTokens = setOf(PHILOSOPHY, MATHEMATICS)),
                 Player(coins = 0, progressTokens = setOf(AGRICULTURE, STRATEGY))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(13)
-        assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(6)
+        assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(4)
+    }
+
+    @Test
+    fun in_case_of_tie_most_points_from_civilian_building_wins() {
+        val game = SevenWondersDuel(conflictPawnPosition = 1, currentAge = AGE_III, players = Pair(
+                Player(coins = 0, buildings = setOf(PORT), progressTokens = setOf(PHILOSOPHY), wonders = listOf(BuildableWonder(PIRAEUS, PALACE))),
+                Player(coins = 0, buildings = setOf(THEATER, SENATE, ARCHERY_RANGE, UNIVERSITY), progressTokens = setOf(AGRICULTURE))))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(14)
+        assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(14)
+        assertThat(game.getWinner()).isEqualTo(game.players.second)
+    }
+
+    @Test
+    fun in_case_of_tie_including_civilian_victory_is_shared() {
+        val game = SevenWondersDuel(conflictPawnPosition = 1, currentAge = AGE_III, players = Pair(
+                Player(coins = 0, buildings = setOf(TEMPLE, OBELISK), wonders = listOf(BuildableWonder(THE_GREAT_LIBRARY, PALACE))),
+                Player(coins = 0, buildings = setOf(THEATER, GARDENS, ARCHERY_RANGE, DISPENSARY), progressTokens = setOf(AGRICULTURE))))
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(15)
+        assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(15)
+        assertThat(game.getWinner()).isNull()
     }
 }
