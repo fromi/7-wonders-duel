@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Seven Wonders Duel</string>
+    <string name="board_description">Board</string>
+    <string name="the_great_library">The Great Library</string>
+    <string name="the_sphinx">The Sphinx</string>
 </resources>
