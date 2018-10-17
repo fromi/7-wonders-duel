@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">Seven Wonders Duel</string>
     <string name="board_description">Board</string>
+    <string name="circus_maximus">Circus Maximus</string>
+    <string name="piraeus">Piraeus</string>
+    <string name="the_appian_way">The Appian Way</string>
+    <string name="the_colossus">The Colossus</string>
     <string name="the_great_library">The Great Library</string>
+    <string name="the_great_lighthouse">The Great Lighthouse</string>
+    <string name="the_hanging_gardens">The Hanging Gardens</string>
+    <string name="the_mausoleum">The Mausoleum</string>
+    <string name="the_pyramids">The Pyramids</string>
     <string name="the_sphinx">The Sphinx</string>
+    <string name="the_statue_of_zeus">The Statue of Zeus</string>
+    <string name="the_temple_of_artemis">The Temple of Artemis</string>
 </resources>
