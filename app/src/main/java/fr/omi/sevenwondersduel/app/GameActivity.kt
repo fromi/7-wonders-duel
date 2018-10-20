@@ -22,7 +22,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun createAvailableWonder(position: Int, wonder: Wonder) {
-        val wonderView = WonderView(this, wonder, owner = 0)
+        val wonderView = WonderView(this, wonder)
         layout.addView(wonderView)
         positionWonder(wonderView, owner = 0, position = position)
         wonderView.setOnTouchListener(::availableWonderTouchListener)

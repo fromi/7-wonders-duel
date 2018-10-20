@@ -1,16 +1,16 @@
 package fr.omi.sevenwondersduel.app
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.support.constraint.ConstraintLayout.LayoutParams
 import android.support.constraint.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
 import android.support.constraint.ConstraintLayout.LayoutParams.WRAP_CONTENT
-import android.view.MotionEvent
 import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.Wonder
 
 @SuppressLint("ViewConstructor")
-class WonderView(private val gameActivity: GameActivity, val wonder: Wonder, owner: Int) : ImageView(gameActivity) {
+class WonderView(context: Context, val wonder: Wonder) : ImageView(context) {
 
     init {
         id = generateViewId()
@@ -31,16 +31,6 @@ class WonderView(private val gameActivity: GameActivity, val wonder: Wonder, own
         }
         layoutParams = LayoutParams(WRAP_CONTENT, MATCH_CONSTRAINT)
         adjustViewBounds = true
-        if (owner == 0) {
-            setOnTouchListener { _, touchEvent -> availableWonderTouchListener(touchEvent) }
-        }
-    }
-
-    private fun availableWonderTouchListener(touchEvent: MotionEvent): Boolean {
-        return if (touchEvent.action == MotionEvent.ACTION_DOWN) {
-            startDragAndDrop()
-            true
-        } else false
     }
 
     companion object {
