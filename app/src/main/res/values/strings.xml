@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Seven Wonders Duel</string>
     <string name="board_description">Board</string>
+    <string name="wonders_back">A wonder card face down</string>
     <string name="circus_maximus">Circus Maximus</string>
     <string name="piraeus">Piraeus</string>
     <string name="the_appian_way">The Appian Way</string>

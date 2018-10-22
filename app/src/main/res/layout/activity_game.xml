@@ -145,16 +145,4 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.609" />
 
-    <ImageView
-        android:id="@+id/wonderDropZone"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_margin="4dp"
-        android:adjustViewBounds="true"
-        android:alpha="0"
-        android:src="@drawable/wonders_back"
-        app:layout_constraintBottom_toBottomOf="@id/line3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/boardBottom" />
-
 </android.support.constraint.ConstraintLayout>
