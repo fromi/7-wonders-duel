@@ -7,142 +7,14 @@
     android:layout_height="match_parent"
     tools:context=".app.GameActivity">
 
-
     <ImageView
         android:id="@+id/board"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
         android:contentDescription="@string/board_description"
-        app:layout_constraintBottom_toTopOf="@+id/boardBottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/board" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/boardBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.28" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/line2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.37" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/line3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.46" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/line4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.55" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/line5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.64" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/line6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.73" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/line7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.82" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/line8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.91" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/bottomLine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="1" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/firstPlayerWondersLine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.15" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/secondPlayerWondersLine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.85" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/middleColumn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/progressGuide1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.405" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/progressGuide2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.443" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/progressGuide3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.481" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/progressGuide4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.519" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/progressGuide5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.557" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/progressGuide6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.595" />
 
 </android.support.constraint.ConstraintLayout>

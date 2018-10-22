@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintLayout.LayoutParams
-import android.support.constraint.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
 import android.support.constraint.ConstraintLayout.LayoutParams.WRAP_CONTENT
 import android.support.constraint.ConstraintSet
 import android.widget.ImageView
@@ -19,7 +18,7 @@ class ProgressTokenView(context: Context, progressToken: ProgressToken) : ImageV
         id = generateViewId()
         setImageResource(getResource(progressToken))
         contentDescription = resources.getString(getContentDescription(progressToken))
-        layoutParams = LayoutParams(MATCH_CONSTRAINT, WRAP_CONTENT)
+        layoutParams = LayoutParams(dpsToPx(25), WRAP_CONTENT)
         adjustViewBounds = true
     }
 
@@ -29,29 +28,27 @@ class ProgressTokenView(context: Context, progressToken: ProgressToken) : ImageV
         }
         val constraintSet = ConstraintSet()
         constraintSet.clone(constraintLayout)
-        val sideMargin = (2 * resources.displayMetrics.density).toInt()
-        val topMargin = (6 * resources.displayMetrics.density).toInt()
-        constraintSet.connect(id, ConstraintSet.TOP, constraintLayout.id, ConstraintSet.TOP, topMargin)
+        constraintSet.connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.TOP, dpsToPx(7))
         when (position) {
             0 -> {
-                constraintSet.connect(id, ConstraintSet.LEFT, R.id.progressGuide1, ConstraintSet.RIGHT, sideMargin)
-                constraintSet.connect(id, ConstraintSet.RIGHT, R.id.progressGuide2, ConstraintSet.LEFT, sideMargin)
+                constraintSet.connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
+                constraintSet.connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END, dpsToPx(120))
             }
             1 -> {
-                constraintSet.connect(id, ConstraintSet.LEFT, R.id.progressGuide2, ConstraintSet.RIGHT, sideMargin)
-                constraintSet.connect(id, ConstraintSet.RIGHT, R.id.progressGuide3, ConstraintSet.LEFT, sideMargin)
+                constraintSet.connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
+                constraintSet.connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END, dpsToPx(60))
             }
             2 -> {
-                constraintSet.connect(id, ConstraintSet.LEFT, R.id.progressGuide3, ConstraintSet.RIGHT, sideMargin)
-                constraintSet.connect(id, ConstraintSet.RIGHT, R.id.progressGuide4, ConstraintSet.LEFT, sideMargin)
+                constraintSet.connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
+                constraintSet.connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
             }
             3 -> {
-                constraintSet.connect(id, ConstraintSet.LEFT, R.id.progressGuide4, ConstraintSet.RIGHT, sideMargin)
-                constraintSet.connect(id, ConstraintSet.RIGHT, R.id.progressGuide5, ConstraintSet.LEFT, sideMargin)
+                constraintSet.connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START, dpsToPx(60))
+                constraintSet.connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
             }
             4 -> {
-                constraintSet.connect(id, ConstraintSet.LEFT, R.id.progressGuide5, ConstraintSet.RIGHT, sideMargin)
-                constraintSet.connect(id, ConstraintSet.RIGHT, R.id.progressGuide6, ConstraintSet.LEFT, sideMargin)
+                constraintSet.connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START, dpsToPx(120))
+                constraintSet.connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
             }
             else -> throw IllegalArgumentException("Illegal Wonder position: $position")
         }

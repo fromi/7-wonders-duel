@@ -5,7 +5,6 @@ import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintLayout.LayoutParams
 import android.support.constraint.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
-import android.support.constraint.ConstraintLayout.LayoutParams.WRAP_CONTENT
 import android.support.constraint.ConstraintSet
 import android.transition.TransitionManager
 import android.widget.ImageView
@@ -21,7 +20,7 @@ class WonderView(context: Context, val wonder: Wonder? = null) : ImageView(conte
         id = generateViewId()
         setImageResource(getResource(wonder))
         contentDescription = resources.getString(getContentDescription(wonder))
-        layoutParams = LayoutParams(WRAP_CONTENT, MATCH_CONSTRAINT)
+        layoutParams = LayoutParams(dpsToPx(70), MATCH_CONSTRAINT)
         adjustViewBounds = true
     }
 
@@ -31,38 +30,19 @@ class WonderView(context: Context, val wonder: Wonder? = null) : ImageView(conte
         }
         val constraintSet = ConstraintSet()
         constraintSet.clone(constraintLayout)
-        val pxMargin = (4 * resources.displayMetrics.density).toInt()
-        when (position) {
-            0 -> {
-                constraintSet.connect(id, ConstraintSet.TOP, R.id.boardBottom, ConstraintSet.BOTTOM, pxMargin)
-                constraintSet.connect(id, ConstraintSet.BOTTOM, R.id.line3, ConstraintSet.TOP, pxMargin)
-            }
-            1 -> {
-                constraintSet.connect(id, ConstraintSet.TOP, R.id.line3, ConstraintSet.BOTTOM, pxMargin)
-                constraintSet.connect(id, ConstraintSet.BOTTOM, R.id.line5, ConstraintSet.TOP, pxMargin)
-            }
-            2 -> {
-                constraintSet.connect(id, ConstraintSet.TOP, R.id.line5, ConstraintSet.BOTTOM, pxMargin)
-                constraintSet.connect(id, ConstraintSet.BOTTOM, R.id.line7, ConstraintSet.TOP, pxMargin)
-            }
-            3 -> {
-                constraintSet.connect(id, ConstraintSet.TOP, R.id.line7, ConstraintSet.BOTTOM, pxMargin)
-                constraintSet.connect(id, ConstraintSet.BOTTOM, R.id.layout, ConstraintSet.BOTTOM, pxMargin)
-            }
-            else -> throw IllegalArgumentException("Illegal Wonder position: $position")
-        }
+        constraintSet.connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(position * 50))
         when (owner) {
             1 -> {
-                constraintSet.connect(id, ConstraintSet.START, R.id.layout, ConstraintSet.START, pxMargin)
+                constraintSet.connect(id, ConstraintSet.START, R.id.layout, ConstraintSet.START, dpsToPx(4))
                 constraintSet.clear(id, ConstraintSet.END)
             }
             2 -> {
                 constraintSet.clear(id, ConstraintSet.START)
-                constraintSet.connect(id, ConstraintSet.END, R.id.layout, ConstraintSet.END, pxMargin)
+                constraintSet.connect(id, ConstraintSet.END, R.id.layout, ConstraintSet.END, dpsToPx(4))
             }
             else -> {
-                constraintSet.connect(id, ConstraintSet.LEFT, R.id.layout, ConstraintSet.LEFT, 0)
-                constraintSet.connect(id, ConstraintSet.RIGHT, R.id.layout, ConstraintSet.RIGHT, 0)
+                constraintSet.connect(id, ConstraintSet.LEFT, R.id.layout, ConstraintSet.LEFT)
+                constraintSet.connect(id, ConstraintSet.RIGHT, R.id.layout, ConstraintSet.RIGHT)
             }
         }
         constraintSet.applyTo(constraintLayout)

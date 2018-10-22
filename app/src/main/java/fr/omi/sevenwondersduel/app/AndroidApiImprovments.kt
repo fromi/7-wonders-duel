@@ -1,6 +1,7 @@
 package fr.omi.sevenwondersduel.app
 
 import android.os.Build
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.DragShadowBuilder
@@ -23,6 +24,8 @@ fun View.startDragAndDrop() {
     }
 }
 
-fun View.disableDragAndDrop() {
-    setOnTouchListener(null)
+fun View.disableDragAndDrop() = setOnTouchListener(null)
+
+fun View.dpsToPx(dps: Int): Int {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps.toFloat(), resources.displayMetrics).toInt()
 }
