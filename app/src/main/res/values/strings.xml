@@ -14,4 +14,14 @@
     <string name="the_sphinx">The Sphinx</string>
     <string name="the_statue_of_zeus">The Statue of Zeus</string>
     <string name="the_temple_of_artemis">The Temple of Artemis</string>
+    <string name="progress_agriculture">Agriculture</string>
+    <string name="progress_architecture">Architecture</string>
+    <string name="progress_economy">Economy</string>
+    <string name="progress_law">Law</string>
+    <string name="progress_masonry">Masonry</string>
+    <string name="progress_mathematics">Mathematics</string>
+    <string name="progress_philosophy">Philosophy</string>
+    <string name="progress_strategy">Strategy</string>
+    <string name="progress_theology">Theology</string>
+    <string name="progress_urbanism">Urbanism</string>
 </resources>

@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.DragEvent
 import android.view.DragEvent.*
 import android.view.View
+import fr.omi.sevenwondersduel.ProgressToken
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.SevenWondersDuel
 import fr.omi.sevenwondersduel.Wonder
@@ -24,12 +25,19 @@ class GameActivity : AppCompatActivity() {
             positionToNextWonderPlace(layout, game)
             setOnDragListener { view, event -> wonderDropListener(view as WonderView, event) }
         }
+        game.progressTokensAvailable.forEachIndexed(::createProgressToken)
     }
 
     private fun createAvailableWonder(position: Int, wonder: Wonder) {
         wondersViews[wonder] = WonderView(this, wonder).apply {
             positionInto(layout, owner = 0, position = position)
             enableDragAndDrop()
+        }
+    }
+
+    private fun createProgressToken(position: Int, progressToken: ProgressToken) {
+        ProgressTokenView(this, progressToken).apply {
+            positionOnBoard(layout, position)
         }
     }
 
