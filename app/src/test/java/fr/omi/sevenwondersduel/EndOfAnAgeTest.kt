@@ -48,7 +48,7 @@ class EndOfAnAgeTest {
         var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_I, listOf(PRESS)), currentPlayer = 1, conflictPawnPosition = 0)
         game = game.discard(PRESS)
         assertThat(game.currentPlayer).isEqualTo(1)
-        assertThat(game.choosePlayerBeginningNextAge(1).currentPlayer).isEqualTo(2)
+        assertThat(game.choosePlayerBeginningNextAge(1).currentPlayer).isEqualTo(1)
     }
 
     @Test(expected = IllegalStateException::class)
