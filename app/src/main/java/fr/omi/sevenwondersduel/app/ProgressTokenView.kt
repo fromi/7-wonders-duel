@@ -7,9 +7,9 @@ import android.support.constraint.ConstraintLayout.LayoutParams
 import android.support.constraint.ConstraintLayout.LayoutParams.WRAP_CONTENT
 import android.support.constraint.ConstraintSet
 import android.widget.ImageView
-import fr.omi.sevenwondersduel.ProgressToken
-import fr.omi.sevenwondersduel.ProgressToken.*
 import fr.omi.sevenwondersduel.R
+import fr.omi.sevenwondersduel.material.ProgressToken
+import fr.omi.sevenwondersduel.material.ProgressToken.*
 
 @SuppressLint("ViewConstructor")
 class ProgressTokenView(context: Context, progressToken: ProgressToken) : ImageView(context) {

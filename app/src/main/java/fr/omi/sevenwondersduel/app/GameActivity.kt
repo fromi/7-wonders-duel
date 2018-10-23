@@ -5,8 +5,11 @@ import android.support.v7.app.AppCompatActivity
 import android.view.DragEvent
 import android.view.DragEvent.*
 import android.view.View
-import fr.omi.sevenwondersduel.*
+import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.app.GameViewModel.game
+import fr.omi.sevenwondersduel.material.Building
+import fr.omi.sevenwondersduel.material.ProgressToken
+import fr.omi.sevenwondersduel.material.Wonder
 import kotlinx.android.synthetic.main.activity_game.*
 
 class GameActivity : AppCompatActivity() {
@@ -133,15 +136,3 @@ class GameActivity : AppCompatActivity() {
     }
 }
 
-object GameViewModel {
-    var game = SevenWondersDuel()
-        private set
-
-    fun choose(wonder: Wonder) {
-        game = game.choose(wonder)
-    }
-
-    fun build(building: Building) {
-        game = game.build(building)
-    }
-}

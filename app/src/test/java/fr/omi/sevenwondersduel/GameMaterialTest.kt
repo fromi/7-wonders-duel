@@ -1,7 +1,11 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.Age.*
-import fr.omi.sevenwondersduel.BuildingType.*
+import fr.omi.sevenwondersduel.material.Age.*
+import fr.omi.sevenwondersduel.material.Building
+import fr.omi.sevenwondersduel.material.Building.Deck.Guilds
+import fr.omi.sevenwondersduel.material.Building.Type.*
+import fr.omi.sevenwondersduel.material.Resource
+import fr.omi.sevenwondersduel.material.Wonder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -24,7 +28,7 @@ class GameMaterialTest {
 
     @Test
     fun there_are_7_guilds() {
-        assertThat(Building.values().filter { it.deck == GUILDS }).size().isEqualTo(7)
+        assertThat(Building.values().filter { it.deck == Guilds }).size().isEqualTo(7)
         assertThat(Building.values().filter { it.type == GUILD }).size().isEqualTo(7)
     }
 

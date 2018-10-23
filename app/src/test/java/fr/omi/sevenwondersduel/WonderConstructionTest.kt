@@ -1,14 +1,14 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.Age.AGE_I
-import fr.omi.sevenwondersduel.Building.*
-import fr.omi.sevenwondersduel.Wonder.*
+import fr.omi.sevenwondersduel.material.Age.AGE_I
+import fr.omi.sevenwondersduel.material.Building.*
+import fr.omi.sevenwondersduel.material.Wonder.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class WonderConstructionTest {
 
-    private val sampleAge1Structure = createStructure(AGE_I, listOf(
+    private val sampleAge1Structure = Game.createStructure(AGE_I, listOf(
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, TAVERN,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
@@ -17,7 +17,7 @@ class WonderConstructionTest {
 
     @Test
     fun build_a_wonder() {
-        var game = SevenWondersDuel(players = Pair(Player(coins = 8, wonders = listOf(BuildableWonder(PIRAEUS))), Player()),
+        var game = Game(players = Pair(Player(coins = 8, wonders = listOf(BuildableWonder(PIRAEUS))), Player()),
                 structure = sampleAge1Structure)
         game = game.build(PIRAEUS, PRESS)
         assertThat(game.players.first.wonders).containsExactly(BuildableWonder(PIRAEUS, builtWith = PRESS))
@@ -38,7 +38,7 @@ class WonderConstructionTest {
 
     @Test
     fun once_7_wonders_built_remaining_wonder_is_discarded() {
-        var game = SevenWondersDuel(players = Pair(
+        var game = Game(players = Pair(
                 Player(coins = 20, wonders = listOf(
                         BuildableWonder(PIRAEUS, builtWith = STATUE),
                         BuildableWonder(THE_PYRAMIDS, builtWith = HORSE_BREEDERS),

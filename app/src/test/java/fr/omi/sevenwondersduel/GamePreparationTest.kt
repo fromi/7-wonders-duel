@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class GamePreparationTest {
-    private val newGame = SevenWondersDuel()
+    private val newGame = Game()
 
     @Test
     fun conflict_pawn_starts_neutral() {

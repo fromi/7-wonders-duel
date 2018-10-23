@@ -1,11 +1,11 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.Wonder.*
+import fr.omi.sevenwondersduel.material.Wonder.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class WonderSelectionPhaseTest {
-    private val newGame = SevenWondersDuel()
+    private val newGame = Game()
 
     @Test
     fun first_player_should_pick_a_wonder_between_4() {
@@ -15,7 +15,7 @@ class WonderSelectionPhaseTest {
 
     @Test
     fun first_4_wonders_selection() {
-        var game = SevenWondersDuel(wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS))
+        var game = Game(wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS))
         game = game.choose(THE_PYRAMIDS)
         assertThat(game.wondersAvailable).containsExactly(THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS)
         assertThat(game.players.first.wonders).containsExactly(BuildableWonder(THE_PYRAMIDS))
@@ -32,13 +32,13 @@ class WonderSelectionPhaseTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_select_a_wonder_not_available() {
-        val game = SevenWondersDuel(wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS))
+        val game = Game(wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS))
         game.choose(THE_MAUSOLEUM)
     }
 
     @Test
     fun last_4_wonders_selection() {
-        var game = SevenWondersDuel(players = Pair(Player(wonders = listOf(BuildableWonder(THE_COLOSSUS), BuildableWonder(THE_HANGING_GARDENS))),
+        var game = Game(players = Pair(Player(wonders = listOf(BuildableWonder(THE_COLOSSUS), BuildableWonder(THE_HANGING_GARDENS))),
                 Player(wonders = listOf(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_MAUSOLEUM)))),
                 wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIBRARY, THE_STATUE_OF_ZEUS, THE_TEMPLE_OF_ARTEMIS),
                 currentPlayer = 2)
