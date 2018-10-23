@@ -32,7 +32,7 @@ class BuildingView(context: Context, val building: Building? = null) : ImageView
         constraintSet.applyTo(constraintLayout)
     }
 
-    fun positionToNextBuildingPlace(constraintLayout: ConstraintLayout, game: SevenWondersDuel) {
+    fun positionForPlayer(constraintLayout: ConstraintLayout, player: Int, position: Int) {
         if (parent == null) {
             constraintLayout.addView(this)
         }
@@ -40,10 +40,14 @@ class BuildingView(context: Context, val building: Building? = null) : ImageView
         constraintSet.clone(constraintLayout)
         constraintSet.clear(id, ConstraintSet.START)
         constraintSet.clear(id, ConstraintSet.END)
-        constraintSet.connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(game.currentPlayer().buildings.size * 12))
-        val constraint = if (game.currentPlayer == 1) ConstraintSet.START else ConstraintSet.END
+        constraintSet.connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(position * 12))
+        val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
         constraintSet.connect(id, constraint, R.id.layout, constraint, dpsToPx(100))
         constraintSet.applyTo(constraintLayout)
+    }
+
+    fun positionToNextBuildingPlace(constraintLayout: ConstraintLayout, game: SevenWondersDuel) {
+        positionForPlayer(constraintLayout, checkNotNull(game.currentPlayer), game.currentPlayer().buildings.size)
         bringToFront()
     }
 

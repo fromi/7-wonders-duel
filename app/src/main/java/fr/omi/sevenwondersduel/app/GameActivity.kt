@@ -29,6 +29,10 @@ class GameActivity : AppCompatActivity() {
             displayStructure()
             createBuildingDropZone()
         }
+        model.game.players.first.wonders.forEachIndexed { index, it -> WonderView(this, it.wonder).apply { positionInto(layout, 1, index) } }
+        model.game.players.second.wonders.forEachIndexed { index, it -> WonderView(this, it.wonder).apply { positionInto(layout, 2, index) } }
+        model.game.players.first.buildings.forEachIndexed { index, it -> BuildingView(this, it).apply { positionForPlayer(layout, 1, index) } }
+        model.game.players.second.buildings.forEachIndexed { index, it -> BuildingView(this, it).apply { positionForPlayer(layout, 2, index) } }
     }
 
     private fun createAvailableWonder(position: Int, wonder: Wonder) {
