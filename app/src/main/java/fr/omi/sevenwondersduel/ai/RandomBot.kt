@@ -3,6 +3,7 @@ package fr.omi.sevenwondersduel.ai
 import fr.omi.sevenwondersduel.SevenWondersDuel
 import fr.omi.sevenwondersduel.effects.DiscardedBuildingToBuild
 import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
+import fr.omi.sevenwondersduel.effects.PlayerBeginningAgeToChoose
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.Building
 
@@ -21,6 +22,7 @@ object RandomBot {
                 is ProgressTokenToChoose -> return firstPendingAction.tokens.map { ChooseProgressToken(it) }
                 is DiscardedBuildingToBuild -> return game.discardedCards.map { Build(it) }
                 is OpponentBuildingToDestroy -> return game.opponent().buildings.asSequence().filter { it.type == firstPendingAction.type }.map { DestroyBuilding(it) }.toList()
+                is PlayerBeginningAgeToChoose -> return listOf(ChoosePlayerBeginningAge(1), ChoosePlayerBeginningAge(2))
             }
         }
         if (game.isOver()) return emptyList()

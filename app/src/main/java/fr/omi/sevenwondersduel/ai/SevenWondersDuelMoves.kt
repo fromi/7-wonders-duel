@@ -25,8 +25,8 @@ data class BuildWonder(val wonder: Wonder, val buildingUsed: Building) : SevenWo
     override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.build(wonder, buildingUsed)
 }
 
-object LetOpponentBegin : SevenWondersDuelMove() {
-    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.letOpponentBegin()
+data class ChoosePlayerBeginningAge(val player: Int) : SevenWondersDuelMove() {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.choosePlayerBeginningNextAge(player)
 }
 
 data class ChooseProgressToken(val progressToken: ProgressToken) : SevenWondersDuelMove() {

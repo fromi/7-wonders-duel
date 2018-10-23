@@ -4,6 +4,7 @@ import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building.*
 import fr.omi.sevenwondersduel.material.ProgressToken.*
+import fr.omi.sevenwondersduel.material.Wonder.PIRAEUS
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -44,6 +45,28 @@ class ScienceAndProgressTest {
         assertThat(game.players.first.progressTokens).contains(LAW)
         assertThat(game.currentPlayer).isEqualTo(2)
     }
+
+    val gameWithProgressTokenToChoose = SevenWondersDuel(currentPlayer = 1, structure = SevenWondersDuel.createStructure(AGE_II, listOf(BREWERY)),
+            players = Pair(Player(coins = 100, wonders = listOf(BuildableWonder(PIRAEUS))), Player()),
+            pendingActions = listOf(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY))))
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_build_when_I_have_to_choose_a_progress_token() {
+        gameWithProgressTokenToChoose.build(BREWERY)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_discard_when_I_have_to_choose_a_progress_token() {
+        gameWithProgressTokenToChoose.discard(BREWERY)
+
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun cannot_build_a_wonder_when_I_have_to_choose_a_progress_token() {
+        gameWithProgressTokenToChoose.build(PIRAEUS, BREWERY)
+
+    }
+
 
     @Test
     fun get_a_science_symbol_at_the_end_of_an_age() {

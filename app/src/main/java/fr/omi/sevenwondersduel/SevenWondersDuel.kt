@@ -24,7 +24,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         else if (game.wondersAvailable.size == 1) {
             game = game.give(opponent(), game.wondersAvailable.last())
             game = if (game.players.toList().all { it.wonders.size == 4 })
-                game.prepare(AGE_I)
+                game.copy(structure = SevenWondersDuel.createStructure(AGE_I), currentAge = AGE_I)
             else
                 game.copy(wondersAvailable = remainingWonders().shuffled().asSequence().take(4).toSet())
         }
@@ -66,10 +66,9 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
                     .discardIf7WondersBuilt()
                     .continueGame()
 
-    fun letOpponentBegin(): SevenWondersDuel {
-        check(structure.sumBy { it.size } == 20) { "You can only let the opponent begin when starting Age II or Age III" }
-        check(if (currentPlayer == 1) conflictPawnPosition < 0 else conflictPawnPosition > 0) { "You can only let the opponent begin next Age when strictly weaker than him" }
-        return copy(currentPlayer = if (currentPlayer == 1) 2 else 1)
+    fun choosePlayerBeginningNextAge(player: Int): SevenWondersDuel {
+        check(pendingActions.firstOrNull() is PlayerBeginningAgeToChoose)
+        return copy(currentPlayer = player, pendingActions = pendingActions.drop(1))
     }
 
     fun choose(progressToken: ProgressToken): SevenWondersDuel {
@@ -130,15 +129,17 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     private fun remainingWonders() = Wonder.values().toList().filter { wonder -> !wondersAvailable.contains(wonder) && players.toList().none { player -> player.wonders.any { it.wonder == wonder } } }
 
-    private fun prepare(age: Age): SevenWondersDuel {
-        return copy(structure = SevenWondersDuel.createStructure(age), currentAge = age, currentPlayer = when {
+    private fun prepareNextAge(age: Age): SevenWondersDuel {
+        val playerChoosingWhoBeginsNextAge = when {
             conflictPawnPosition < 0 -> 1
             conflictPawnPosition > 0 -> 2
             else -> currentPlayer
-        })
+        }
+        return copy(structure = SevenWondersDuel.createStructure(age), currentAge = age, currentPlayer = playerChoosingWhoBeginsNextAge, pendingActions = listOf(PlayerBeginningAgeToChoose))
     }
 
     private fun take(building: Building): SevenWondersDuel {
+        check(pendingActions.isEmpty()) { "At least one pending action must be done before a new building can be taken" }
         require(accessibleBuildings().contains(building)) { "This building cannot be taken" }
         return copy(structure = structure.map { row -> row.minus(row.keys.filter { row[it] == building }) })
     }
@@ -167,8 +168,8 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             isOver() -> this
             pendingActions.isNotEmpty() -> if (pendingActions.first() == PlayAgain) copy(pendingActions = pendingActions.drop(1)) else this
             currentAgeIsOver() -> when (currentAge) {
-                AGE_I -> prepare(AGE_II)
-                AGE_II -> prepare(AGE_III)
+                AGE_I -> prepareNextAge(AGE_II)
+                AGE_II -> prepareNextAge(AGE_III)
                 else -> copy(currentPlayer = null)
             }
             else -> copy(currentPlayer = if (currentPlayer == 1) 2 else 1)

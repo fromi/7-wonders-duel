@@ -1,6 +1,7 @@
 package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
+import fr.omi.sevenwondersduel.effects.PlayAgain
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building.*
@@ -47,7 +48,7 @@ class WondersTest {
         game = game.build(PIRAEUS, FORUM)
         assertThat(game.currentAge).isEqualTo(AGE_III)
         assertThat(game.currentPlayer).isEqualTo(2)
-        assertThat(game.pendingActions).isEmpty()
+        assertThat(game.pendingActions).doesNotContain(PlayAgain)
     }
 
     @Test
@@ -117,6 +118,30 @@ class WondersTest {
         assertThat(game.players.second.buildings).doesNotContain(SAWMILL)
         assertThat(game.discardedCards).contains(SAWMILL)
         assertThat(game.currentPlayer).isEqualTo(2)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun the_statue_of_zeus_does_not_allow_me_to_build_another_building() {
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(DISPENSARY, BREWERY)), players = Pair(
+                Player(coins = 42, wonders = listOf(BuildableWonder(THE_STATUE_OF_ZEUS))),
+                Player(buildings = setOf(SAWMILL))))
+        game.build(THE_STATUE_OF_ZEUS, DISPENSARY).build(BREWERY)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun the_statue_of_zeus_does_not_allow_me_to_discard_another_from_the_structure() {
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(DISPENSARY, BREWERY)), players = Pair(
+                Player(coins = 42, wonders = listOf(BuildableWonder(THE_STATUE_OF_ZEUS), BuildableWonder(PIRAEUS))),
+                Player(buildings = setOf(SAWMILL))))
+        game.build(THE_STATUE_OF_ZEUS, DISPENSARY).discard(BREWERY)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun the_statue_of_zeus_does_not_allow_me_to_build_another_wonder() {
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(DISPENSARY, BREWERY)), players = Pair(
+                Player(coins = 42, wonders = listOf(BuildableWonder(THE_STATUE_OF_ZEUS), BuildableWonder(PIRAEUS))),
+                Player(buildings = setOf(SAWMILL))))
+        game.build(THE_STATUE_OF_ZEUS, DISPENSARY).build(PIRAEUS, BREWERY)
     }
 
     @Test
@@ -204,5 +229,29 @@ class WondersTest {
                 Player(coins = 10, wonders = listOf(BuildableWonder(THE_MAUSOLEUM))),
                 Player()), discardedCards = listOf(WALLS, TRIBUNAL))
         game.build(THE_MAUSOLEUM, DISPENSARY).build(PALACE)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun the_mausoleum_does_not_let_me_build_from_the_structure() {
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
+                Player(coins = 50, wonders = listOf(BuildableWonder(THE_MAUSOLEUM))),
+                Player()), discardedCards = listOf(WALLS, TRIBUNAL))
+        game.build(THE_MAUSOLEUM, DISPENSARY).build(DRYING_ROOM)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun the_mausoleum_does_not_let_me_build_a_wonder() {
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
+                Player(coins = 50, wonders = listOf(BuildableWonder(THE_MAUSOLEUM), BuildableWonder(PIRAEUS))),
+                Player()), discardedCards = listOf(WALLS, TRIBUNAL))
+        game.build(THE_MAUSOLEUM, DISPENSARY).build(PIRAEUS, DRYING_ROOM)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun the_mausoleum_does_not_let_me_discard_a_building() {
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
+                Player(coins = 50, wonders = listOf(BuildableWonder(THE_MAUSOLEUM), BuildableWonder(PIRAEUS))),
+                Player()), discardedCards = listOf(WALLS, TRIBUNAL))
+        game.build(THE_MAUSOLEUM, DISPENSARY).discard(DRYING_ROOM)
     }
 }
