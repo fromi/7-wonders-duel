@@ -1,7 +1,7 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.effects.ChooseProgressToken
-import fr.omi.sevenwondersduel.effects.DestroyOpponentBuilding
+import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
+import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building.*
 import fr.omi.sevenwondersduel.material.Building.Type.MANUFACTURE
@@ -85,14 +85,14 @@ class WondersTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_destroy_any_opponent_building() {
         val game = SevenWondersDuel(players = Pair(Player(), Player(buildings = setOf(GLASSWORKS, SAWMILL))),
-                pendingActions = listOf(DestroyOpponentBuilding(MANUFACTURE)))
+                pendingActions = listOf(OpponentBuildingToDestroy(MANUFACTURE)))
         game.destroy(SAWMILL)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_destroy_a_building_opponent_does_not_have() {
         val game = SevenWondersDuel(players = Pair(Player(), Player(buildings = setOf(GLASSWORKS, SAWMILL))),
-                pendingActions = listOf(DestroyOpponentBuilding(MANUFACTURE)))
+                pendingActions = listOf(OpponentBuildingToDestroy(MANUFACTURE)))
         game.destroy(PRESS)
     }
 
@@ -127,12 +127,12 @@ class WondersTest {
                 progressTokensAvailable = setOf(STRATEGY, LAW, THEOLOGY))
         game = game.build(THE_GREAT_LIBRARY, DISPENSARY)
         assertThat(game.currentPlayer).isEqualTo(1)
-        assertThat(game.pendingActions[0]).isInstanceOfSatisfying(ChooseProgressToken::class.java) {
+        assertThat(game.pendingActions[0]).isInstanceOfSatisfying(ProgressTokenToChoose::class.java) {
             assertThat(it.tokens.size).isEqualTo(3)
             assertThat(it.tokens).doesNotContain(AGRICULTURE, URBANISM, STRATEGY, LAW, THEOLOGY)
         }
         game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_I, listOf(CLAY_POOL)),
-                pendingActions = listOf(ChooseProgressToken(setOf(MASONRY, ECONOMY, ARCHITECTURE))),
+                pendingActions = listOf(ProgressTokenToChoose(setOf(MASONRY, ECONOMY, ARCHITECTURE))),
                 progressTokensAvailable = setOf(STRATEGY, LAW, THEOLOGY))
         game = game.choose(ECONOMY)
         assertThat(game.currentPlayer).isEqualTo(2)

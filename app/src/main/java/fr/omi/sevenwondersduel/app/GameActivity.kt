@@ -1,6 +1,5 @@
 package fr.omi.sevenwondersduel.app
 
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.DragEvent
@@ -14,16 +13,22 @@ import kotlinx.android.synthetic.main.activity_game.*
 
 class GameActivity : AppCompatActivity() {
 
-    private val model = ViewModelProviders.of(this).get(GameViewModel::class.java)
+    private val model = GameViewModel()
     private val wondersViews: MutableMap<Wonder, WonderView> = hashMapOf()
     private var structureBuildingsViews: List<Map<Int, BuildingView>> = listOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
-        model.game.wondersAvailable.forEachIndexed(::createAvailableWonder)
-        createWonderDropZone()
+        model.playRandomMoves(10)
         model.game.progressTokensAvailable.forEachIndexed(::createProgressToken)
+        if (model.game.wondersAvailable.isNotEmpty()) {
+            model.game.wondersAvailable.forEachIndexed(::createAvailableWonder)
+            createWonderDropZone()
+        } else {
+            displayStructure()
+            createBuildingDropZone()
+        }
     }
 
     private fun createAvailableWonder(position: Int, wonder: Wonder) {

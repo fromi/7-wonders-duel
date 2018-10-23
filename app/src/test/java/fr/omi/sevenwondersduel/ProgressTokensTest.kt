@@ -1,6 +1,6 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.effects.ChooseProgressToken
+import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.Age.AGE_II
 import fr.omi.sevenwondersduel.material.Age.AGE_III
 import fr.omi.sevenwondersduel.material.Building.*
@@ -13,7 +13,7 @@ class ProgressTokensTest {
 
     @Test
     fun agriculture() {
-        var game = SevenWondersDuel(pendingActions = listOf(ChooseProgressToken(setOf(AGRICULTURE))),
+        var game = SevenWondersDuel(pendingActions = listOf(ProgressTokenToChoose(setOf(AGRICULTURE))),
                 players = Pair(Player(coins = 0), Player()))
         game = game.choose(AGRICULTURE)
         assertThat(game.players.first.coins).isEqualTo(6)

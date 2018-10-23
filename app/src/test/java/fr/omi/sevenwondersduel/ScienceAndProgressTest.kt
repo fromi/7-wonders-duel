@@ -1,6 +1,6 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.effects.ChooseProgressToken
+import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building.*
 import fr.omi.sevenwondersduel.material.ProgressToken.*
@@ -39,7 +39,7 @@ class ScienceAndProgressTest {
                 players = Pair(Player(buildings = setOf(PHARMACIST)), Player()))
         game = game.build(DISPENSARY)
         assertThat(game.currentPlayer).isEqualTo(1)
-        assertThat(game.pendingActions).containsExactly(ChooseProgressToken(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
+        assertThat(game.pendingActions).containsExactly(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
         game = game.choose(LAW)
         assertThat(game.players.first.progressTokens).contains(LAW)
         assertThat(game.currentPlayer).isEqualTo(2)
@@ -53,7 +53,7 @@ class ScienceAndProgressTest {
         game = game.build(DISPENSARY)
         assertThat(game.currentPlayer).isEqualTo(1)
         assertThat(game.currentAge).isEqualTo(AGE_II)
-        assertThat(game.pendingActions).containsExactly(ChooseProgressToken(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
+        assertThat(game.pendingActions).containsExactly(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
         game = game.choose(LAW)
         assertThat(game.currentAge).isEqualTo(AGE_III)
         assertThat(game.currentPlayer).isEqualTo(1)

@@ -14,7 +14,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
                             val wondersAvailable: Set<Wonder> = Wonder.values().toList().shuffled().asSequence().take(4).toSet(),
                             val structure: List<Map<Int, Building>> = emptyList(),
                             val discardedCards: List<Building> = emptyList(),
-                            val pendingActions: List<Action> = emptyList(),
+                            val pendingActions: List<PendingAction> = emptyList(),
                             val currentAge: Age = AGE_I) {
 
     fun choose(wonder: Wonder): SevenWondersDuel {
@@ -32,7 +32,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun build(building: Building): SevenWondersDuel {
-        val game = if (pendingActions.firstOrNull() == BuildDiscarded) {
+        val game = if (pendingActions.firstOrNull() == DiscardedBuildingToBuild) {
             require(discardedCards.contains(building))
             copy(discardedCards = discardedCards.minus(building))
         } else {
@@ -73,7 +73,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun choose(progressToken: ProgressToken): SevenWondersDuel {
-        val chooseProgressToken = checkNotNull(pendingActions.firstOrNull() as? ChooseProgressToken) { "You are not currently allowed to choose a progress token" }
+        val chooseProgressToken = checkNotNull(pendingActions.firstOrNull() as? ProgressTokenToChoose) { "You are not currently allowed to choose a progress token" }
         require(chooseProgressToken.tokens.contains(progressToken)) { "You cannot choose this progress token" }
         return currentPlayerDo { it.take(progressToken) }
                 .copy(progressTokensAvailable = progressTokensAvailable.minus(progressToken),
@@ -83,7 +83,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun destroy(building: Building): SevenWondersDuel {
-        val destroyOpponentBuilding = checkNotNull(pendingActions.firstOrNull() as? DestroyOpponentBuilding) { "You are not currently allowed to destroy an opponent building" }
+        val destroyOpponentBuilding = checkNotNull(pendingActions.firstOrNull() as? OpponentBuildingToDestroy) { "You are not currently allowed to destroy an opponent building" }
         require(building.type == destroyOpponentBuilding.type) { "You are not allowed to destroy this kind of building" }
         return pairInOrder(currentPlayer(), opponent().destroy(building))
                 .copy(pendingActions = pendingActions.minus(destroyOpponentBuilding), discardedCards = discardedCards.plus(building))
@@ -153,6 +153,10 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             opponent().takeCoins(currentPlayer().sumTradingCost(construction, ::getTradingCost))
         else opponent()
         return pairInOrder(player, opponent)
+    }
+
+    fun coinsToPay(construction: Construction): Int {
+        return construction.cost.coins + currentPlayer().sumTradingCost(construction, ::getTradingCost)
     }
 
     private fun getTradingCost(resource: Resource): Int =

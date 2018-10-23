@@ -8,7 +8,7 @@ enum class ScientificSymbol : Effect {
     override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
         val player = game.currentPlayer()
         return when {
-            player.count(this) == 2 -> game.copy(pendingActions = game.pendingActions.plus(ChooseProgressToken(game.progressTokensAvailable)))
+            player.count(this) == 2 -> game.copy(pendingActions = game.pendingActions.plus(ProgressTokenToChoose(game.progressTokensAvailable)))
             player.countDifferentScientificSymbols() == 6 -> game.copy(currentPlayer = null)
             else -> game
         }

@@ -32,12 +32,12 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
     }
 
     fun sumTradingCost(construction: Construction, getTradingCost: (resource: Resource) -> Int): Int =
-            Resource.Type.values().flatMap { listTradingCostByType(it, construction, getTradingCost) }
+            Resource.Type.values().flatMap { listTradingCostByType(it, construction.cost, getTradingCost) }
                     .sorted().dropLast(effects().filterIsInstance<ResourcesRebate>().filter { it.appliesTo(construction) }.toList().sumBy { it.quantity })
                     .sum()
 
-    private fun listTradingCostByType(resourceType: Resource.Type, construction: Construction, getTradingCost: (resource: Resource) -> Int): List<Int> =
-            construction.cost.resources.filter { it.key.type == resourceType }
+    private fun listTradingCostByType(resourceType: Resource.Type, cost: Construction.Cost, getTradingCost: (resource: Resource) -> Int): List<Int> =
+            cost.resources.filter { it.key.type == resourceType }
                     .flatMap { entry -> List(max(entry.value - productionOf(entry.key), 0)) { getTradingCost(entry.key) } }
                     .sorted().dropLast(effects().count { it is ProductionOfAny && it.resourceType == resourceType })
 

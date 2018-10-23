@@ -1,6 +1,6 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.effects.ChooseProgressToken
+import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.Age
 import fr.omi.sevenwondersduel.material.Building.*
 import fr.omi.sevenwondersduel.material.ProgressToken.AGRICULTURE
@@ -93,7 +93,7 @@ class TakeCoinsEffectsTest {
 
     @Test
     fun agriculture_gives_6_coins() {
-        var game = SevenWondersDuel(pendingActions = listOf(ChooseProgressToken(setOf(AGRICULTURE))),
+        var game = SevenWondersDuel(pendingActions = listOf(ProgressTokenToChoose(setOf(AGRICULTURE))),
                 players = Pair(Player(coins = 0), Player()))
         game = game.choose(AGRICULTURE)
         assertThat(game.players.first.coins).isEqualTo(6)
@@ -101,7 +101,7 @@ class TakeCoinsEffectsTest {
 
     @Test
     fun urbanism_gives_6_coins() {
-        var game = SevenWondersDuel(pendingActions = listOf(ChooseProgressToken(setOf(URBANISM))),
+        var game = SevenWondersDuel(pendingActions = listOf(ProgressTokenToChoose(setOf(URBANISM))),
                 players = Pair(Player(coins = 0), Player()))
         game = game.choose(URBANISM)
         assertThat(game.players.first.coins).isEqualTo(6)
