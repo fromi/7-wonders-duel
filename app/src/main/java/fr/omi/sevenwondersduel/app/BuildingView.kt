@@ -8,9 +8,10 @@ import android.widget.ImageView
 import fr.omi.sevenwondersduel.Building
 import fr.omi.sevenwondersduel.Building.*
 import fr.omi.sevenwondersduel.R
+import fr.omi.sevenwondersduel.SevenWondersDuel
 
 @SuppressLint("ViewConstructor")
-class BuildingView(context: Context, building: Building? = null) : ImageView(context) {
+class BuildingView(context: Context, val building: Building? = null) : ImageView(context) {
     init {
         id = generateViewId()
         setImageResource(getResource(building))
@@ -29,6 +30,21 @@ class BuildingView(context: Context, building: Building? = null) : ImageView(con
         constraintSet.connect(id, ConstraintSet.START, R.id.layout, ConstraintSet.START, if (column > 0) dpsToPx(column * 40) else 0)
         constraintSet.connect(id, ConstraintSet.END, R.id.layout, ConstraintSet.END, if (column < 0) dpsToPx(-column * 40) else 0)
         constraintSet.applyTo(constraintLayout)
+    }
+
+    fun positionToNextBuildingPlace(constraintLayout: ConstraintLayout, game: SevenWondersDuel) {
+        if (parent == null) {
+            constraintLayout.addView(this)
+        }
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraintLayout)
+        constraintSet.clear(id, ConstraintSet.START)
+        constraintSet.clear(id, ConstraintSet.END)
+        constraintSet.connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(game.currentPlayer().buildings.size * 12))
+        val constraint = if (game.currentPlayer == 1) ConstraintSet.START else ConstraintSet.END
+        constraintSet.connect(id, constraint, R.id.layout, constraint, dpsToPx(100))
+        constraintSet.applyTo(constraintLayout)
+        bringToFront()
     }
 
     companion object {
