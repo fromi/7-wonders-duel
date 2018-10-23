@@ -7,7 +7,7 @@ import org.junit.Test
 
 class DiscardToObtainCoinsTest {
 
-    private val sampleAge1Structure = Game.createStructure(AGE_I, listOf(
+    private val sampleAge1Structure = SevenWondersDuel.createStructure(AGE_I, listOf(
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, TAVERN,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
@@ -16,7 +16,7 @@ class DiscardToObtainCoinsTest {
 
     @Test
     fun discard_for_coins() {
-        var game = Game(structure = sampleAge1Structure)
+        var game = SevenWondersDuel(structure = sampleAge1Structure)
         game = game.discard(BATHS)
         assertThat(game.players.first.coins).isEqualTo(9)
         assertThat(game.discardedCards).containsExactly(BATHS)
@@ -24,7 +24,7 @@ class DiscardToObtainCoinsTest {
 
     @Test
     fun discard_for_more_coins() {
-        var game = Game(players = Pair(Player(buildings = setOf(QUARRY, TAVERN, CLAY_RESERVE)), Player()),
+        var game = SevenWondersDuel(players = Pair(Player(buildings = setOf(QUARRY, TAVERN, CLAY_RESERVE)), Player()),
                 structure = sampleAge1Structure)
         game = game.discard(ALTAR)
         assertThat(game.players.first.coins).isEqualTo(11)
@@ -33,7 +33,7 @@ class DiscardToObtainCoinsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_discard_unaccessible_building() {
-        val game = Game(structure = sampleAge1Structure)
+        val game = SevenWondersDuel(structure = sampleAge1Structure)
         assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST)
         game.discard(STABLE)
     }

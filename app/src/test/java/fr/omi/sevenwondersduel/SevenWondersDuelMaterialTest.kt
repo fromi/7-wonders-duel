@@ -9,7 +9,7 @@ import fr.omi.sevenwondersduel.material.Wonder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class GameMaterialTest {
+class SevenWondersDuelMaterialTest {
 
     @Test
     fun there_are_23_age_I_buildings() {

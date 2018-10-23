@@ -1,12 +1,12 @@
 package fr.omi.sevenwondersduel.app
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.DragEvent
 import android.view.DragEvent.*
 import android.view.View
 import fr.omi.sevenwondersduel.R
-import fr.omi.sevenwondersduel.app.GameViewModel.game
 import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.ProgressToken
 import fr.omi.sevenwondersduel.material.Wonder
@@ -14,15 +14,16 @@ import kotlinx.android.synthetic.main.activity_game.*
 
 class GameActivity : AppCompatActivity() {
 
+    private val model = ViewModelProviders.of(this).get(GameViewModel::class.java)
     private val wondersViews: MutableMap<Wonder, WonderView> = hashMapOf()
     private var structureBuildingsViews: List<Map<Int, BuildingView>> = listOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
-        game.wondersAvailable.forEachIndexed(::createAvailableWonder)
+        model.game.wondersAvailable.forEachIndexed(::createAvailableWonder)
         createWonderDropZone()
-        game.progressTokensAvailable.forEachIndexed(::createProgressToken)
+        model.game.progressTokensAvailable.forEachIndexed(::createProgressToken)
     }
 
     private fun createAvailableWonder(position: Int, wonder: Wonder) {
@@ -35,7 +36,7 @@ class GameActivity : AppCompatActivity() {
     private fun createWonderDropZone() {
         WonderView(this).apply {
             alpha = 0F
-            positionToNextWonderPlace(layout, game)
+            positionToNextWonderPlace(layout, model.game)
             setOnDragListener { view, event -> wonderDropListener(view as WonderView, event) }
         }
     }
@@ -59,28 +60,28 @@ class GameActivity : AppCompatActivity() {
             ACTION_DRAG_ENTERED -> dropZone.alpha = 1F
             ACTION_DRAG_EXITED -> dropZone.alpha = 0.5F
             ACTION_DROP -> {
-                wonderView.positionToNextWonderPlace(layout, game)
+                wonderView.positionToNextWonderPlace(layout, model.game)
                 wonderView.disableDragAndDrop()
-                GameViewModel.choose(wonder)
+                model.choose(wonder)
             }
             ACTION_DRAG_ENDED -> {
                 wonderView.visibility = View.VISIBLE
-                if (game.wondersAvailable.isEmpty()) {
+                if (model.game.wondersAvailable.isEmpty()) {
                     layout.removeView(dropZone)
                 } else {
                     dropZone.alpha = 0F
                     if (event.result) {
-                        dropZone.positionToNextWonderPlace(layout, game)
+                        dropZone.positionToNextWonderPlace(layout, model.game)
                     }
                 }
                 if (event.result) {
-                    if (game.wondersAvailable.isEmpty()) {
-                        checkNotNull(wondersViews[game.players.second.wonders[3].wonder]).moveInto(layout, 2, 3)
+                    if (model.game.wondersAvailable.isEmpty()) {
+                        checkNotNull(wondersViews[model.game.players.second.wonders[3].wonder]).moveInto(layout, 2, 3)
                         displayStructure()
                         createBuildingDropZone()
-                    } else if (game.wondersAvailable.size == 4) {
-                        checkNotNull(wondersViews[game.players.first.wonders[1].wonder]).moveInto(layout, 1, 1)
-                        game.wondersAvailable.forEachIndexed(::createAvailableWonder)
+                    } else if (model.game.wondersAvailable.size == 4) {
+                        checkNotNull(wondersViews[model.game.players.first.wonders[1].wonder]).moveInto(layout, 1, 1)
+                        model.game.wondersAvailable.forEachIndexed(::createAvailableWonder)
                     }
                 }
             }
@@ -89,7 +90,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun displayStructure() {
-        structureBuildingsViews = game.structure.mapIndexed { rowIndex, row -> row.mapValues { entry -> createBuilding(entry.value, rowIndex, entry.key) } }
+        structureBuildingsViews = model.game.structure.mapIndexed { rowIndex, row -> row.mapValues { entry -> createBuilding(entry.value, rowIndex, entry.key) } }
         structureBuildingsViews.last().values.forEach { it.enableDragAndDrop() }
     }
 
@@ -102,7 +103,7 @@ class GameActivity : AppCompatActivity() {
     private fun createBuildingDropZone() {
         BuildingView(this).apply {
             alpha = 0F
-            positionToNextBuildingPlace(layout, game)
+            positionToNextBuildingPlace(layout, model.game)
             setOnDragListener { view, event -> buildingDropListener(view as BuildingView, event) }
         }
     }
@@ -120,19 +121,18 @@ class GameActivity : AppCompatActivity() {
             ACTION_DRAG_ENTERED -> dropZone.alpha = 1F
             ACTION_DRAG_EXITED -> dropZone.alpha = 0.5F
             ACTION_DROP -> {
-                buildingView.positionToNextBuildingPlace(layout, game)
+                buildingView.positionToNextBuildingPlace(layout, model.game)
                 buildingView.disableDragAndDrop()
-                GameViewModel.build(building)
+                model.build(building)
             }
             ACTION_DRAG_ENDED -> {
                 buildingView.visibility = View.VISIBLE
                 dropZone.alpha = 0F
                 if (event.result) {
-                    dropZone.positionToNextBuildingPlace(layout, game)
+                    dropZone.positionToNextBuildingPlace(layout, model.game)
                 }
             }
         }
         return true
     }
 }
-

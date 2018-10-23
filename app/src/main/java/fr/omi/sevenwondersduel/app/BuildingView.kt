@@ -5,8 +5,8 @@ import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
 import android.widget.ImageView
-import fr.omi.sevenwondersduel.Game
 import fr.omi.sevenwondersduel.R
+import fr.omi.sevenwondersduel.SevenWondersDuel
 import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.Building.*
 
@@ -32,7 +32,7 @@ class BuildingView(context: Context, val building: Building? = null) : ImageView
         constraintSet.applyTo(constraintLayout)
     }
 
-    fun positionToNextBuildingPlace(constraintLayout: ConstraintLayout, game: Game) {
+    fun positionToNextBuildingPlace(constraintLayout: ConstraintLayout, game: SevenWondersDuel) {
         if (parent == null) {
             constraintLayout.addView(this)
         }

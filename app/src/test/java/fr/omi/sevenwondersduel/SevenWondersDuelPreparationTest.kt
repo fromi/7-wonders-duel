@@ -3,8 +3,8 @@ package fr.omi.sevenwondersduel
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class GamePreparationTest {
-    private val newGame = Game()
+class SevenWondersDuelPreparationTest {
+    private val newGame = SevenWondersDuel()
 
     @Test
     fun conflict_pawn_starts_neutral() {

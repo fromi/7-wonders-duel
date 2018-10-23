@@ -9,21 +9,21 @@ import org.junit.Test
 
 class ScienceAndProgressTest {
 
-    private val sampleAge1Structure = Game.createStructure(AGE_I, listOf(
+    private val sampleAge1Structure = SevenWondersDuel.createStructure(AGE_I, listOf(
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, TAVERN,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
             PALISADE, GARRISON, STABLE, LUMBER_YARD, STONE_PIT,
             BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST))
 
-    private val sampleAge2Structure = Game.createStructure(AGE_II, listOf(
+    private val sampleAge2Structure = SevenWondersDuel.createStructure(AGE_II, listOf(
             BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
             AQUEDUCT, BREWERY, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
             WALLS, PARADE_GROUND, STATUE, TRIBUNAL,
             CUSTOMS_HOUSE, SAWMILL, GLASSBLOWER,
             ROSTRUM, DISPENSARY))
 
-    private val sampleAge3Structure = Game.createStructure(AGE_III, listOf(
+    private val sampleAge3Structure = SevenWondersDuel.createStructure(AGE_III, listOf(
             CIRCUS, MERCHANTS_GUILD,
             BUILDERS_GUILD, ARSENAL, PANTHEON,
             ARENA, LIGHTHOUSE, SENATE, PALACE,
@@ -34,7 +34,7 @@ class ScienceAndProgressTest {
 
     @Test
     fun after_I_get_a_pair_of_science_symbol_I_choose_a_progress_token() {
-        var game = Game(currentPlayer = 1, structure = sampleAge2Structure,
+        var game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(PHARMACIST)), Player()))
         game = game.build(DISPENSARY)
@@ -47,7 +47,7 @@ class ScienceAndProgressTest {
 
     @Test
     fun get_a_science_symbol_at_the_end_of_an_age() {
-        var game = Game(currentPlayer = 1, currentAge = AGE_II, conflictPawnPosition = 0, structure = Game.createStructure(AGE_II, listOf(DISPENSARY)),
+        var game = SevenWondersDuel(currentPlayer = 1, currentAge = AGE_II, conflictPawnPosition = 0, structure = SevenWondersDuel.createStructure(AGE_II, listOf(DISPENSARY)),
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(PHARMACIST)), Player()))
         game = game.build(DISPENSARY)
@@ -61,19 +61,19 @@ class ScienceAndProgressTest {
 
     @Test
     fun after_I_get_a_single_science_symbol_I_do_not_choose_a_progress_token() {
-        var game = Game(structure = sampleAge1Structure)
+        var game = SevenWondersDuel(structure = sampleAge1Structure)
         game = game.build(PHARMACIST)
         assertThat(game.pendingActions).isEmpty()
     }
 
     @Test(expected = IllegalStateException::class)
     fun cannot_choose_a_symbol_at_any_time() {
-        Game(progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)).choose(LAW)
+        SevenWondersDuel(progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)).choose(LAW)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_choose_a_symbol_not_available() {
-        val game = Game(currentPlayer = 1, structure = sampleAge2Structure,
+        val game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(PHARMACIST)), Player()))
         game.build(DISPENSARY).choose(STRATEGY)
@@ -81,7 +81,7 @@ class ScienceAndProgressTest {
 
     @Test
     fun victory_by_scientific_supremacy() {
-        var game = Game(currentPlayer = 1, structure = sampleAge3Structure,
+        var game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge3Structure,
                 players = Pair(
                         Player(buildings = setOf(PHARMACIST, SCRIPTORIUM, SCHOOL, LABORATORY),
                                 progressTokens = setOf(LAW)),

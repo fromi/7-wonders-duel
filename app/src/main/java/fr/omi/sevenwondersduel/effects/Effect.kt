@@ -1,9 +1,9 @@
 package fr.omi.sevenwondersduel.effects
 
-import fr.omi.sevenwondersduel.Game
+import fr.omi.sevenwondersduel.SevenWondersDuel
 
 interface Effect {
-    fun applyTo(game: Game): Game {
+    fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
         return game
     }
 }

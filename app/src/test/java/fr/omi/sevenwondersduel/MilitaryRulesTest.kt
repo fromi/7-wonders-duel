@@ -7,7 +7,7 @@ import org.junit.Test
 
 class MilitaryRulesTest {
 
-    private val sampleAge1Structure = Game.createStructure(AGE_I, listOf(
+    private val sampleAge1Structure = SevenWondersDuel.createStructure(AGE_I, listOf(
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, TAVERN,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
@@ -16,14 +16,14 @@ class MilitaryRulesTest {
 
     @Test
     fun the_conflict_pawn_moves_when_a_shield_is_build() {
-        var game = Game(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 0)
+        var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 0)
         game = game.build(GUARD_TOWER)
         assertThat(game.conflictPawnPosition).isEqualTo(1)
     }
 
     @Test
     fun the_conflict_pawn_enter_a_zone_with_a_token() {
-        var game = Game(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 2,
+        var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 2,
                 players = Pair(Player(), Player(militaryTokensLooted = 0, coins = 7)))
         game = game.build(GUARD_TOWER)
         assertThat(game.conflictPawnPosition).isEqualTo(3)
@@ -33,7 +33,7 @@ class MilitaryRulesTest {
 
     @Test
     fun two_military_token_might_be_looted_at_once() {
-        var game = Game(conflictPawnPosition = 3,
+        var game = SevenWondersDuel(conflictPawnPosition = 3,
                 players = Pair(Player(), Player(militaryTokensLooted = 0, coins = 6)))
         game = game.moveConflictPawn(4)
         assertThat(game.players.second.militaryTokensLooted).isEqualTo(2)
@@ -42,7 +42,7 @@ class MilitaryRulesTest {
 
     @Test
     fun victory_by_military_supremacy() {
-        var game = Game(conflictPawnPosition = 7)
+        var game = SevenWondersDuel(conflictPawnPosition = 7)
         game = game.moveConflictPawn(2)
         assertThat(game.isOver()).isTrue()
         assertThat(game.getWinner()).isEqualTo(game.players.first)

@@ -10,7 +10,7 @@ class EndOfAnAgeTest {
 
     @Test
     fun end_of_age_I() {
-        var game = Game(structure = Game.createStructure(AGE_I, listOf(GARRISON)))
+        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_I, listOf(GARRISON)))
         game = game.discard(GARRISON)
         assertThat(game.structure.sumBy { it.size }).isEqualTo(20)
         assertThat(game.structure.flatMap { it.values }).allMatch { it.deck == AGE_II }
@@ -18,7 +18,7 @@ class EndOfAnAgeTest {
 
     @Test
     fun end_of_age_II() {
-        var game = Game(structure = Game.createStructure(AGE_II, listOf(TEMPLE)), currentAge = AGE_II)
+        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(TEMPLE)), currentAge = AGE_II)
         game = game.discard(TEMPLE)
         assertThat(game.structure.sumBy { it.size }).isEqualTo(20)
         assertThat(game.structure.flatMap { it.values }.count { it.deck == AGE_III }).isEqualTo(17)
@@ -27,7 +27,7 @@ class EndOfAnAgeTest {
 
     @Test
     fun weakest_military_chooses_which_player_begins_the_next_age() {
-        var game = Game(structure = Game.createStructure(AGE_I, listOf(GARRISON)), currentPlayer = 1, conflictPawnPosition = 3)
+        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_I, listOf(GARRISON)), currentPlayer = 1, conflictPawnPosition = 3)
         game = game.discard(GARRISON)
         assertThat(game.currentPlayer).isEqualTo(2)
         assertThat(game.letOpponentBegin().currentPlayer).isEqualTo(1)
@@ -35,24 +35,24 @@ class EndOfAnAgeTest {
 
     @Test(expected = IllegalStateException::class)
     fun cannot_let_opponent_begin_during_wonder_selection_phase() {
-        Game().letOpponentBegin()
+        SevenWondersDuel().letOpponentBegin()
     }
 
     @Test(expected = IllegalStateException::class)
     fun cannot_let_opponent_begin_in_the_middle_of_an_age() {
-        val game = Game(structure = Game.createStructure(AGE_II, listOf(LIBRARY, SAWMILL)))
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(LIBRARY, SAWMILL)))
         game.letOpponentBegin()
     }
 
     @Test(expected = IllegalStateException::class)
     fun cannot_let_opponent_begin_if_military_equal() {
-        val game = Game(structure = Game.createStructure(AGE_II), conflictPawnPosition = 0)
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II), conflictPawnPosition = 0)
         game.letOpponentBegin()
     }
 
     @Test(expected = IllegalStateException::class)
     fun cannot_let_opponent_begin_if_stronger_than_him() {
-        val game = Game(structure = Game.createStructure(AGE_II), conflictPawnPosition = 3, currentPlayer = 1)
+        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II), conflictPawnPosition = 3, currentPlayer = 1)
         game.letOpponentBegin()
     }
 }
