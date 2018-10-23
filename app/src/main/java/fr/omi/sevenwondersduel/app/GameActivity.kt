@@ -5,10 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.DragEvent
 import android.view.DragEvent.*
 import android.view.View
-import fr.omi.sevenwondersduel.ProgressToken
-import fr.omi.sevenwondersduel.R
-import fr.omi.sevenwondersduel.SevenWondersDuel
-import fr.omi.sevenwondersduel.Wonder
+import fr.omi.sevenwondersduel.*
 import fr.omi.sevenwondersduel.app.GameViewModel.game
 import kotlinx.android.synthetic.main.activity_game.*
 
@@ -71,6 +68,7 @@ class GameActivity : AppCompatActivity() {
                 if (event.result) {
                     if (game.wondersAvailable.isEmpty()) {
                         checkNotNull(wondersViews[game.players.second.wonders[3].wonder]).moveInto(layout, 2, 3)
+                        displayStructure()
                     } else if (game.wondersAvailable.size == 4) {
                         checkNotNull(wondersViews[game.players.first.wonders[1].wonder]).moveInto(layout, 1, 1)
                         game.wondersAvailable.forEachIndexed(::createAvailableWonder)
@@ -79,6 +77,16 @@ class GameActivity : AppCompatActivity() {
             }
         }
         return true
+    }
+
+    private fun displayStructure() {
+        game.structure.forEachIndexed { row, buildings -> buildings.forEach { column, building -> createBuilding(building, row, column) } }
+    }
+
+    private fun createBuilding(building: Building, row: Int, column: Int) {
+        (if (row % 2 == 0) BuildingView(this, building) else BuildingView(this)).apply {
+            positionInStructure(layout, row, column)
+        }
     }
 }
 

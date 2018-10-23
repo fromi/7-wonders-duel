@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Seven Wonders Duel</string>
     <string name="board_description">Board</string>
+
     <string name="wonders_back">A wonder card face down</string>
     <string name="circus_maximus">Circus Maximus</string>
     <string name="piraeus">Piraeus</string>
@@ -14,6 +15,7 @@
     <string name="the_sphinx">The Sphinx</string>
     <string name="the_statue_of_zeus">The Statue of Zeus</string>
     <string name="the_temple_of_artemis">The Temple of Artemis</string>
+
     <string name="progress_agriculture">Agriculture</string>
     <string name="progress_architecture">Architecture</string>
     <string name="progress_economy">Economy</string>
@@ -24,4 +26,29 @@
     <string name="progress_strategy">Strategy</string>
     <string name="progress_theology">Theology</string>
     <string name="progress_urbanism">Urbanism</string>
+
+    <string name="age_1_back">An age I card face down</string>
+    <string name="lumber_yard">Lumber yard</string>
+    <string name="logging_camp">Logging camp</string>
+    <string name="clay_pool">Clay pool</string>
+    <string name="clay_pit">Clay pit</string>
+    <string name="quarry">Quarry</string>
+    <string name="stone_pit">Stone pit</string>
+    <string name="glassworks">Glassworks</string>
+    <string name="press">Press</string>
+    <string name="guard_tower">Guard tower</string>
+    <string name="stable">Stable</string>
+    <string name="garrison">Garrison</string>
+    <string name="palisade">Palisade</string>
+    <string name="workshop">Workshop</string>
+    <string name="apothecary">Apothecary</string>
+    <string name="scriptorium">Scriptorium</string>
+    <string name="pharmacist">Pharmacist</string>
+    <string name="theater">Theater</string>
+    <string name="altar">Altar</string>
+    <string name="baths">Baths</string>
+    <string name="stone_reserve">Stone reserve</string>
+    <string name="clay_reserve">Clay reserve</string>
+    <string name="wood_reserve">Wood reserve</string>
+    <string name="tavern">Tavern</string>
 </resources>
