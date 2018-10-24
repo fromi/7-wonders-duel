@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Seven Wonders Duel</string>
     <string name="board_description">Board</string>
+    <string name="conflict_pawn_position">Conflict pawn position</string>
+    <string name="first_player_military_token_2_coins">Loot 2 coins to first player</string>
+    <string name="first_player_military_token_5_coins">Loot 5 coins to first player</string>
+    <string name="second_player_military_token_2_coins">Loot 2 coins to second player</string>
+    <string name="second_player_military_token_5_coins">Loot 5 coins to second player</string>
 
     <string name="wonders_back">A wonder card face down</string>
     <string name="circus_maximus">Circus Maximus</string>
