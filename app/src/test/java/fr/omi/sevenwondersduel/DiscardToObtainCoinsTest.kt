@@ -34,7 +34,6 @@ class DiscardToObtainCoinsTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_discard_unaccessible_building() {
         val game = SevenWondersDuel(structure = sampleAge1Structure)
-        assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST)
         game.discard(STABLE)
     }
 }

@@ -34,7 +34,6 @@ class BuildingConstructionTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_build_unaccessible_building() {
         val game = SevenWondersDuel(structure = sampleAge1Structure)
-        assertThat(game.accessibleBuildings()).containsExactly(BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST)
         game.build(STABLE)
     }
 
@@ -42,7 +41,7 @@ class BuildingConstructionTest {
     fun building_become_accessible_once_uncovered() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
         game = game.build(CLAY_PIT).build(ALTAR)
-        assertThat(game.accessibleBuildings()).containsExactlyInAnyOrder(BATHS, PRESS, GUARD_TOWER, STABLE, PHARMACIST)
+        assertThat(game.isAccessible(STABLE)).isTrue()
         game = game.build(STABLE)
         assertThat(game.players.first.buildings).containsExactly(CLAY_PIT, STABLE)
         assertThat(game.players.second.buildings).containsExactly(ALTAR)

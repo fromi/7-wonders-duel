@@ -5,6 +5,7 @@ import fr.omi.sevenwondersduel.effects.victorypoints.VictoryPointsEffect
 import fr.omi.sevenwondersduel.material.*
 import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building.Deck.Guilds
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), Player()),
@@ -140,12 +141,21 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     private fun take(building: Building): SevenWondersDuel {
         check(pendingActions.isEmpty()) { "At least one pending action must be done before a new building can be taken" }
-        require(accessibleBuildings().contains(building)) { "This building cannot be taken" }
+        require(isAccessible(building)) { "This building cannot be taken" }
         return copy(structure = structure.map { row -> row.minus(row.keys.filter { row[it] == building }) })
     }
 
-    fun accessibleBuildings(): Collection<Building> {
-        return structure.mapIndexed { index, row -> row.filterKeys { index == structure.size - 1 || !(structure[index + 1].contains(it - 1) || structure[index + 1].contains(it + 1)) }.values }.flatten()
+    fun isAccessible(building: Building): Boolean {
+        val remainingAccessibleColumns = (if (currentAge == AGE_III) (-3..3) else (-5..5)).toMutableSet()
+        var row = structure.size - 1
+        while (remainingAccessibleColumns.isNotEmpty() && row >= 0) {
+            structure[row].filterKeys { remainingAccessibleColumns.contains(it) }.forEach { entry ->
+                if (entry.value == building) return true
+                else remainingAccessibleColumns.removeAll { abs(entry.key - it) <= 1 }
+            }
+            row--
+        }
+        return false
     }
 
     private fun pay(construction: Construction): SevenWondersDuel {
@@ -268,7 +278,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             val structureDescription = when (age) {
                 AGE_I -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-4, -2, 0, 2, 4), listOf(-5, -3, -1, 1, 3, 5))
                 AGE_II -> listOf(listOf(-5, -3, -1, 1, 3, 5), listOf(-4, -2, 0, 2, 4), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
-                else -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-2, 2), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
+                AGE_III -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-2, 2), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
             }
             return structureDescription.asSequence()
                     .map {

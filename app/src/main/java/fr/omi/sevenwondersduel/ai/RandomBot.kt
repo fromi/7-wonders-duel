@@ -5,7 +5,9 @@ import fr.omi.sevenwondersduel.effects.DiscardedBuildingToBuild
 import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
 import fr.omi.sevenwondersduel.effects.PlayerBeginningAgeToChoose
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
+import fr.omi.sevenwondersduel.material.Age
 import fr.omi.sevenwondersduel.material.Building
+import kotlin.math.abs
 
 object RandomBot {
     fun play(game: SevenWondersDuel): SevenWondersDuel {
@@ -26,7 +28,21 @@ object RandomBot {
             }
         }
         if (game.isOver()) return emptyList()
-        return game.accessibleBuildings().flatMap { building -> possibleMovesWith(game, building) }
+        return accessibleBuildings(game).flatMap { building -> possibleMovesWith(game, building) }
+    }
+
+    private fun accessibleBuildings(game: SevenWondersDuel): Collection<Building> {
+        val remainingAccessibleColumns = (if (game.currentAge == Age.AGE_III) (-3..3) else (-5..5)).toMutableSet()
+        var row = game.structure.size - 1
+        val accessibleBuildings = mutableListOf<Building>()
+        while (remainingAccessibleColumns.isNotEmpty() && row >= 0) {
+            game.structure[row].filterKeys { remainingAccessibleColumns.contains(it) }.forEach { entry ->
+                accessibleBuildings.add(entry.value)
+                remainingAccessibleColumns.removeAll { abs(entry.key - it) <= 1 }
+            }
+            row--
+        }
+        return accessibleBuildings
     }
 
     private fun possibleMovesWith(game: SevenWondersDuel, building: Building): Iterable<SevenWondersDuelMove> {
