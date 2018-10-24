@@ -106,7 +106,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun createBuilding(building: Building, row: Int, column: Int): BuildingView {
-        return (if (row % 2 == 0) BuildingView(this, building) else BuildingView(this)).apply {
+        return (if (row % 2 == 0 || model.game.isAccessible(building)) BuildingView(this, building) else BuildingView(this)).apply {
             positionInStructure(layout, row, column)
         }
     }
