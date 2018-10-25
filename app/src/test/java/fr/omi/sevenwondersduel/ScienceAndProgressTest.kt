@@ -10,21 +10,21 @@ import org.junit.Test
 
 class ScienceAndProgressTest {
 
-    private val sampleAge1Structure = SevenWondersDuel.createStructure(AGE_I, listOf(
+    private val sampleAge1Structure = Structure(AGE_I, listOf(
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, TAVERN,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
             PALISADE, GARRISON, STABLE, LUMBER_YARD, STONE_PIT,
             BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST))
 
-    private val sampleAge2Structure = SevenWondersDuel.createStructure(AGE_II, listOf(
+    private val sampleAge2Structure = Structure(AGE_II, listOf(
             BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
             AQUEDUCT, BREWERY, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
             WALLS, PARADE_GROUND, STATUE, TRIBUNAL,
             CUSTOMS_HOUSE, SAWMILL, GLASSBLOWER,
             ROSTRUM, DISPENSARY))
 
-    private val sampleAge3Structure = SevenWondersDuel.createStructure(AGE_III, listOf(
+    private val sampleAge3Structure = Structure(AGE_III, listOf(
             CIRCUS, MERCHANTS_GUILD,
             BUILDERS_GUILD, ARSENAL, PANTHEON,
             ARENA, LIGHTHOUSE, SENATE, PALACE,
@@ -46,7 +46,7 @@ class ScienceAndProgressTest {
         assertThat(game.currentPlayer).isEqualTo(2)
     }
 
-    val gameWithProgressTokenToChoose = SevenWondersDuel(currentPlayer = 1, structure = SevenWondersDuel.createStructure(AGE_II, listOf(BREWERY)),
+    val gameWithProgressTokenToChoose = SevenWondersDuel(currentPlayer = 1, structure = Structure(AGE_II, listOf(BREWERY)),
             players = Pair(Player(coins = 100, wonders = listOf(BuildableWonder(PIRAEUS))), Player()),
             pendingActions = listOf(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY))))
 
@@ -70,15 +70,15 @@ class ScienceAndProgressTest {
 
     @Test
     fun get_a_science_symbol_at_the_end_of_an_age() {
-        var game = SevenWondersDuel(currentPlayer = 1, currentAge = AGE_II, conflictPawnPosition = 0, structure = SevenWondersDuel.createStructure(AGE_II, listOf(DISPENSARY)),
+        var game = SevenWondersDuel(currentPlayer = 1, conflictPawnPosition = 0, structure = Structure(AGE_II, listOf(DISPENSARY)),
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(PHARMACIST)), Player()))
         game = game.build(DISPENSARY)
         assertThat(game.currentPlayer).isEqualTo(1)
-        assertThat(game.currentAge).isEqualTo(AGE_II)
+        assertThat(game.structure?.age).isEqualTo(AGE_II)
         assertThat(game.pendingActions).containsExactly(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
         game = game.choose(LAW)
-        assertThat(game.currentAge).isEqualTo(AGE_III)
+        assertThat(game.structure?.age).isEqualTo(AGE_III)
         assertThat(game.currentPlayer).isEqualTo(1)
     }
 

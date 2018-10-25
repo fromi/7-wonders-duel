@@ -10,7 +10,7 @@ class GuildsTest {
 
     @Test
     fun merchant_guild_gives_1_coins_per_commercial_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(MERCHANTS_GUILD)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(MERCHANTS_GUILD)), players = Pair(
                 Player(coins = 0, buildings = setOf(CLAY_POOL, LUMBER_YARD, GLASSBLOWER, FORUM)),
                 Player(coins = 7, buildings = setOf(ARENA, CARAVANSERY, CUSTOMS_HOUSE, CLAY_RESERVE))))
         game = game.build(MERCHANTS_GUILD)
@@ -27,7 +27,7 @@ class GuildsTest {
 
     @Test
     fun shipowner_guild_gives_1_coins_per_material_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(SHIPOWNERS_GUILD)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(SHIPOWNERS_GUILD)), players = Pair(
                 Player(coins = 0, buildings = setOf(BRICKYARD, GLASSBLOWER, DRYING_ROOM, CARAVANSERY)),
                 Player(coins = 7, buildings = setOf(SHELF_QUARRY))))
         game = game.build(SHIPOWNERS_GUILD)
@@ -62,7 +62,7 @@ class GuildsTest {
 
     @Test
     fun magistrates_guild_gives_1_coins_per_civilian_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(MAGISTRATE_GUILD)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(MAGISTRATE_GUILD)), players = Pair(
                 Player(coins = 4, buildings = setOf(LOGGING_CAMP, BRICKYARD, FORUM, TEMPLE)),
                 Player(coins = 7, buildings = setOf(SAWMILL, GLASSBLOWER, TRIBUNAL, STATUE, PANTHEON, SENATE, BATHS))))
         game = game.build(MAGISTRATE_GUILD)
@@ -79,7 +79,7 @@ class GuildsTest {
 
     @Test
     fun scientists_guild_gives_1_coins_per_scientific_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(SCIENTISTS_GUILD)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(SCIENTISTS_GUILD)), players = Pair(
                 Player(coins = 0, buildings = setOf(SAWMILL, BRICKYARD, APOTHECARY, LIBRARY, DISPENSARY)),
                 Player(coins = 7, buildings = setOf(WORKSHOP))))
         game = game.build(SCIENTISTS_GUILD)
@@ -104,7 +104,7 @@ class GuildsTest {
 
     @Test
     fun tacticians_guild_gives_1_coins_per_military_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(TACTICIANS_GUILD)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(TACTICIANS_GUILD)), players = Pair(
                 Player(coins = 2, buildings = setOf(QUARRY, DRYING_ROOM, CARAVANSERY, PALISADE, FORTIFICATIONS, CIRCUS)),
                 Player(coins = 7, buildings = setOf(SHELF_QUARRY, WALLS, ARSENAL, ARCHERY_RANGE))))
         game = game.build(TACTICIANS_GUILD)

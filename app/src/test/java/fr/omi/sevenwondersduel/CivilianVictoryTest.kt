@@ -16,10 +16,10 @@ class CivilianVictoryTest {
 
     @Test
     fun game_end_by_civilian_victory() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_III, listOf(PORT)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(PORT)), players = Pair(
                 Player(coins = 3, buildings = setOf(THEATER, ROSTRUM, AQUEDUCT, PALACE, OBELISK)),
                 Player(coins = 0, buildings = emptySet())),
-                currentPlayer = 2, currentAge = AGE_III)
+                currentPlayer = 2)
         game = game.discard(PORT)
         assertThat(game.isOver()).isTrue()
         assertThat(game.getWinner()).isEqualTo(game.players.first)
@@ -91,7 +91,7 @@ class CivilianVictoryTest {
 
     @Test
     fun in_case_of_tie_most_points_from_civilian_building_wins() {
-        val game = SevenWondersDuel(conflictPawnPosition = 1, currentAge = AGE_III, players = Pair(
+        val game = SevenWondersDuel(conflictPawnPosition = 1, structure = Structure(AGE_III, emptyList()), players = Pair(
                 Player(coins = 0, buildings = setOf(PORT), progressTokens = setOf(PHILOSOPHY), wonders = listOf(BuildableWonder(PIRAEUS, PALACE))),
                 Player(coins = 0, buildings = setOf(THEATER, SENATE, ARCHERY_RANGE, UNIVERSITY), progressTokens = setOf(AGRICULTURE))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(14)
@@ -101,7 +101,7 @@ class CivilianVictoryTest {
 
     @Test
     fun in_case_of_tie_including_civilian_victory_is_shared() {
-        val game = SevenWondersDuel(conflictPawnPosition = 1, currentAge = AGE_III, players = Pair(
+        val game = SevenWondersDuel(conflictPawnPosition = 1, structure = Structure(AGE_III, emptyList()), players = Pair(
                 Player(coins = 0, buildings = setOf(TEMPLE, OBELISK), wonders = listOf(BuildableWonder(THE_GREAT_LIBRARY, PALACE))),
                 Player(coins = 0, buildings = setOf(THEATER, GARDENS, ARCHERY_RANGE, DISPENSARY), progressTokens = setOf(AGRICULTURE))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(15)

@@ -4,8 +4,6 @@ import fr.omi.sevenwondersduel.effects.*
 import fr.omi.sevenwondersduel.effects.victorypoints.VictoryPointsEffect
 import fr.omi.sevenwondersduel.material.*
 import fr.omi.sevenwondersduel.material.Age.*
-import fr.omi.sevenwondersduel.material.Building.Deck.Guilds
-import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), Player()),
@@ -13,10 +11,9 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
                             val progressTokensAvailable: Set<ProgressToken> = ProgressToken.values().toList().shuffled().asSequence().take(5).toSet(),
                             val currentPlayer: Int? = 1,
                             val wondersAvailable: Set<Wonder> = Wonder.values().toList().shuffled().asSequence().take(4).toSet(),
-                            val structure: List<Map<Int, Building>> = emptyList(),
+                            val structure: Structure? = null,
                             val discardedCards: List<Building> = emptyList(),
-                            val pendingActions: List<PendingAction> = emptyList(),
-                            val currentAge: Age = AGE_I) {
+                            val pendingActions: List<PendingAction> = emptyList()) {
 
     fun choose(wonder: Wonder): SevenWondersDuel {
         var game = give(currentPlayer(), wonder)
@@ -25,7 +22,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         else if (game.wondersAvailable.size == 1) {
             game = game.give(opponent(), game.wondersAvailable.last())
             game = if (game.players.toList().all { it.wonders.size == 4 })
-                game.copy(structure = SevenWondersDuel.createStructure(AGE_I), currentAge = AGE_I)
+                game.copy(structure = Structure(AGE_I))
             else
                 game.copy(wondersAvailable = remainingWonders().shuffled().asSequence().take(4).toSet())
         }
@@ -136,26 +133,12 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             conflictPawnPosition > 0 -> 2
             else -> currentPlayer
         }
-        return copy(structure = SevenWondersDuel.createStructure(age), currentAge = age, currentPlayer = playerChoosingWhoBeginsNextAge, pendingActions = listOf(PlayerBeginningAgeToChoose))
+        return copy(structure = Structure(age), currentPlayer = playerChoosingWhoBeginsNextAge, pendingActions = listOf(PlayerBeginningAgeToChoose))
     }
 
     private fun take(building: Building): SevenWondersDuel {
         check(pendingActions.isEmpty()) { "At least one pending action must be done before a new building can be taken" }
-        require(isAccessible(building)) { "This building cannot be taken" }
-        return copy(structure = structure.map { row -> row.minus(row.keys.filter { row[it] == building }) })
-    }
-
-    fun isAccessible(building: Building): Boolean {
-        val remainingAccessibleColumns = (if (currentAge == AGE_III) (-3..3) else (-5..5)).toMutableSet()
-        var row = structure.size - 1
-        while (remainingAccessibleColumns.isNotEmpty() && row >= 0) {
-            structure[row].filterKeys { remainingAccessibleColumns.contains(it) }.forEach { entry ->
-                if (entry.value == building) return true
-                else remainingAccessibleColumns.removeAll { abs(entry.key - it) <= 1 }
-            }
-            row--
-        }
-        return false
+        return copy(structure = checkNotNull(structure).take(building))
     }
 
     private fun pay(construction: Construction): SevenWondersDuel {
@@ -177,7 +160,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         return when {
             isOver() -> this
             pendingActions.isNotEmpty() -> if (pendingActions.first() == PlayAgain) copy(pendingActions = pendingActions.drop(1)) else this
-            currentAgeIsOver() -> when (currentAge) {
+            currentAgeIsOver() -> when (structure?.age) {
                 AGE_I -> prepareNextAge(AGE_II)
                 AGE_II -> prepareNextAge(AGE_III)
                 else -> copy(currentPlayer = null)
@@ -186,7 +169,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         }
     }
 
-    fun currentAgeIsOver() = structure.flatMap { it.values }.isEmpty()
+    fun currentAgeIsOver() = structure?.isEmpty() ?: false
 
     fun isOver(): Boolean = currentPlayer == null
 
@@ -230,7 +213,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             conflictPawnPosition <= -9 -> players.second
             players.first.countDifferentScientificSymbols() == 6 -> players.first
             players.second.countDifferentScientificSymbols() == 6 -> players.second
-            currentAge == AGE_III && currentAgeIsOver() -> getHighest(players, ::countVictoryPoint)
+            structure?.age == AGE_III && currentAgeIsOver() -> getHighest(players, ::countVictoryPoint)
                     ?: getHighest(players, Player::countCivilianBuildingsVictoryPoints)
             else -> null
         }
@@ -257,37 +240,6 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             in 3..5 -> 5
             in 6..8 -> 10
             else -> 0
-        }
-    }
-
-    companion object {
-        fun createStructure(age: Age): List<Map<Int, Building>> {
-            val deck = when (age) {
-                AGE_I, AGE_II -> Building.values().filter { it.deck == age }.shuffled()
-                else -> {
-                    val threeRandomGuilds = Building.values().filter { it.deck == Guilds }.shuffled().take(3)
-                    val age3BuildingsBut3 = Building.values().filter { it.deck == AGE_III }.shuffled().drop(3)
-                    age3BuildingsBut3.plus(threeRandomGuilds).shuffled()
-                }
-            }
-            return createStructure(age, deck)
-        }
-
-        fun createStructure(age: Age, buildings: List<Building>): List<Map<Int, Building>> {
-            val deck = buildings.toMutableList()
-            val structureDescription = when (age) {
-                AGE_I -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-4, -2, 0, 2, 4), listOf(-5, -3, -1, 1, 3, 5))
-                AGE_II -> listOf(listOf(-5, -3, -1, 1, 3, 5), listOf(-4, -2, 0, 2, 4), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
-                AGE_III -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-2, 2), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
-            }
-            return structureDescription.asSequence()
-                    .map {
-                        when (deck.size) {
-                            0 -> emptyList()
-                            in 1 until it.size -> it.take(deck.size)
-                            else -> it
-                        }
-                    }.map { positions -> positions.associate { it to deck.removeAt(0) } }.toList()
         }
     }
 }

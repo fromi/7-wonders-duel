@@ -55,6 +55,6 @@ class WonderSelectionPhaseTest {
         assertThat(game.players.second.wonders).containsExactly(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_MAUSOLEUM),
                 BuildableWonder(THE_STATUE_OF_ZEUS), BuildableWonder(THE_PYRAMIDS))
         assertThat(game.currentPlayer).isEqualTo(1)
-        assertThat(game.structure.sumBy { it.size }).isEqualTo(20)
+        assertThat(game.structure?.sumBy { it.size }).isEqualTo(20)
     }
 }

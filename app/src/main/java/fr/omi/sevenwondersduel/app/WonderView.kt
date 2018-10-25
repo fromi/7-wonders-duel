@@ -9,7 +9,6 @@ import android.support.constraint.ConstraintSet
 import android.transition.TransitionManager
 import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
-import fr.omi.sevenwondersduel.SevenWondersDuel
 import fr.omi.sevenwondersduel.material.Wonder
 import fr.omi.sevenwondersduel.material.Wonder.*
 
@@ -46,10 +45,6 @@ class WonderView(context: Context, val wonder: Wonder? = null) : ImageView(conte
             }
         }
         constraintSet.applyTo(constraintLayout)
-    }
-
-    fun positionToNextWonderPlace(constraintLayout: ConstraintLayout, game: SevenWondersDuel) {
-        positionInto(constraintLayout, checkNotNull(game.currentPlayer), game.currentPlayer().wonders.size)
     }
 
     fun moveInto(constraintLayout: ConstraintLayout, owner: Int, position: Int) {

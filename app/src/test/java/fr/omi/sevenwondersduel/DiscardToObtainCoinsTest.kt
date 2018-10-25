@@ -7,7 +7,7 @@ import org.junit.Test
 
 class DiscardToObtainCoinsTest {
 
-    private val sampleAge1Structure = SevenWondersDuel.createStructure(AGE_I, listOf(
+    private val sampleAge1Structure = Structure(AGE_I, listOf(
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, TAVERN,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,

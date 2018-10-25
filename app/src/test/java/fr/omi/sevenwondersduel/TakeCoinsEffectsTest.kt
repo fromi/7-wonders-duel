@@ -11,14 +11,14 @@ import org.junit.Test
 
 class TakeCoinsEffectsTest {
 
-    private val sampleAge1Structure = SevenWondersDuel.createStructure(Age.AGE_I, listOf(
+    private val sampleAge1Structure = Structure(Age.AGE_I, listOf(
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, GUARD_TOWER,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
             PALISADE, GARRISON, STABLE, LUMBER_YARD, STONE_PIT,
             BATHS, PRESS, ALTAR, CLAY_PIT, TAVERN, PHARMACIST))
 
-    private val sampleAge2Structure = SevenWondersDuel.createStructure(Age.AGE_II, listOf(
+    private val sampleAge2Structure = Structure(Age.AGE_II, listOf(
             BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
             AQUEDUCT, ROSTRUM, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
             WALLS, PARADE_GROUND, STATUE, TRIBUNAL,
@@ -41,7 +41,7 @@ class TakeCoinsEffectsTest {
 
     @Test
     fun chamber_of_commerce_gives_3_coins_per_manufacture_building_I_have() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(CHAMBER_OF_COMMERCE)),
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(CHAMBER_OF_COMMERCE)),
                 players = Pair(Player(coins = 0, buildings = setOf(PRESS, DRYING_ROOM)), Player(coins = 7, buildings = setOf(GLASSWORKS))))
         game = game.build(CHAMBER_OF_COMMERCE)
         assertThat(game.players.first.coins).isEqualTo(6)
@@ -49,7 +49,7 @@ class TakeCoinsEffectsTest {
 
     @Test
     fun port_gives_2_coins_per_raw_material_building_I_have() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(PORT)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(PORT)), players = Pair(
                 Player(coins = 0, buildings = setOf(PRESS, GLASSWORKS, LOGGING_CAMP, BRICKYARD)),
                 Player(coins = 7, buildings = setOf(CLAY_POOL, STONE_PIT, SAWMILL, SHELF_QUARRY))))
         game = game.build(PORT)
@@ -58,7 +58,7 @@ class TakeCoinsEffectsTest {
 
     @Test
     fun armory_gives_1_coins_per_military_building_I_have() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(ARMORY)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(ARMORY)), players = Pair(
                 Player(coins = 0, buildings = setOf(SHELF_QUARRY, ARSENAL, GLASSBLOWER)),
                 Player(coins = 7, buildings = setOf(GUARD_TOWER, WALLS))))
         game = game.build(ARMORY)
@@ -67,7 +67,7 @@ class TakeCoinsEffectsTest {
 
     @Test
     fun lighthouse_gives_1_coins_per_commercial_building_I_have_including_it() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(LIGHTHOUSE)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(LIGHTHOUSE)), players = Pair(
                 Player(coins = 0, buildings = setOf(CLAY_PIT, FORUM, CARAVANSERY, CLAY_RESERVE, BREWERY)),
                 Player(coins = 7, buildings = setOf(ARENA))))
         game = game.build(LIGHTHOUSE)
@@ -76,7 +76,7 @@ class TakeCoinsEffectsTest {
 
     @Test
     fun arena_gives_2_coins_per_wonder_I_built() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(Age.AGE_III, listOf(ARENA)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(ARENA)), players = Pair(
                 Player(coins = 0, buildings = setOf(BREWERY), wonders = listOf(
                         BuildableWonder(PIRAEUS),
                         BuildableWonder(THE_COLOSSUS, builtWith = GARRISON),

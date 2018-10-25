@@ -8,14 +8,14 @@ import org.junit.Test
 
 class BuildingConstructionTest {
 
-    private val sampleAge1Structure = SevenWondersDuel.createStructure(AGE_I, listOf(
+    private val sampleAge1Structure = Structure(AGE_I, listOf(
             CLAY_RESERVE, THEATER,
             STONE_RESERVE, QUARRY, TAVERN,
             WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
             PALISADE, GARRISON, STABLE, LUMBER_YARD, STONE_PIT,
             BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST))
 
-    private val sampleAge2Structure = SevenWondersDuel.createStructure(AGE_II, listOf(
+    private val sampleAge2Structure = Structure(AGE_II, listOf(
             BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
             AQUEDUCT, BREWERY, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
             WALLS, PARADE_GROUND, STATUE, TRIBUNAL,
@@ -26,7 +26,7 @@ class BuildingConstructionTest {
     fun build_first_building() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
         game = game.build(CLAY_PIT)
-        assertThat(game.structure.sumBy { it.size }).isEqualTo(19)
+        assertThat(game.structure?.sumBy { it.size }).isEqualTo(19)
         assertThat(game.players.first.buildings).containsExactly(CLAY_PIT)
         assertThat(game.currentPlayer).isEqualTo(2)
     }
@@ -41,7 +41,7 @@ class BuildingConstructionTest {
     fun building_become_accessible_once_uncovered() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
         game = game.build(CLAY_PIT).build(ALTAR)
-        assertThat(game.isAccessible(STABLE)).isTrue()
+        assertThat(game.structure?.isAccessible(STABLE)).isTrue()
         game = game.build(STABLE)
         assertThat(game.players.first.buildings).containsExactly(CLAY_PIT, STABLE)
         assertThat(game.players.second.buildings).containsExactly(ALTAR)

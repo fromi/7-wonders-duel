@@ -22,7 +22,7 @@ class ProgressTokensTest {
 
     @Test
     fun architecture_gives_a_reduction_on_wonders_construction() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_III, listOf(PALACE)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(PALACE)), players = Pair(
                 Player(coins = 1, progressTokens = setOf(ARCHITECTURE),
                         buildings = setOf(PRESS, STONE_RESERVE),
                         wonders = listOf(BuildableWonder(THE_TEMPLE_OF_ARTEMIS))),
@@ -33,7 +33,7 @@ class ProgressTokensTest {
 
     @Test
     fun with_the_economy_I_gain_the_money_spent_by_my_opponent_on_resources() {
-        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_III, listOf(TOWN_HALL, COURTHOUSE)), players = Pair(
+        val game = SevenWondersDuel(structure = Structure(AGE_III, listOf(TOWN_HALL, COURTHOUSE)), players = Pair(
                 Player(coins = 10, buildings = setOf(PRESS, STONE_RESERVE)),
                 Player(coins = 0, progressTokens = setOf(ECONOMY))))
         assertThat(game.build(TOWN_HALL).players.second.coins).isEqualTo(7)
@@ -48,7 +48,7 @@ class ProgressTokensTest {
 
     @Test
     fun masonry_gives_a_reduction_on_civilian_building_construction() {
-        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_III, listOf(PALACE, ACADEMY)), players = Pair(
+        val game = SevenWondersDuel(structure = Structure(AGE_III, listOf(PALACE, ACADEMY)), players = Pair(
                 Player(coins = 10, progressTokens = setOf(MASONRY),
                         buildings = setOf(CUSTOMS_HOUSE, CLAY_POOL)),
                 Player(buildings = setOf(SAWMILL, GLASSBLOWER))))
@@ -75,7 +75,7 @@ class ProgressTokensTest {
 
     @Test
     fun strategy_give_extra_shield_for_military_buildings() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(ARCHERY_RANGE)),
+        var game = SevenWondersDuel(structure = Structure(AGE_II, listOf(ARCHERY_RANGE)),
                 conflictPawnPosition = 0, players = Pair(Player(progressTokens = setOf(STRATEGY)), Player()))
         game = game.build(ARCHERY_RANGE)
         assertThat(game.conflictPawnPosition).isEqualTo(3)
@@ -83,7 +83,7 @@ class ProgressTokensTest {
 
     @Test
     fun strategy_does_not_give_extra_shield_for_wonders() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(ARCHERY_RANGE)),
+        var game = SevenWondersDuel(structure = Structure(AGE_II, listOf(ARCHERY_RANGE)),
                 conflictPawnPosition = 0, players = Pair(
                 Player(coins = 42, progressTokens = setOf(STRATEGY), wonders = listOf(BuildableWonder(THE_COLOSSUS))),
                 Player()))
@@ -93,7 +93,7 @@ class ProgressTokensTest {
 
     @Test
     fun theology_give_play_again_effect_to_all_my_wonders() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_III, listOf(PALACE, OBSERVATORY)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(PALACE, OBSERVATORY)), players = Pair(
                 Player(coins = 42, progressTokens = setOf(THEOLOGY),
                         wonders = listOf(BuildableWonder(THE_PYRAMIDS))),
                 Player(buildings = setOf(SAWMILL))))
@@ -103,7 +103,7 @@ class ProgressTokensTest {
 
     @Test
     fun a_wonder_cannot_have_play_again_effect_twice_with_theology() {
-        var game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_III, listOf(PALACE, OBSERVATORY)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(PALACE, OBSERVATORY)), players = Pair(
                 Player(coins = 42, progressTokens = setOf(THEOLOGY),
                         wonders = listOf(BuildableWonder(THE_SPHINX))),
                 Player(buildings = setOf(SAWMILL))))
@@ -114,7 +114,7 @@ class ProgressTokensTest {
 
     @Test
     fun urbanism_gives_4_coin_for_each_chained_building() {
-        val game = SevenWondersDuel(structure = SevenWondersDuel.createStructure(AGE_II, listOf(BARRACKS, TEMPLE, AQUEDUCT)),
+        val game = SevenWondersDuel(structure = Structure(AGE_II, listOf(BARRACKS, TEMPLE, AQUEDUCT)),
                 players = Pair(Player(coins = 0,
                         progressTokens = setOf(URBANISM),
                         buildings = setOf(BATHS, GARRISON, LOGGING_CAMP, PRESS)
