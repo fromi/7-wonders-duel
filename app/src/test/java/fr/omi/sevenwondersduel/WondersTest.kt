@@ -223,6 +223,15 @@ class WondersTest {
         assertThat(game.discardedCards).doesNotContain(TRIBUNAL)
     }
 
+    @Test
+    fun if_discard_empty_mausoleum_does_nothing() {
+        var game = SevenWondersDuel(structure = Structure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
+                Player(coins = 10, wonders = listOf(BuildableWonder(THE_MAUSOLEUM))),
+                Player()), discardedCards = emptyList())
+        game = game.build(THE_MAUSOLEUM, DISPENSARY)
+        assertThat(game.currentPlayer).isEqualTo(2)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun the_mausoleum_does_not_let_me_build_anything() {
         val game = SevenWondersDuel(structure = Structure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(

@@ -1,3 +1,7 @@
 package fr.omi.sevenwondersduel.effects
 
-object DiscardedBuildingToBuild : PendingEffect
+import fr.omi.sevenwondersduel.SevenWondersDuel
+
+object DiscardedBuildingToBuild : PendingEffect {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = if (game.discardedCards.isNotEmpty()) super.applyTo(game) else game
+}
