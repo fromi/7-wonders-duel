@@ -85,4 +85,9 @@ class GameActivity : AppCompatActivity() {
         return checkNotNull(buildingsViews[building])
     }
 
+    fun remove(buildingView: BuildingView) {
+        layout.removeView(buildingView)
+        buildingsViews.remove(buildingView.building)
+    }
+
 }

@@ -18,7 +18,9 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     fun build(building: Building): Player = copy(buildings = buildings.plus(building))
 
-    fun discard(): Player = copy(coins = coins + 2 + buildings.count { it.type == COMMERCIAL })
+    fun discard(): Player = copy(coins = coins + getDiscardCoins())
+
+    fun getDiscardCoins(): Int = 2 + buildings.count { it.type == COMMERCIAL }
 
     fun build(wonder: Wonder, buildingUsed: Building): Player {
         require(wonders.any { it.wonder == wonder }) { "You do not have this wonder" }

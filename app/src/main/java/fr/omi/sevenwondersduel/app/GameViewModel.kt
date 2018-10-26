@@ -23,4 +23,8 @@ class GameViewModel : ViewModel() {
         game = RandomBot.play(game)
         playRandomMoves(quantity - 1)
     }
+
+    fun discard(building: Building) {
+        game = game.discard(building)
+    }
 }

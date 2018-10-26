@@ -27,6 +27,7 @@
         android:gravity="center"
         android:textColor="@android:color/black"
         android:textSize="12sp"
+        android:letterSpacing="-0.05"
         app:layout_constraintBottom_toBottomOf="@id/board"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -40,6 +41,7 @@
         android:gravity="center"
         android:textColor="@android:color/black"
         android:textSize="12sp"
+        android:letterSpacing="-0.05"
         app:layout_constraintBottom_toBottomOf="@id/board"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -116,5 +118,20 @@
         app:layout_constraintStart_toStartOf="@+id/board"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/discard" />
+
+    <TextView
+        android:id="@+id/discardCoins"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/coin"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textSize="12sp"
+        android:letterSpacing="-0.05"
+        android:alpha="0"
+        app:layout_constraintStart_toStartOf="@id/discard"
+        app:layout_constraintTop_toTopOf="@id/discard"
+        app:layout_constraintBottom_toBottomOf="@id/discard"
+        app:layout_constraintEnd_toEndOf="@id/discard" />
 
 </android.support.constraint.ConstraintLayout>

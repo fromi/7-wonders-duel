@@ -7,6 +7,7 @@
     <string name="second_player_military_token_2_coins">Loot 2 coins to second player</string>
     <string name="second_player_military_token_5_coins">Loot 5 coins to second player</string>
     <string name="discard_pile">Discard pile</string>
+    <string name="plus_coins">+%d</string>
 
     <string name="wonders_back">A wonder card face down</string>
     <string name="circus_maximus">Circus Maximus</string>

@@ -42,8 +42,10 @@ data class Structure(val list: List<Map<Int, Building>>, val age: Age) : List<Ma
         var row = size - 1
         val accessibleBuildings = mutableListOf<Building>()
         while (remainingAccessibleColumns.isNotEmpty() && row >= 0) {
-            get(row).filterKeys { remainingAccessibleColumns.contains(it) }.forEach { entry ->
-                accessibleBuildings.add(entry.value)
+            get(row).forEach { entry ->
+                if (remainingAccessibleColumns.contains(entry.key)) {
+                    accessibleBuildings.add(entry.value)
+                }
                 remainingAccessibleColumns.removeAll { abs(entry.key - it) <= 1 }
             }
             row--

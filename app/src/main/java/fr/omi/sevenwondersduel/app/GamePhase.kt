@@ -3,45 +3,83 @@ package fr.omi.sevenwondersduel.app
 import android.view.DragEvent
 import android.view.DragEvent.*
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import fr.omi.sevenwondersduel.R
+import kotlinx.android.synthetic.main.activity_game.*
 
 class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
+    private val buildDropZone: BuildingView
+
+    private val discard: ImageView
+        get() = gameActivity.discard
+
+    private val discardCoins: TextView
+        get() = gameActivity.discardCoins
+
+
     init {
-        createBuildingDropZone()
-        game.structure!!.accessibleBuildings().forEach { building -> gameActivity.getView(building).enableDragAndDrop() }
+        buildDropZone = createBuildingDropZone()
+        discard.setOnDragListener { _, event -> discardDropListener(event) }
+        checkNotNull(game.structure).accessibleBuildings().forEach { building -> gameActivity.getView(building).enableDragAndDrop() }
     }
 
-    private fun createBuildingDropZone() {
-        BuildingView(gameActivity).apply {
+    private fun createBuildingDropZone(): BuildingView {
+        return BuildingView(gameActivity).apply {
             alpha = 0F
             positionToNextBuildingPlace(layout, model.game)
-            setOnDragListener { view, event -> buildingDropListener(view as BuildingView, event) }
+            setOnDragListener { _, event -> buildingDropListener(event) }
         }
     }
 
-    private fun buildingDropListener(dropZone: BuildingView, event: DragEvent): Boolean {
+    private fun buildingDropListener(event: DragEvent): Boolean {
         if (event.localState !is BuildingView) return false
         val buildingView = event.localState as BuildingView
-        val building = checkNotNull(buildingView.building)
         when (event.action) {
             ACTION_DRAG_STARTED -> {
-                dropZone.alpha = 0.5F
-                dropZone.setImageResource(BuildingView.getResource(building))
-                dropZone.bringToFront()
-                buildingView.visibility = View.INVISIBLE
+                buildDropZone.alpha = 0.5F
+                buildDropZone.setImageResource(BuildingView.getResource(checkNotNull(buildingView.building)))
+                buildDropZone.bringToFront()
             }
-            ACTION_DRAG_ENTERED -> dropZone.alpha = 1F
-            ACTION_DRAG_EXITED -> dropZone.alpha = 0.5F
+            ACTION_DRAG_ENTERED -> buildDropZone.alpha = 1F
+            ACTION_DRAG_EXITED -> buildDropZone.alpha = 0.5F
             ACTION_DROP -> {
                 buildingView.positionToNextBuildingPlace(layout, model.game)
                 buildingView.disableDragAndDrop()
-                model.build(building)
+                model.build(checkNotNull(buildingView.building))
             }
             ACTION_DRAG_ENDED -> {
-                buildingView.visibility = View.VISIBLE
-                dropZone.alpha = 0F
+                buildDropZone.alpha = 0F
                 if (event.result) {
-                    dropZone.positionToNextBuildingPlace(layout, model.game)
+                    buildDropZone.positionToNextBuildingPlace(layout, model.game)
                 }
+            }
+        }
+        return true
+    }
+
+    private fun discardDropListener(event: DragEvent): Boolean {
+        if (event.localState !is BuildingView) return false
+        val buildingView = event.localState as BuildingView
+        when (event.action) {
+            ACTION_DRAG_STARTED -> {
+                discard.scaleX = 1.2F
+                discard.scaleY = 1.2F
+                discardCoins.text = discardCoins.resources.getString(R.string.plus_coins, game.currentPlayer().getDiscardCoins())
+                discardCoins.alpha = 0.5F
+                buildingView.visibility = View.INVISIBLE
+            }
+            ACTION_DRAG_ENTERED -> discardCoins.alpha = 1F
+            ACTION_DRAG_EXITED -> discardCoins.alpha = 0.5F
+            ACTION_DROP -> {
+                gameActivity.remove(buildingView)
+                model.discard(checkNotNull(buildingView.building))
+            }
+            ACTION_DRAG_ENDED -> {
+                discardCoins.alpha = 0F
+                discard.scaleX = 1F
+                discard.scaleY = 1F
+                buildingView.visibility = View.VISIBLE
             }
         }
         return true
