@@ -12,7 +12,7 @@ import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.Building.*
 
 @SuppressLint("ViewConstructor")
-class BuildingView(context: Context, deck: Deck, val building: Building? = null) : ImageView(context) {
+class BuildingView(context: Context, private val deck: Deck, val building: Building? = null) : ImageView(context) {
 
     constructor(context: GameActivity, building: Building) : this(context, building.deck, building)
 
@@ -28,31 +28,52 @@ class BuildingView(context: Context, deck: Deck, val building: Building? = null)
         if (parent == null) {
             constraintLayout.addView(this)
         }
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
-        constraintSet.connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(row * 30))
-        constraintSet.connect(id, ConstraintSet.START, R.id.layout, ConstraintSet.START, if (column > 0) dpsToPx(column * 40) else 0)
-        constraintSet.connect(id, ConstraintSet.END, R.id.layout, ConstraintSet.END, if (column < 0) dpsToPx(-column * 40) else 0)
-        constraintSet.applyTo(constraintLayout)
+        ConstraintSet().apply {
+            clone(constraintLayout)
+            connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(row * 30))
+            connect(id, ConstraintSet.START, R.id.layout, ConstraintSet.START, if (column > 0) dpsToPx(column * 40) else 0)
+            connect(id, ConstraintSet.END, R.id.layout, ConstraintSet.END, if (column < 0) dpsToPx(-column * 40) else 0)
+        }.applyTo(constraintLayout)
     }
 
     fun positionForPlayer(constraintLayout: ConstraintLayout, player: Int, position: Int) {
         if (parent == null) {
             constraintLayout.addView(this)
         }
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
-        constraintSet.clear(id, ConstraintSet.START)
-        constraintSet.clear(id, ConstraintSet.END)
-        constraintSet.connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(position * 12))
-        val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
-        constraintSet.connect(id, constraint, R.id.layout, constraint, dpsToPx(100))
-        constraintSet.applyTo(constraintLayout)
+        ConstraintSet().apply {
+            clone(constraintLayout)
+            clear(id, ConstraintSet.START)
+            clear(id, ConstraintSet.END)
+            connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(position * 12))
+            val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
+            connect(id, constraint, R.id.layout, constraint, dpsToPx(100))
+        }.applyTo(constraintLayout)
     }
 
     fun positionToNextBuildingPlace(constraintLayout: ConstraintLayout, game: SevenWondersDuel) {
         positionForPlayer(constraintLayout, checkNotNull(game.currentPlayer), game.currentPlayer().buildings.size)
         bringToFront()
+    }
+
+    fun positionUnder(constraintLayout: ConstraintLayout, wonderView: WonderView, player: Int) {
+        putFaceDown()
+        rotation = if (player == 1) 270F else 90F
+        if (parent == null) {
+            constraintLayout.addView(this)
+        }
+        wonderView.bringToFront()
+        ConstraintSet().apply {
+            clone(constraintLayout)
+            connect(id, ConstraintSet.TOP, wonderView.id, ConstraintSet.TOP)
+            connect(id, ConstraintSet.BOTTOM, wonderView.id, ConstraintSet.BOTTOM)
+            val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
+            connect(id, constraint, wonderView.id, constraint, dpsToPx(40))
+        }.applyTo(constraintLayout)
+    }
+
+    private fun putFaceDown() {
+        setImageResource(getResource(deck))
+        contentDescription = resources.getString(getContentDescription(deck))
     }
 
     companion object {

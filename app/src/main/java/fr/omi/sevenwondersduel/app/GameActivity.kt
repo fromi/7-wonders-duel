@@ -2,6 +2,7 @@ package fr.omi.sevenwondersduel.app
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import fr.omi.sevenwondersduel.BuildableWonder
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.ProgressToken
@@ -19,7 +20,7 @@ class GameActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
-        model.playRandomMoves(10)
+        model.playRandomMoves(20)
         model.game.progressTokensAvailable.forEachIndexed { position, progressToken -> createView(progressToken, position) }
         model.game.wondersAvailable.forEachIndexed { index, wonder -> createView(wonder, 0, index) }
         state = if (model.game.wondersAvailable.isNotEmpty()) {
@@ -28,8 +29,8 @@ class GameActivity : AppCompatActivity() {
             displayStructure()
             GamePhase(this)
         }
-        model.game.players.first.wonders.forEachIndexed { index, wonder -> createView(wonder.wonder, 1, index) }
-        model.game.players.second.wonders.forEachIndexed { index, wonder -> createView(wonder.wonder, 2, index) }
+        model.game.players.first.wonders.forEachIndexed { index, wonder -> createView(wonder, 1, index) }
+        model.game.players.second.wonders.forEachIndexed { index, wonder -> createView(wonder, 2, index) }
         model.game.players.first.buildings.forEachIndexed { index, it -> BuildingView(this, it).apply { positionForPlayer(layout, 1, index) } }
         model.game.players.second.buildings.forEachIndexed { index, it -> BuildingView(this, it).apply { positionForPlayer(layout, 2, index) } }
         firstPlayerCoins.text = model.game.players.first.coins.toString()
@@ -40,6 +41,14 @@ class GameActivity : AppCompatActivity() {
         ProgressTokenView(this, progressToken).apply {
             positionOnBoard(layout, position)
         }
+    }
+
+    private fun createView(buildableWonder: BuildableWonder, owner: Int, position: Int): WonderView {
+        val wonderView = createView(buildableWonder.wonder, owner, position)
+        if (buildableWonder.isBuild()) {
+            BuildingView(this, buildableWonder.builtWith!!).positionUnder(layout, wonderView, owner)
+        }
+        return wonderView
     }
 
     fun createView(wonder: Wonder, owner: Int, position: Int): WonderView {
