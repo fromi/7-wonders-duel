@@ -16,7 +16,7 @@ class WondersTest {
     private val sampleAge2Structure = Structure(AGE_II, listOf(
             BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
             AQUEDUCT, ROSTRUM, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
-            WALLS, PARADE_GROUND, STATUE, TRIBUNAL,
+            WALLS, PARADE_GROUND, STATUE, COURTHOUSE,
             CUSTOMS_HOUSE, SAWMILL, GLASSBLOWER,
             BREWERY, DISPENSARY))
 
@@ -214,13 +214,13 @@ class WondersTest {
     fun the_mausoleum_let_me_build_any_discarded_card_for_free() {
         var game = SevenWondersDuel(structure = Structure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
                 Player(coins = 10, wonders = listOf(BuildableWonder(THE_MAUSOLEUM))),
-                Player()), discardedCards = listOf(WALLS, TRIBUNAL))
+                Player()), discardedCards = listOf(WALLS, COURTHOUSE))
         game = game.build(THE_MAUSOLEUM, DISPENSARY)
         assertThat(game.players.first.coins).isEqualTo(0)
         assertThat(game.currentPlayer).isEqualTo(1)
-        game = game.build(TRIBUNAL)
-        assertThat(game.players.first.buildings).contains(TRIBUNAL)
-        assertThat(game.discardedCards).doesNotContain(TRIBUNAL)
+        game = game.build(COURTHOUSE)
+        assertThat(game.players.first.buildings).contains(COURTHOUSE)
+        assertThat(game.discardedCards).doesNotContain(COURTHOUSE)
     }
 
     @Test
@@ -236,7 +236,7 @@ class WondersTest {
     fun the_mausoleum_does_not_let_me_build_anything() {
         val game = SevenWondersDuel(structure = Structure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
                 Player(coins = 10, wonders = listOf(BuildableWonder(THE_MAUSOLEUM))),
-                Player()), discardedCards = listOf(WALLS, TRIBUNAL))
+                Player()), discardedCards = listOf(WALLS, COURTHOUSE))
         game.build(THE_MAUSOLEUM, DISPENSARY).build(PALACE)
     }
 
@@ -244,7 +244,7 @@ class WondersTest {
     fun the_mausoleum_does_not_let_me_build_from_the_structure() {
         val game = SevenWondersDuel(structure = Structure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
                 Player(coins = 50, wonders = listOf(BuildableWonder(THE_MAUSOLEUM))),
-                Player()), discardedCards = listOf(WALLS, TRIBUNAL))
+                Player()), discardedCards = listOf(WALLS, COURTHOUSE))
         game.build(THE_MAUSOLEUM, DISPENSARY).build(DRYING_ROOM)
     }
 
@@ -252,7 +252,7 @@ class WondersTest {
     fun the_mausoleum_does_not_let_me_build_a_wonder() {
         val game = SevenWondersDuel(structure = Structure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
                 Player(coins = 50, wonders = listOf(BuildableWonder(THE_MAUSOLEUM), BuildableWonder(PIRAEUS))),
-                Player()), discardedCards = listOf(WALLS, TRIBUNAL))
+                Player()), discardedCards = listOf(WALLS, COURTHOUSE))
         game.build(THE_MAUSOLEUM, DISPENSARY).build(PIRAEUS, DRYING_ROOM)
     }
 
@@ -260,7 +260,7 @@ class WondersTest {
     fun the_mausoleum_does_not_let_me_discard_a_building() {
         val game = SevenWondersDuel(structure = Structure(AGE_II, listOf(DISPENSARY, DRYING_ROOM)), players = Pair(
                 Player(coins = 50, wonders = listOf(BuildableWonder(THE_MAUSOLEUM), BuildableWonder(PIRAEUS))),
-                Player()), discardedCards = listOf(WALLS, TRIBUNAL))
+                Player()), discardedCards = listOf(WALLS, COURTHOUSE))
         game.build(THE_MAUSOLEUM, DISPENSARY).discard(DRYING_ROOM)
     }
 }

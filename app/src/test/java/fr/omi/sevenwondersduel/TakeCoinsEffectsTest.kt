@@ -21,7 +21,7 @@ class TakeCoinsEffectsTest {
     private val sampleAge2Structure = Structure(Age.AGE_II, listOf(
             BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
             AQUEDUCT, ROSTRUM, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
-            WALLS, PARADE_GROUND, STATUE, TRIBUNAL,
+            WALLS, PARADE_GROUND, STATUE, COURTHOUSE,
             CUSTOMS_HOUSE, SAWMILL, GLASSBLOWER,
             BREWERY, DISPENSARY))
 

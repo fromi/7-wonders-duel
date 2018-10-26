@@ -64,7 +64,7 @@ class GuildsTest {
     fun magistrates_guild_gives_1_coins_per_civilian_buildings_in_city_which_has_the_most() {
         var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(MAGISTRATE_GUILD)), players = Pair(
                 Player(coins = 4, buildings = setOf(LOGGING_CAMP, BRICKYARD, FORUM, TEMPLE)),
-                Player(coins = 7, buildings = setOf(SAWMILL, GLASSBLOWER, TRIBUNAL, STATUE, PANTHEON, SENATE, BATHS))))
+                Player(coins = 7, buildings = setOf(SAWMILL, GLASSBLOWER, COURTHOUSE, STATUE, PANTHEON, SENATE, BATHS))))
         game = game.build(MAGISTRATE_GUILD)
         assertThat(game.players.first.coins).isEqualTo(5)
     }
@@ -73,7 +73,7 @@ class GuildsTest {
     fun count_magistrates_guild_victory_points() {
         val game = SevenWondersDuel(players = Pair(
                 Player(coins = 0, buildings = setOf(MAGISTRATE_GUILD, QUARRY, BRICKYARD, DRYING_ROOM)),
-                Player(buildings = setOf(CLAY_POOL, PALACE, TRIBUNAL, OBELISK, STATUE, ALTAR, ARMORY))))
+                Player(buildings = setOf(CLAY_POOL, PALACE, COURTHOUSE, OBELISK, STATUE, ALTAR, ARMORY))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(5)
     }
 

@@ -9,7 +9,7 @@ import fr.omi.sevenwondersduel.material.Building
 
 object RandomBot {
     fun play(game: SevenWondersDuel): SevenWondersDuel {
-        return possibleMoves(game).toMutableList().shuffled().first().applyTo(game)
+        return possibleMoves(game).toMutableList().shuffled().firstOrNull()?.applyTo(game) ?: game
     }
 
     private fun possibleMoves(game: SevenWondersDuel): List<SevenWondersDuelMove> {
@@ -25,8 +25,9 @@ object RandomBot {
                 is PlayerBeginningAgeToChoose -> return listOf(ChoosePlayerBeginningAge(1), ChoosePlayerBeginningAge(2))
             }
         }
-        if (game.isOver()) return emptyList()
-        return game.structure!!.accessibleBuildings().flatMap { building -> possibleMovesWith(game, building) }
+        if (game.structure != null)
+            return game.structure.accessibleBuildings().flatMap { building -> possibleMovesWith(game, building) }
+        return emptyList()
     }
 
     private fun possibleMovesWith(game: SevenWondersDuel, building: Building): Iterable<SevenWondersDuelMove> {

@@ -21,7 +21,7 @@ class GameActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
-        model.playRandomMoves(20)
+        model.playRandomMoves(60)
         model.game.progressTokensAvailable.forEachIndexed { position, progressToken -> createView(progressToken, position) }
         model.game.wondersAvailable.forEachIndexed { index, wonder -> createView(wonder, 0, index) }
         state = if (model.game.wondersAvailable.isNotEmpty()) {

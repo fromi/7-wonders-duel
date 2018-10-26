@@ -102,7 +102,57 @@ class BuildingView(context: Context, private val deck: Deck, val building: Build
                 CLAY_RESERVE -> R.drawable.clay_reserve
                 WOOD_RESERVE -> R.drawable.wood_reserve
                 TAVERN -> R.drawable.tavern
-                else -> TODO()
+                SAWMILL -> R.drawable.sawmill
+                BRICKYARD -> R.drawable.brickyard
+                SHELF_QUARRY -> R.drawable.shelf_quarry
+                GLASSBLOWER -> R.drawable.glassblower
+                DRYING_ROOM -> R.drawable.drying_room
+                WALLS -> R.drawable.walls
+                HORSE_BREEDERS -> R.drawable.horse_breeders
+                BARRACKS -> R.drawable.barracks
+                ARCHERY_RANGE -> R.drawable.archery_range
+                PARADE_GROUND -> R.drawable.parade_ground
+                LIBRARY -> R.drawable.library
+                DISPENSARY -> R.drawable.dispensary
+                SCHOOL -> R.drawable.school
+                LABORATORY -> R.drawable.laboratory
+                COURTHOUSE -> R.drawable.courthouse
+                STATUE -> R.drawable.statue
+                TEMPLE -> R.drawable.temple
+                AQUEDUCT -> R.drawable.aqueduct
+                ROSTRUM -> R.drawable.rostrum
+                FORUM -> R.drawable.forum
+                CARAVANSERY -> R.drawable.caravansery
+                CUSTOMS_HOUSE -> R.drawable.customs_house
+                BREWERY -> R.drawable.brewery
+                ARSENAL -> R.drawable.arsenal
+                PRETORIUM -> R.drawable.pretorium
+                FORTIFICATIONS -> R.drawable.fortifications
+                SIEGE_WORKSHOP -> R.drawable.siege_workshop
+                CIRCUS -> R.drawable.circus
+                ACADEMY -> R.drawable.academy
+                STUDY -> R.drawable.study
+                UNIVERSITY -> R.drawable.university
+                OBSERVATORY -> R.drawable.observatory
+                PALACE -> R.drawable.palace
+                TOWN_HALL -> R.drawable.town_hall
+                OBELISK -> R.drawable.obelisk
+                GARDENS -> R.drawable.gardens
+                PANTHEON -> R.drawable.pantheon
+                SENATE -> R.drawable.senate
+                CHAMBER_OF_COMMERCE -> R.drawable.chamber_of_commerce
+                PORT -> R.drawable.port
+                ARMORY -> R.drawable.armory
+                LIGHTHOUSE -> R.drawable.lighthouse
+                ARENA -> R.drawable.arena
+                MERCHANTS_GUILD -> R.drawable.merchants_guild
+                SHIPOWNERS_GUILD -> R.drawable.shipowners_guild
+                BUILDERS_GUILD -> R.drawable.builders_guild
+                MAGISTRATE_GUILD -> R.drawable.magistrate_guild
+                SCIENTISTS_GUILD -> R.drawable.scientists_guild
+                MONEYLENDERS_GUILD -> R.drawable.moneylenders_guild
+                TACTICIANS_GUILD -> R.drawable.tacticians_guild
+
             }
         }
 
@@ -140,7 +190,56 @@ class BuildingView(context: Context, private val deck: Deck, val building: Build
                 CLAY_RESERVE -> R.string.clay_reserve
                 WOOD_RESERVE -> R.string.wood_reserve
                 TAVERN -> R.string.tavern
-                else -> TODO()
+                SAWMILL -> R.string.sawmill
+                BRICKYARD -> R.string.brickyard
+                SHELF_QUARRY -> R.string.shelf_quarry
+                GLASSBLOWER -> R.string.glassblower
+                DRYING_ROOM -> R.string.drying_room
+                WALLS -> R.string.walls
+                HORSE_BREEDERS -> R.string.horse_breeders
+                BARRACKS -> R.string.barracks
+                ARCHERY_RANGE -> R.string.archery_range
+                PARADE_GROUND -> R.string.parade_ground
+                LIBRARY -> R.string.library
+                DISPENSARY -> R.string.dispensary
+                SCHOOL -> R.string.school
+                LABORATORY -> R.string.laboratory
+                COURTHOUSE -> R.string.courthouse
+                STATUE -> R.string.statue
+                TEMPLE -> R.string.temple
+                AQUEDUCT -> R.string.aqueduct
+                ROSTRUM -> R.string.rostrum
+                FORUM -> R.string.forum
+                CARAVANSERY -> R.string.caravansery
+                CUSTOMS_HOUSE -> R.string.customs_house
+                BREWERY -> R.string.brewery
+                ARSENAL -> R.string.arsenal
+                PRETORIUM -> R.string.pretorium
+                FORTIFICATIONS -> R.string.fortifications
+                SIEGE_WORKSHOP -> R.string.siege_workshop
+                CIRCUS -> R.string.circus
+                ACADEMY -> R.string.academy
+                STUDY -> R.string.study
+                UNIVERSITY -> R.string.university
+                OBSERVATORY -> R.string.observatory
+                PALACE -> R.string.palace
+                TOWN_HALL -> R.string.town_hall
+                OBELISK -> R.string.obelisk
+                GARDENS -> R.string.gardens
+                PANTHEON -> R.string.pantheon
+                SENATE -> R.string.senate
+                CHAMBER_OF_COMMERCE -> R.string.chamber_of_commerce
+                PORT -> R.string.port
+                ARMORY -> R.string.armory
+                LIGHTHOUSE -> R.string.lighthouse
+                ARENA -> R.string.arena
+                MERCHANTS_GUILD -> R.string.merchants_guild
+                SHIPOWNERS_GUILD -> R.string.shipowners_guild
+                BUILDERS_GUILD -> R.string.builders_guild
+                MAGISTRATE_GUILD -> R.string.magistrate_guild
+                SCIENTISTS_GUILD -> R.string.scientists_guild
+                MONEYLENDERS_GUILD -> R.string.moneylenders_guild
+                TACTICIANS_GUILD -> R.string.tacticians_guild
             }
         }
 

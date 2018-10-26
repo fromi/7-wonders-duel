@@ -33,11 +33,11 @@ class ProgressTokensTest {
 
     @Test
     fun with_the_economy_I_gain_the_money_spent_by_my_opponent_on_resources() {
-        val game = SevenWondersDuel(structure = Structure(AGE_III, listOf(TOWN_HALL, COURTHOUSE)), players = Pair(
+        val game = SevenWondersDuel(structure = Structure(AGE_III, listOf(TOWN_HALL, PRETORIUM)), players = Pair(
                 Player(coins = 10, buildings = setOf(PRESS, STONE_RESERVE)),
                 Player(coins = 0, progressTokens = setOf(ECONOMY))))
         assertThat(game.build(TOWN_HALL).players.second.coins).isEqualTo(7)
-        assertThat(game.build(COURTHOUSE).players.second.coins).isEqualTo(0)
+        assertThat(game.build(PRETORIUM).players.second.coins).isEqualTo(0)
     }
 
     @Test

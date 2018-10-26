@@ -38,6 +38,7 @@
     <string name="age_2_back">An age II card face down</string>
     <string name="age_3_back">An age III card face down</string>
     <string name="guild_back">A guild card face down</string>
+
     <string name="lumber_yard">Lumber yard</string>
     <string name="logging_camp">Logging camp</string>
     <string name="clay_pool">Clay pool</string>
@@ -61,4 +62,57 @@
     <string name="clay_reserve">Clay reserve</string>
     <string name="wood_reserve">Wood reserve</string>
     <string name="tavern">Tavern</string>
+
+    <string name="sawmill">Sawmill</string>
+    <string name="brickyard">Brickyard</string>
+    <string name="shelf_quarry">Shelf quarry</string>
+    <string name="glassblower">Glassblower</string>
+    <string name="drying_room">Drying room</string>
+    <string name="walls">Walls</string>
+    <string name="horse_breeders">Horse breeders</string>
+    <string name="barracks">Barracks</string>
+    <string name="archery_range">Archery range</string>
+    <string name="parade_ground">Parade ground</string>
+    <string name="library">Library</string>
+    <string name="dispensary">Dispensary</string>
+    <string name="school">School</string>
+    <string name="laboratory">Laboratory</string>
+    <string name="courthouse">Courthouse</string>
+    <string name="statue">Statue</string>
+    <string name="temple">Temple</string>
+    <string name="aqueduct">Aqueduct</string>
+    <string name="rostrum">Rostrum</string>
+    <string name="forum">Forum</string>
+    <string name="caravansery">Caravansery</string>
+    <string name="customs_house">Customs house</string>
+    <string name="brewery">Brewery</string>
+
+    <string name="arsenal">Arsenal</string>
+    <string name="pretorium">Pretorium</string>
+    <string name="fortifications">Fortifications</string>
+    <string name="siege_workshop">Siege workshop</string>
+    <string name="circus">Circus</string>
+    <string name="academy">Academy</string>
+    <string name="study">Study</string>
+    <string name="university">University</string>
+    <string name="observatory">Observatory</string>
+    <string name="palace">Palace</string>
+    <string name="town_hall">Town hall</string>
+    <string name="obelisk">Obelisk</string>
+    <string name="gardens">Gardens</string>
+    <string name="pantheon">Pantheon</string>
+    <string name="senate">Senate</string>
+    <string name="chamber_of_commerce">Chamber of commerce</string>
+    <string name="port">Port</string>
+    <string name="armory">Armory</string>
+    <string name="lighthouse">Lighthouse</string>
+    <string name="arena">Arena</string>
+
+    <string name="merchants_guild">Merchants guild</string>
+    <string name="shipowners_guild">Shipowners guild</string>
+    <string name="builders_guild">Builders guild</string>
+    <string name="magistrate_guild">Magistrate guild</string>
+    <string name="scientists_guild">Scientists guild</string>
+    <string name="moneylenders_guild">Moneylenders guild</string>
+    <string name="tacticians_guild">Tacticians guild</string>
 </resources>

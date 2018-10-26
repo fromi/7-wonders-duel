@@ -32,7 +32,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     fun build(building: Building): SevenWondersDuel {
         val game = if (pendingActions.firstOrNull() == DiscardedBuildingToBuild) {
             require(discardedCards.contains(building))
-            copy(discardedCards = discardedCards.minus(building))
+            copy(discardedCards = discardedCards.minus(building), pendingActions = pendingActions.drop(1))
         } else {
             takeAndPay(building)
         }
@@ -197,7 +197,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         return when (conflictPawnPosition) {
             in -8..-6 -> if (players.first.militaryTokensLooted < 2) copy(players = players.copy(players.first.lootSecondToken(), players.second)) else this
             in -5..-3 -> if (players.first.militaryTokensLooted < 1) copy(players = players.copy(players.first.lootFirstToken(), players.second)) else this
-            in 3..5 -> if (players.second.militaryTokensLooted < 2) copy(players = players.copy(players.first, players.second.lootFirstToken())) else this
+            in 3..5 -> if (players.second.militaryTokensLooted < 1) copy(players = players.copy(players.first, players.second.lootFirstToken())) else this
             in 6..8 -> if (players.second.militaryTokensLooted < 2) copy(players = players.copy(players.first, players.second.lootSecondToken())) else this
             else -> this
         }
