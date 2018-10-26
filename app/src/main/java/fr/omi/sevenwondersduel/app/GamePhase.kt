@@ -25,7 +25,7 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
     }
 
     private fun createBuildingDropZone(): BuildingView {
-        return BuildingView(gameActivity).apply {
+        return BuildingView(gameActivity, game.structure!!.age).apply {
             alpha = 0F
             positionToNextBuildingPlace(layout, model.game)
             setOnDragListener { _, event -> buildingDropListener(event) }
