@@ -16,6 +16,7 @@ class GameActivity : AppCompatActivity() {
     private val wondersViews: MutableMap<Wonder, WonderView> = hashMapOf()
     private val buildingsViews: MutableMap<Building, BuildingView> = hashMapOf()
     private var structureBuildingsViews: List<Map<Int, BuildingView>> = listOf()
+    private lateinit var conflictPawnView: ConflictPawnView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +36,7 @@ class GameActivity : AppCompatActivity() {
         model.game.players.second.buildings.forEachIndexed { index, it -> BuildingView(this, it).apply { positionForPlayer(layout, 2, index) } }
         firstPlayerCoins.text = model.game.players.first.coins.toString()
         secondPlayerCoins.text = model.game.players.second.coins.toString()
+        conflictPawnView = ConflictPawnView(this, model.game.conflictPawnPosition)
     }
 
     private fun createView(progressToken: ProgressToken, position: Int) {

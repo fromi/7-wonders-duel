@@ -46,18 +46,6 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageView
-        android:id="@+id/conflictPawn"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_marginTop="12dp"
-        android:contentDescription="@string/conflict_pawn_position"
-        app:layout_constraintBottom_toBottomOf="@+id/board"
-        app:layout_constraintEnd_toEndOf="@+id/board"
-        app:layout_constraintStart_toStartOf="@+id/board"
-        app:layout_constraintTop_toTopOf="@+id/board"
-        app:srcCompat="@drawable/shield" />
-
-    <ImageView
         android:id="@+id/loot2player1"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
