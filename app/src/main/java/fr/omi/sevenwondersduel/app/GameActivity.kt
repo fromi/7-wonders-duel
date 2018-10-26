@@ -76,7 +76,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun createView(deck: Building.Deck, row: Int, column: Int): BuildingView {
-        return BuildingView(this).apply {
+        return BuildingView(this, deck).apply {
             positionInStructure(layout, row, column)
         }
     }

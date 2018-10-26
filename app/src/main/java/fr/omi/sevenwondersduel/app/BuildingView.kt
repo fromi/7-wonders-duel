@@ -7,15 +7,19 @@ import android.support.constraint.ConstraintSet
 import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.SevenWondersDuel
+import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.Building.*
 
 @SuppressLint("ViewConstructor")
-class BuildingView(context: Context, val building: Building? = null) : ImageView(context) {
+class BuildingView(context: Context, deck: Deck, val building: Building? = null) : ImageView(context) {
+
+    constructor(context: GameActivity, building: Building) : this(context, building.deck, building)
+
     init {
         id = generateViewId()
-        setImageResource(getResource(building))
-        contentDescription = resources.getString(getContentDescription(building))
+        setImageResource(if (building != null) getResource(building) else getResource(deck))
+        contentDescription = resources.getString(if (building != null) getContentDescription(building) else getContentDescription(deck))
         layoutParams = ConstraintLayout.LayoutParams(dpsToPx(35), ConstraintLayout.LayoutParams.WRAP_CONTENT)
         adjustViewBounds = true
     }
@@ -52,7 +56,7 @@ class BuildingView(context: Context, val building: Building? = null) : ImageView
     }
 
     companion object {
-        fun getResource(building: Building?): Int {
+        fun getResource(building: Building): Int {
             return when (building) {
                 LUMBER_YARD -> R.drawable.lumber_yard
                 LOGGING_CAMP -> R.drawable.logging_camp
@@ -77,11 +81,20 @@ class BuildingView(context: Context, val building: Building? = null) : ImageView
                 CLAY_RESERVE -> R.drawable.clay_reserve
                 WOOD_RESERVE -> R.drawable.wood_reserve
                 TAVERN -> R.drawable.tavern
-                else -> R.drawable.age_1_back
+                else -> TODO()
             }
         }
 
-        fun getContentDescription(building: Building?): Int {
+        fun getResource(deck: Building.Deck): Int {
+            return when (deck) {
+                AGE_I -> R.drawable.age_1_back
+                AGE_II -> R.drawable.age_2_back
+                AGE_III -> R.drawable.age_3_back
+                else -> R.drawable.guild_back
+            }
+        }
+
+        fun getContentDescription(building: Building): Int {
             return when (building) {
                 LUMBER_YARD -> R.string.lumber_yard
                 LOGGING_CAMP -> R.string.logging_camp
@@ -106,7 +119,16 @@ class BuildingView(context: Context, val building: Building? = null) : ImageView
                 CLAY_RESERVE -> R.string.clay_reserve
                 WOOD_RESERVE -> R.string.wood_reserve
                 TAVERN -> R.string.tavern
-                else -> R.string.age_1_back
+                else -> TODO()
+            }
+        }
+
+        fun getContentDescription(deck: Building.Deck): Int {
+            return when (deck) {
+                AGE_I -> R.string.age_1_back
+                AGE_II -> R.string.age_2_back
+                AGE_III -> R.string.age_3_back
+                else -> R.string.guild_back
             }
         }
     }

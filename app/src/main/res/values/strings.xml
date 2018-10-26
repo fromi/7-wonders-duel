@@ -35,6 +35,9 @@
     <string name="progress_urbanism">Urbanism</string>
 
     <string name="age_1_back">An age I card face down</string>
+    <string name="age_2_back">An age II card face down</string>
+    <string name="age_3_back">An age III card face down</string>
+    <string name="guild_back">A guild card face down</string>
     <string name="lumber_yard">Lumber yard</string>
     <string name="logging_camp">Logging camp</string>
     <string name="clay_pool">Clay pool</string>
