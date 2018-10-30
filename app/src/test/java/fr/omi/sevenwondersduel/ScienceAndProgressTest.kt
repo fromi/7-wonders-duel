@@ -3,8 +3,8 @@ package fr.omi.sevenwondersduel
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building.*
+import fr.omi.sevenwondersduel.material.Piraeus
 import fr.omi.sevenwondersduel.material.ProgressToken.*
-import fr.omi.sevenwondersduel.material.Wonder.PIRAEUS
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -47,7 +47,7 @@ class ScienceAndProgressTest {
     }
 
     val gameWithProgressTokenToChoose = SevenWondersDuel(currentPlayer = 1, structure = Structure(AGE_II, listOf(BREWERY)),
-            players = Pair(Player(coins = 100, wonders = listOf(BuildableWonder(PIRAEUS))), Player()),
+            players = Pair(Player(coins = 100, wonders = listOf(PlayerWonder(Piraeus))), Player()),
             pendingActions = listOf(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY))))
 
     @Test(expected = IllegalStateException::class)
@@ -63,7 +63,7 @@ class ScienceAndProgressTest {
 
     @Test(expected = IllegalStateException::class)
     fun cannot_build_a_wonder_when_I_have_to_choose_a_progress_token() {
-        gameWithProgressTokenToChoose.build(PIRAEUS, BREWERY)
+        gameWithProgressTokenToChoose.build(Piraeus, BREWERY)
 
     }
 

@@ -5,7 +5,10 @@ import fr.omi.sevenwondersduel.material.Age.AGE_II
 import fr.omi.sevenwondersduel.material.Age.AGE_III
 import fr.omi.sevenwondersduel.material.Building.*
 import fr.omi.sevenwondersduel.material.ProgressToken.*
-import fr.omi.sevenwondersduel.material.Wonder.*
+import fr.omi.sevenwondersduel.material.TheColossus
+import fr.omi.sevenwondersduel.material.ThePyramids
+import fr.omi.sevenwondersduel.material.TheSphinx
+import fr.omi.sevenwondersduel.material.TheTempleOfArtemis
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -25,9 +28,9 @@ class ProgressTokensTest {
         var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(PALACE)), players = Pair(
                 Player(coins = 1, progressTokens = setOf(ARCHITECTURE),
                         buildings = setOf(PRESS, STONE_RESERVE),
-                        wonders = listOf(BuildableWonder(THE_TEMPLE_OF_ARTEMIS))),
+                        wonders = listOf(PlayerWonder(TheTempleOfArtemis))),
                 Player(buildings = setOf(SAWMILL))))
-        game = game.build(THE_TEMPLE_OF_ARTEMIS, PALACE)
+        game = game.build(TheTempleOfArtemis, PALACE)
         assertThat(game.players.first.coins).isEqualTo(12)
     }
 
@@ -85,9 +88,9 @@ class ProgressTokensTest {
     fun strategy_does_not_give_extra_shield_for_wonders() {
         var game = SevenWondersDuel(structure = Structure(AGE_II, listOf(ARCHERY_RANGE)),
                 conflictPawnPosition = 0, players = Pair(
-                Player(coins = 42, progressTokens = setOf(STRATEGY), wonders = listOf(BuildableWonder(THE_COLOSSUS))),
+                Player(coins = 42, progressTokens = setOf(STRATEGY), wonders = listOf(PlayerWonder(TheColossus))),
                 Player()))
-        game = game.build(THE_COLOSSUS, ARCHERY_RANGE)
+        game = game.build(TheColossus, ARCHERY_RANGE)
         assertThat(game.conflictPawnPosition).isEqualTo(2)
     }
 
@@ -95,9 +98,9 @@ class ProgressTokensTest {
     fun theology_give_play_again_effect_to_all_my_wonders() {
         var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(PALACE, OBSERVATORY)), players = Pair(
                 Player(coins = 42, progressTokens = setOf(THEOLOGY),
-                        wonders = listOf(BuildableWonder(THE_PYRAMIDS))),
+                        wonders = listOf(PlayerWonder(ThePyramids))),
                 Player(buildings = setOf(SAWMILL))))
-        game = game.build(THE_PYRAMIDS, PALACE)
+        game = game.build(ThePyramids, PALACE)
         assertThat(game.currentPlayer).isEqualTo(1)
     }
 
@@ -105,9 +108,9 @@ class ProgressTokensTest {
     fun a_wonder_cannot_have_play_again_effect_twice_with_theology() {
         var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(PALACE, OBSERVATORY)), players = Pair(
                 Player(coins = 42, progressTokens = setOf(THEOLOGY),
-                        wonders = listOf(BuildableWonder(THE_SPHINX))),
+                        wonders = listOf(PlayerWonder(TheSphinx))),
                 Player(buildings = setOf(SAWMILL))))
-        game = game.build(THE_SPHINX, PALACE)
+        game = game.build(TheSphinx, PALACE)
         assertThat(game.currentPlayer).isEqualTo(1)
         assertThat(game.pendingActions).isEmpty()
     }

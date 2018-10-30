@@ -9,8 +9,7 @@ import android.support.constraint.ConstraintSet
 import android.transition.TransitionManager
 import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
-import fr.omi.sevenwondersduel.material.Wonder
-import fr.omi.sevenwondersduel.material.Wonder.*
+import fr.omi.sevenwondersduel.material.*
 
 @SuppressLint("ViewConstructor")
 class WonderView(context: Context, val wonder: Wonder? = null) : ImageView(context) {
@@ -55,36 +54,36 @@ class WonderView(context: Context, val wonder: Wonder? = null) : ImageView(conte
     companion object {
         fun getResource(wonder: Wonder?): Int {
             return when (wonder) {
-                CIRCUS_MAXIMUS -> R.drawable.circus_maximus
-                PIRAEUS -> R.drawable.piraeus
-                THE_APPIAN_WAY -> R.drawable.the_appian_way
-                THE_COLOSSUS -> R.drawable.the_colossus
-                THE_GREAT_LIBRARY -> R.drawable.the_great_library
-                THE_GREAT_LIGHTHOUSE -> R.drawable.the_great_lighthouse
-                THE_HANGING_GARDENS -> R.drawable.the_hanging_gardens
-                THE_MAUSOLEUM -> R.drawable.the_mausoleum
-                THE_PYRAMIDS -> R.drawable.the_pyramids
-                THE_SPHINX -> R.drawable.the_sphinx
-                THE_STATUE_OF_ZEUS -> R.drawable.the_statue_of_zeus
-                THE_TEMPLE_OF_ARTEMIS -> R.drawable.the_temple_of_artemis
+                is CircusMaximus -> R.drawable.circus_maximus
+                is Piraeus -> R.drawable.piraeus
+                is TheAppianWay -> R.drawable.the_appian_way
+                is TheColossus -> R.drawable.the_colossus
+                is TheGreatLibrary -> R.drawable.the_great_library
+                is TheGreatLighthouse -> R.drawable.the_great_lighthouse
+                is TheHangingGardens -> R.drawable.the_hanging_gardens
+                is TheMausoleum -> R.drawable.the_mausoleum
+                is ThePyramids -> R.drawable.the_pyramids
+                is TheSphinx -> R.drawable.the_sphinx
+                is TheStatueOfZeus -> R.drawable.the_statue_of_zeus
+                is TheTempleOfArtemis -> R.drawable.the_temple_of_artemis
                 else -> R.drawable.wonders_back
             }
         }
 
         fun getContentDescription(wonder: Wonder?): Int {
             return when (wonder) {
-                CIRCUS_MAXIMUS -> R.string.circus_maximus
-                PIRAEUS -> R.string.piraeus
-                THE_APPIAN_WAY -> R.string.the_appian_way
-                THE_COLOSSUS -> R.string.the_colossus
-                THE_GREAT_LIBRARY -> R.string.the_great_library
-                THE_GREAT_LIGHTHOUSE -> R.string.the_great_lighthouse
-                THE_HANGING_GARDENS -> R.string.the_hanging_gardens
-                THE_MAUSOLEUM -> R.string.the_mausoleum
-                THE_PYRAMIDS -> R.string.the_pyramids
-                THE_SPHINX -> R.string.the_sphinx
-                THE_STATUE_OF_ZEUS -> R.string.the_statue_of_zeus
-                THE_TEMPLE_OF_ARTEMIS -> R.string.the_temple_of_artemis
+                is CircusMaximus -> R.string.circus_maximus
+                is Piraeus -> R.string.piraeus
+                is TheAppianWay -> R.string.the_appian_way
+                is TheColossus -> R.string.the_colossus
+                is TheGreatLibrary -> R.string.the_great_library
+                is TheGreatLighthouse -> R.string.the_great_lighthouse
+                is TheHangingGardens -> R.string.the_hanging_gardens
+                is TheMausoleum -> R.string.the_mausoleum
+                is ThePyramids -> R.string.the_pyramids
+                is TheSphinx -> R.string.the_sphinx
+                is TheStatueOfZeus -> R.string.the_statue_of_zeus
+                is TheTempleOfArtemis -> R.string.the_temple_of_artemis
                 else -> R.string.wonders_back
             }
         }

@@ -1,11 +1,10 @@
 package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
-import fr.omi.sevenwondersduel.material.Age
+import fr.omi.sevenwondersduel.material.*
 import fr.omi.sevenwondersduel.material.Building.*
 import fr.omi.sevenwondersduel.material.ProgressToken.AGRICULTURE
 import fr.omi.sevenwondersduel.material.ProgressToken.URBANISM
-import fr.omi.sevenwondersduel.material.Wonder.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -78,15 +77,15 @@ class TakeCoinsEffectsTest {
     fun arena_gives_2_coins_per_wonder_I_built() {
         var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(ARENA)), players = Pair(
                 Player(coins = 0, buildings = setOf(BREWERY), wonders = listOf(
-                        BuildableWonder(PIRAEUS),
-                        BuildableWonder(THE_COLOSSUS, builtWith = GARRISON),
-                        BuildableWonder(THE_PYRAMIDS, builtWith = STABLE),
-                        BuildableWonder(THE_GREAT_LIBRARY))),
+                        PlayerWonder(Piraeus),
+                        PlayerWonder(TheColossus, buildingUnder = GARRISON),
+                        PlayerWonder(ThePyramids, buildingUnder = STABLE),
+                        PlayerWonder(TheGreatLibrary))),
                 Player(coins = 7, buildings = setOf(ARENA), wonders = listOf(
-                        BuildableWonder(THE_HANGING_GARDENS, builtWith = LOGGING_CAMP),
-                        BuildableWonder(THE_STATUE_OF_ZEUS, builtWith = BRICKYARD),
-                        BuildableWonder(THE_APPIAN_WAY, builtWith = PALACE),
-                        BuildableWonder(CIRCUS_MAXIMUS, builtWith = MONEYLENDERS_GUILD)))))
+                        PlayerWonder(TheHangingGardens, buildingUnder = LOGGING_CAMP),
+                        PlayerWonder(TheStatueOfZeus, buildingUnder = BRICKYARD),
+                        PlayerWonder(TheAppianWay, buildingUnder = PALACE),
+                        PlayerWonder(CircusMaximus, buildingUnder = MONEYLENDERS_GUILD)))))
         game = game.build(ARENA)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
@@ -111,12 +110,12 @@ class TakeCoinsEffectsTest {
     fun the_appian_way_gives_3_coins() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
                 Player(coins = 8, buildings = setOf(FORUM), wonders = listOf(
-                        BuildableWonder(THE_APPIAN_WAY),
-                        BuildableWonder(THE_COLOSSUS, builtWith = GARRISON),
-                        BuildableWonder(THE_PYRAMIDS, builtWith = STABLE),
-                        BuildableWonder(THE_GREAT_LIBRARY))),
+                        PlayerWonder(TheAppianWay),
+                        PlayerWonder(TheColossus, buildingUnder = GARRISON),
+                        PlayerWonder(ThePyramids, buildingUnder = STABLE),
+                        PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(THE_APPIAN_WAY, DISPENSARY)
+        game = game.build(TheAppianWay, DISPENSARY)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
@@ -124,12 +123,12 @@ class TakeCoinsEffectsTest {
     fun the_hanging_gardens_gives_6_coins() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
                 Player(coins = 0, buildings = setOf(PRESS, FORUM, SAWMILL), wonders = listOf(
-                        BuildableWonder(THE_HANGING_GARDENS),
-                        BuildableWonder(THE_COLOSSUS, builtWith = GARRISON),
-                        BuildableWonder(THE_PYRAMIDS, builtWith = STABLE),
-                        BuildableWonder(THE_GREAT_LIBRARY))),
+                        PlayerWonder(TheHangingGardens),
+                        PlayerWonder(TheColossus, buildingUnder = GARRISON),
+                        PlayerWonder(ThePyramids, buildingUnder = STABLE),
+                        PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(THE_HANGING_GARDENS, DISPENSARY)
+        game = game.build(TheHangingGardens, DISPENSARY)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
@@ -137,12 +136,12 @@ class TakeCoinsEffectsTest {
     fun the_temple_of_artemis_gives_12_coins() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
                 Player(coins = 4, buildings = setOf(PRESS, GLASSBLOWER, BRICKYARD), wonders = listOf(
-                        BuildableWonder(THE_TEMPLE_OF_ARTEMIS),
-                        BuildableWonder(THE_COLOSSUS, builtWith = GARRISON),
-                        BuildableWonder(THE_PYRAMIDS, builtWith = STABLE),
-                        BuildableWonder(THE_GREAT_LIBRARY))),
+                        PlayerWonder(TheTempleOfArtemis),
+                        PlayerWonder(TheColossus, buildingUnder = GARRISON),
+                        PlayerWonder(ThePyramids, buildingUnder = STABLE),
+                        PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(THE_TEMPLE_OF_ARTEMIS, DISPENSARY)
+        game = game.build(TheTempleOfArtemis, DISPENSARY)
         assertThat(game.players.first.coins).isEqualTo(12)
     }
 }

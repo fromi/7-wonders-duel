@@ -3,7 +3,7 @@ package fr.omi.sevenwondersduel.app
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import fr.omi.sevenwondersduel.BuildableWonder
+import fr.omi.sevenwondersduel.PlayerWonder
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.Structure
 import fr.omi.sevenwondersduel.material.Building
@@ -48,10 +48,10 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun createView(buildableWonder: BuildableWonder, owner: Int, position: Int): WonderView {
-        val wonderView = createView(buildableWonder.wonder, owner, position)
-        if (buildableWonder.isBuild()) {
-            BuildingView(this, buildableWonder.builtWith!!).positionUnder(layout, wonderView, owner)
+    private fun createView(playerWonder: PlayerWonder, owner: Int, position: Int): WonderView {
+        val wonderView = createView(playerWonder, owner, position)
+        if (playerWonder.isBuild()) {
+            BuildingView(this, playerWonder.buildingUnder!!).positionUnder(layout, wonderView, owner)
         }
         return wonderView
     }

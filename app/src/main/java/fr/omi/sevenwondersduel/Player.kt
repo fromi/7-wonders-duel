@@ -11,10 +11,10 @@ import fr.omi.sevenwondersduel.material.Building.Type.COMMERCIAL
 import kotlin.math.max
 
 data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
-                  val wonders: List<BuildableWonder> = emptyList(),
+                  val wonders: List<PlayerWonder> = emptyList(),
                   val buildings: Set<Building> = emptySet(),
                   val progressTokens: Set<ProgressToken> = emptySet()) {
-    fun take(wonder: Wonder): Player = copy(wonders = wonders.plus(BuildableWonder(wonder)))
+    fun take(wonder: Wonder): Player = copy(wonders = wonders.plus(PlayerWonder(wonder)))
 
     fun build(building: Building): Player = copy(buildings = buildings.plus(building))
 

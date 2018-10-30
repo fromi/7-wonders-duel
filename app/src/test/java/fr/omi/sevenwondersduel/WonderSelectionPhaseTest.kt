@@ -1,6 +1,6 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.material.Wonder.*
+import fr.omi.sevenwondersduel.material.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -15,45 +15,45 @@ class WonderSelectionPhaseTest {
 
     @Test
     fun first_4_wonders_selection() {
-        var game = SevenWondersDuel(wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS))
-        game = game.choose(THE_PYRAMIDS)
-        assertThat(game.wondersAvailable).containsExactly(THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS)
-        assertThat(game.players.first.wonders).containsExactly(BuildableWonder(THE_PYRAMIDS))
+        var game = SevenWondersDuel(wondersAvailable = setOf(ThePyramids, TheGreatLighthouse, TheColossus, TheHangingGardens))
+        game = game.choose(ThePyramids)
+        assertThat(game.wondersAvailable).containsExactly(TheGreatLighthouse, TheColossus, TheHangingGardens)
+        assertThat(game.players.first.wonders).containsExactly(PlayerWonder(ThePyramids))
         assertThat(game.currentPlayer).isEqualTo(2)
-        game = game.choose(THE_GREAT_LIGHTHOUSE)
+        game = game.choose(TheGreatLighthouse)
         assertThat(game.currentPlayer).isEqualTo(2)
-        assertThat(game.players.second.wonders).containsExactly(BuildableWonder(THE_GREAT_LIGHTHOUSE))
-        game = game.choose(THE_HANGING_GARDENS)
-        assertThat(game.players.second.wonders).containsExactly(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_HANGING_GARDENS))
-        assertThat(game.players.first.wonders).containsExactly(BuildableWonder(THE_PYRAMIDS), BuildableWonder(THE_COLOSSUS))
-        assertThat(game.wondersAvailable).doesNotContain(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS).size().isEqualTo(4)
+        assertThat(game.players.second.wonders).containsExactly(PlayerWonder(TheGreatLighthouse))
+        game = game.choose(TheHangingGardens)
+        assertThat(game.players.second.wonders).containsExactly(PlayerWonder(TheGreatLighthouse), PlayerWonder(TheHangingGardens))
+        assertThat(game.players.first.wonders).containsExactly(PlayerWonder(ThePyramids), PlayerWonder(TheColossus))
+        assertThat(game.wondersAvailable).doesNotContain(ThePyramids, TheGreatLighthouse, TheColossus, TheHangingGardens).size().isEqualTo(4)
         assertThat(game.currentPlayer).isEqualTo(2)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_select_a_wonder_not_available() {
-        val game = SevenWondersDuel(wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIGHTHOUSE, THE_COLOSSUS, THE_HANGING_GARDENS))
-        game.choose(THE_MAUSOLEUM)
+        val game = SevenWondersDuel(wondersAvailable = setOf(ThePyramids, TheGreatLighthouse, TheColossus, TheHangingGardens))
+        game.choose(TheMausoleum)
     }
 
     @Test
     fun last_4_wonders_selection() {
-        var game = SevenWondersDuel(players = Pair(Player(wonders = listOf(BuildableWonder(THE_COLOSSUS), BuildableWonder(THE_HANGING_GARDENS))),
-                Player(wonders = listOf(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_MAUSOLEUM)))),
-                wondersAvailable = setOf(THE_PYRAMIDS, THE_GREAT_LIBRARY, THE_STATUE_OF_ZEUS, THE_TEMPLE_OF_ARTEMIS),
+        var game = SevenWondersDuel(players = Pair(Player(wonders = listOf(PlayerWonder(TheColossus), PlayerWonder(TheHangingGardens))),
+                Player(wonders = listOf(PlayerWonder(TheGreatLighthouse), PlayerWonder(TheMausoleum)))),
+                wondersAvailable = setOf(ThePyramids, TheGreatLibrary, TheStatueOfZeus, TheTempleOfArtemis),
                 currentPlayer = 2)
-        game = game.choose(THE_STATUE_OF_ZEUS)
-        assertThat(game.wondersAvailable).containsExactly(THE_PYRAMIDS, THE_GREAT_LIBRARY, THE_TEMPLE_OF_ARTEMIS)
-        assertThat(game.players.second.wonders).contains(BuildableWonder(THE_STATUE_OF_ZEUS))
+        game = game.choose(TheStatueOfZeus)
+        assertThat(game.wondersAvailable).containsExactly(ThePyramids, TheGreatLibrary, TheTempleOfArtemis)
+        assertThat(game.players.second.wonders).contains(PlayerWonder(TheStatueOfZeus))
         assertThat(game.currentPlayer).isEqualTo(1)
-        game = game.choose(THE_GREAT_LIBRARY)
-        assertThat(game.wondersAvailable).containsExactly(THE_PYRAMIDS, THE_TEMPLE_OF_ARTEMIS)
-        assertThat(game.players.first.wonders).contains(BuildableWonder(THE_GREAT_LIBRARY))
-        game = game.choose(THE_TEMPLE_OF_ARTEMIS)
-        assertThat(game.players.first.wonders).containsExactly(BuildableWonder(THE_COLOSSUS), BuildableWonder(THE_HANGING_GARDENS),
-                BuildableWonder(THE_GREAT_LIBRARY), BuildableWonder(THE_TEMPLE_OF_ARTEMIS))
-        assertThat(game.players.second.wonders).containsExactly(BuildableWonder(THE_GREAT_LIGHTHOUSE), BuildableWonder(THE_MAUSOLEUM),
-                BuildableWonder(THE_STATUE_OF_ZEUS), BuildableWonder(THE_PYRAMIDS))
+        game = game.choose(TheGreatLibrary)
+        assertThat(game.wondersAvailable).containsExactly(ThePyramids, TheTempleOfArtemis)
+        assertThat(game.players.first.wonders).contains(PlayerWonder(TheGreatLibrary))
+        game = game.choose(TheTempleOfArtemis)
+        assertThat(game.players.first.wonders).containsExactly(PlayerWonder(TheColossus), PlayerWonder(TheHangingGardens),
+                PlayerWonder(TheGreatLibrary), PlayerWonder(TheTempleOfArtemis))
+        assertThat(game.players.second.wonders).containsExactly(PlayerWonder(TheGreatLighthouse), PlayerWonder(TheMausoleum),
+                PlayerWonder(TheStatueOfZeus), PlayerWonder(ThePyramids))
         assertThat(game.currentPlayer).isEqualTo(1)
         assertThat(game.structure?.sumBy { it.size }).isEqualTo(20)
     }

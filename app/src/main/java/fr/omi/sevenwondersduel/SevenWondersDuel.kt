@@ -10,7 +10,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
                             val conflictPawnPosition: Int = 0,
                             val progressTokensAvailable: Set<ProgressToken> = ProgressToken.values().toList().shuffled().asSequence().take(5).toSet(),
                             val currentPlayer: Int? = 1,
-                            val wondersAvailable: Set<Wonder> = Wonder.values().toList().shuffled().asSequence().take(4).toSet(),
+                            val wondersAvailable: Set<Wonder> = wonders.shuffled().take(4).toSet(),
                             val structure: Structure? = null,
                             val discardedCards: List<Building> = emptyList(),
                             val pendingActions: List<PendingAction> = emptyList()) {
@@ -125,7 +125,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         return copy(wondersAvailable = wondersAvailable.minus(wonder), players = players)
     }
 
-    private fun remainingWonders() = Wonder.values().toList().filter { wonder -> !wondersAvailable.contains(wonder) && players.toList().none { player -> player.wonders.any { it.wonder == wonder } } }
+    private fun remainingWonders() = wonders.filter { wonder -> !wondersAvailable.contains(wonder) && players.toList().none { player -> player.wonders.any { it.wonder == wonder } } }
 
     private fun prepareNextAge(age: Age): SevenWondersDuel {
         val playerChoosingWhoBeginsNextAge = when {

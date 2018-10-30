@@ -1,8 +1,7 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.material.Age
+import fr.omi.sevenwondersduel.material.*
 import fr.omi.sevenwondersduel.material.Building.*
-import fr.omi.sevenwondersduel.material.Wonder.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -47,15 +46,15 @@ class GuildsTest {
         val game = SevenWondersDuel(players = Pair(
                 Player(coins = 0, buildings = setOf(BUILDERS_GUILD),
                         wonders = listOf(
-                                BuildableWonder(THE_TEMPLE_OF_ARTEMIS, builtWith = CIRCUS),
-                                BuildableWonder(PIRAEUS),
-                                BuildableWonder(THE_GREAT_LIBRARY),
-                                BuildableWonder(CIRCUS_MAXIMUS))),
+                                PlayerWonder(TheTempleOfArtemis, buildingUnder = CIRCUS),
+                                PlayerWonder(Piraeus),
+                                PlayerWonder(TheGreatLibrary),
+                                PlayerWonder(CircusMaximus))),
                 Player(wonders = listOf(
-                        BuildableWonder(THE_PYRAMIDS, builtWith = PHARMACIST),
-                        BuildableWonder(THE_HANGING_GARDENS, builtWith = GARRISON),
-                        BuildableWonder(THE_COLOSSUS, builtWith = OBELISK),
-                        BuildableWonder(THE_GREAT_LIGHTHOUSE)
+                        PlayerWonder(ThePyramids, buildingUnder = PHARMACIST),
+                        PlayerWonder(TheHangingGardens, buildingUnder = GARRISON),
+                        PlayerWonder(TheColossus, buildingUnder = OBELISK),
+                        PlayerWonder(TheGreatLighthouse)
                 ))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(3)
     }

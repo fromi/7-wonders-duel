@@ -5,7 +5,7 @@ import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.Building.Deck.Guilds
 import fr.omi.sevenwondersduel.material.Building.Type.*
 import fr.omi.sevenwondersduel.material.Resource
-import fr.omi.sevenwondersduel.material.Wonder
+import fr.omi.sevenwondersduel.material.wonders
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -74,10 +74,10 @@ class SevenWondersDuelMaterialTest {
 
     @Test
     fun verify_total_resources_costs_on_wonders() {
-        assertThat(Wonder.values().sumBy { it.cost.resources[Resource.CLAY] ?: 0 }).isEqualTo(10)
-        assertThat(Wonder.values().sumBy { it.cost.resources[Resource.WOOD] ?: 0 }).isEqualTo(11)
-        assertThat(Wonder.values().sumBy { it.cost.resources[Resource.STONE] ?: 0 }).isEqualTo(12)
-        assertThat(Wonder.values().sumBy { it.cost.resources[Resource.GLASS] ?: 0 }).isEqualTo(9)
-        assertThat(Wonder.values().sumBy { it.cost.resources[Resource.PAPYRUS] ?: 0 }).isEqualTo(10)
+        assertThat(wonders.sumBy { it.cost.resources[Resource.CLAY] ?: 0 }).isEqualTo(10)
+        assertThat(wonders.sumBy { it.cost.resources[Resource.WOOD] ?: 0 }).isEqualTo(11)
+        assertThat(wonders.sumBy { it.cost.resources[Resource.STONE] ?: 0 }).isEqualTo(12)
+        assertThat(wonders.sumBy { it.cost.resources[Resource.GLASS] ?: 0 }).isEqualTo(9)
+        assertThat(wonders.sumBy { it.cost.resources[Resource.PAPYRUS] ?: 0 }).isEqualTo(10)
     }
 }

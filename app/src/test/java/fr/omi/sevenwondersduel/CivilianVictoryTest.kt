@@ -1,14 +1,12 @@
 package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.effects.victorypoints.VictoryPoints
+import fr.omi.sevenwondersduel.material.*
 import fr.omi.sevenwondersduel.material.Age.AGE_III
-import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.Building.*
 import fr.omi.sevenwondersduel.material.Building.Type.*
 import fr.omi.sevenwondersduel.material.ProgressToken.AGRICULTURE
 import fr.omi.sevenwondersduel.material.ProgressToken.PHILOSOPHY
-import fr.omi.sevenwondersduel.material.Wonder
-import fr.omi.sevenwondersduel.material.Wonder.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -79,12 +77,12 @@ class CivilianVictoryTest {
     fun count_wonders() {
         val game = SevenWondersDuel(players = Pair(Player(coins = 0,
                 wonders = listOf(
-                        BuildableWonder(THE_PYRAMIDS, OBELISK),
-                        BuildableWonder(PIRAEUS, STABLE),
-                        BuildableWonder(THE_COLOSSUS)
+                        PlayerWonder(ThePyramids, OBELISK),
+                        PlayerWonder(Piraeus, STABLE),
+                        PlayerWonder(TheColossus)
                         )), Player()))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(11)
-        val totalWondersPoints = Wonder.values().flatMap { it.effects }.asSequence()
+        val totalWondersPoints = wonders.flatMap { it.effects }.asSequence()
                 .filterIsInstance<VictoryPoints>().sumBy { it.count(game, game.players.first) }
         assertThat(totalWondersPoints).isEqualTo(42)
     }
@@ -92,7 +90,7 @@ class CivilianVictoryTest {
     @Test
     fun in_case_of_tie_most_points_from_civilian_building_wins() {
         val game = SevenWondersDuel(conflictPawnPosition = 1, structure = Structure(AGE_III, emptyList()), players = Pair(
-                Player(coins = 0, buildings = setOf(PORT), progressTokens = setOf(PHILOSOPHY), wonders = listOf(BuildableWonder(PIRAEUS, PALACE))),
+                Player(coins = 0, buildings = setOf(PORT), progressTokens = setOf(PHILOSOPHY), wonders = listOf(PlayerWonder(Piraeus, PALACE))),
                 Player(coins = 0, buildings = setOf(THEATER, SENATE, ARCHERY_RANGE, UNIVERSITY), progressTokens = setOf(AGRICULTURE))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(14)
         assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(14)
@@ -102,7 +100,7 @@ class CivilianVictoryTest {
     @Test
     fun in_case_of_tie_including_civilian_victory_is_shared() {
         val game = SevenWondersDuel(conflictPawnPosition = 1, structure = Structure(AGE_III, emptyList()), players = Pair(
-                Player(coins = 0, buildings = setOf(TEMPLE, OBELISK), wonders = listOf(BuildableWonder(THE_GREAT_LIBRARY, PALACE))),
+                Player(coins = 0, buildings = setOf(TEMPLE, OBELISK), wonders = listOf(PlayerWonder(TheGreatLibrary, PALACE))),
                 Player(coins = 0, buildings = setOf(THEATER, GARDENS, ARCHERY_RANGE, DISPENSARY), progressTokens = setOf(AGRICULTURE))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(15)
         assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(15)
