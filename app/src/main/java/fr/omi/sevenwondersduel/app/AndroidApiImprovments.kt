@@ -1,6 +1,11 @@
 package fr.omi.sevenwondersduel.app
 
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import android.os.Build
+import android.support.constraint.ConstraintLayout
+import android.support.constraint.ConstraintSet
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -28,4 +33,17 @@ fun View.disableDragAndDrop() = setOnTouchListener(null)
 
 fun View.dpsToPx(dps: Int): Int {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps.toFloat(), resources.displayMetrics).toInt()
+}
+
+fun <T> MutableLiveData<T>.observe(owner: LifecycleOwner, observer: (T) -> Unit) {
+    observe(owner, Observer {
+        it?.let { nonNull -> observer(nonNull) }
+    })
+}
+
+fun ConstraintLayout.transform(transformation: ConstraintSet.() -> Unit) {
+    val constraintSet = ConstraintSet()
+    constraintSet.clone(this)
+    transformation(constraintSet)
+    constraintSet.applyTo(this)
 }

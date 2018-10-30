@@ -74,7 +74,7 @@ class WonderSelectionPhase(gameActivity: GameActivity) : GameActivityState(gameA
 
     private fun goToGamePhase() {
         layout.removeView(wonderDropZone)
-        gameActivity.displayStructure()
+        gameActivity.display(checkNotNull(game.structure))
         gameActivity.state = GamePhase(gameActivity)
     }
 }

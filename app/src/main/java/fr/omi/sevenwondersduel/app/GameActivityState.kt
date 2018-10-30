@@ -6,7 +6,7 @@ import kotlinx.android.synthetic.main.activity_game.*
 
 abstract class GameActivityState(internal val gameActivity: GameActivity) {
     internal val game: SevenWondersDuel
-        get() = gameActivity.model.game
+        get() = gameActivity.model.game.value!!
 
     internal val layout: ConstraintLayout
         get() = gameActivity.layout

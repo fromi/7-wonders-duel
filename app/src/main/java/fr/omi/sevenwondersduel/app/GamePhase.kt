@@ -27,7 +27,7 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
     private fun createBuildingDropZone(): BuildingView {
         return BuildingView(gameActivity, game.structure!!.age).apply {
             alpha = 0F
-            positionToNextBuildingPlace(layout, model.game)
+            positionToNextBuildingPlace(layout, game)
             setOnDragListener { _, event -> buildingDropListener(event) }
         }
     }
@@ -44,14 +44,14 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             ACTION_DRAG_ENTERED -> buildDropZone.alpha = 1F
             ACTION_DRAG_EXITED -> buildDropZone.alpha = 0.5F
             ACTION_DROP -> {
-                buildingView.positionToNextBuildingPlace(layout, model.game)
+                buildingView.positionToNextBuildingPlace(layout, game)
                 buildingView.disableDragAndDrop()
                 model.build(checkNotNull(buildingView.building))
             }
             ACTION_DRAG_ENDED -> {
                 buildDropZone.alpha = 0F
                 if (event.result) {
-                    buildDropZone.positionToNextBuildingPlace(layout, model.game)
+                    buildDropZone.positionToNextBuildingPlace(layout, game)
                 }
             }
         }
