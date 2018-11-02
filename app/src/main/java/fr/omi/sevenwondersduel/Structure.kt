@@ -41,7 +41,7 @@ data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Byte) : Li
     companion object {
         private const val age1 = 1.toByte()
         private const val age2 = 2.toByte()
-        private const val age3 = 3.toByte()
+        const val age3 = 3.toByte()
 
         private fun createStructure(age: Byte): List<Map<Int, BuildingCard>> {
             val deck = when (age) {

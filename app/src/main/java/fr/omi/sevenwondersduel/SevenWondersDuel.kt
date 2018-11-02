@@ -1,5 +1,6 @@
 package fr.omi.sevenwondersduel
 
+import fr.omi.sevenwondersduel.Structure.Companion.age3
 import fr.omi.sevenwondersduel.effects.*
 import fr.omi.sevenwondersduel.effects.victorypoints.VictoryPointsEffect
 import fr.omi.sevenwondersduel.material.*
@@ -14,8 +15,6 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
                             val structure: Structure? = null,
                             val discardedCards: List<Building> = emptyList(),
                             val pendingActions: List<PendingAction> = emptyList()) {
-
-    private val lastAge = 3.toByte()
 
     fun choose(wonder: Wonder): SevenWondersDuel {
         var game = give(currentPlayer(), wonder)
@@ -210,7 +209,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     fun isOver(): Boolean = abs(conflictPawnPosition) == 9
             || players.first.countDifferentScientificSymbols() == 6 || players.second.countDifferentScientificSymbols() == 6
-            || structure != null && structure.age == lastAge && structure.isEmpty()
+            || structure != null && structure.age == age3 && structure.isEmpty()
 
     fun getWinner(): Player? {
         return when {
