@@ -80,10 +80,11 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun destroy(building: Building): SevenWondersDuel {
-        val destroyOpponentBuilding = checkNotNull(pendingActions.firstOrNull() as? OpponentBuildingToDestroy) { "You are not currently allowed to destroy an opponent building" }
-        require(building.type == destroyOpponentBuilding.type) { "You are not allowed to destroy this kind of building" }
+        check(pendingActions.isNotEmpty() && pendingActions.first() is OpponentBuildingToDestroy) { "You are not currently allowed to destroy an opponent building" }
+        val action = pendingActions.first() as OpponentBuildingToDestroy
+        require(action.isEligible(building)) { "You are not allowed to destroy this kind of building" }
         return pairInOrder(currentPlayer(), opponent().destroy(building))
-                .copy(pendingActions = pendingActions.minus(destroyOpponentBuilding), discardedCards = discardedCards.plus(building))
+                .copy(pendingActions = pendingActions.minus(action), discardedCards = discardedCards.plus(building))
                 .continueGame()
     }
 
@@ -159,15 +160,19 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     private fun continueGame(): SevenWondersDuel {
         return when {
             isOver() -> this
-            pendingActions.isNotEmpty() -> if (pendingActions.first() == PlayAgain) copy(pendingActions = pendingActions.drop(1)) else this
+            pendingActions.isNotEmpty() -> if (pendingActions.first() == PlayAgain) playAgain() else this
             currentAgeIsOver() -> when (structure?.age) {
                 AGE_I -> prepareNextAge(AGE_II)
                 AGE_II -> prepareNextAge(AGE_III)
                 else -> copy(currentPlayer = null)
             }
-            else -> copy(currentPlayer = if (currentPlayer == 1) 2 else 1)
+            else -> nextPlayer()
         }
     }
+
+    private fun playAgain() = copy(pendingActions = pendingActions.drop(1), structure = structure?.revealAccessibleBuildings())
+
+    private fun nextPlayer() = copy(currentPlayer = if (currentPlayer == 1) 2 else 1, structure = structure?.revealAccessibleBuildings())
 
     fun currentAgeIsOver() = structure?.isEmpty() ?: false
 

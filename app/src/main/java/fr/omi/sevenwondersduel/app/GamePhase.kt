@@ -6,6 +6,8 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import fr.omi.sevenwondersduel.R
+import fr.omi.sevenwondersduel.material.Deck
+import fr.omi.sevenwondersduel.material.LumberYard
 import kotlinx.android.synthetic.main.activity_game.*
 
 class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
@@ -25,7 +27,8 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
     }
 
     private fun createBuildingDropZone(): BuildingView {
-        return BuildingView(gameActivity, game.structure!!.age).apply {
+        // TODO improve building and wonder drop zone
+        return BuildingView(gameActivity, Deck.AGE_I, LumberYard, faceUp = false).apply {
             alpha = 0F
             positionToNextBuildingPlace(layout, game)
             setOnDragListener { _, event -> buildingDropListener(event) }

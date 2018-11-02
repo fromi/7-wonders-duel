@@ -21,7 +21,7 @@ object RandomBot {
             when (firstPendingAction) {
                 is ProgressTokenToChoose -> return firstPendingAction.tokens.map { ChooseProgressToken(it) }
                 is DiscardedBuildingToBuild -> return game.discardedCards.map { Build(it) }
-                is OpponentBuildingToDestroy -> return game.opponent().buildings.asSequence().filter { it.type == firstPendingAction.type }.map { DestroyBuilding(it) }.toList()
+                is OpponentBuildingToDestroy -> return game.opponent().buildings.asSequence().filter { firstPendingAction.isEligible(it) }.map { DestroyBuilding(it) }.toList()
                 is PlayerBeginningAgeToChoose -> return listOf(ChoosePlayerBeginningAge(1), ChoosePlayerBeginningAge(2))
             }
         }

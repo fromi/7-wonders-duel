@@ -6,8 +6,6 @@ import fr.omi.sevenwondersduel.effects.ResourcesRebate
 import fr.omi.sevenwondersduel.effects.ScientificSymbol
 import fr.omi.sevenwondersduel.effects.victorypoints.VictoryPoints
 import fr.omi.sevenwondersduel.material.*
-import fr.omi.sevenwondersduel.material.Building.Type.CIVILIAN
-import fr.omi.sevenwondersduel.material.Building.Type.COMMERCIAL
 import kotlin.math.max
 
 data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
@@ -20,7 +18,7 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     fun discard(): Player = copy(coins = coins + getDiscardCoins())
 
-    fun getDiscardCoins(): Int = 2 + buildings.count { it.type == COMMERCIAL }
+    fun getDiscardCoins(): Int = 2 + buildings.count { it is CommercialBuilding }
 
     fun build(wonder: Wonder, buildingUsed: Building): Player {
         require(wonders.any { it.wonder == wonder }) { "You do not have this wonder" }
@@ -91,6 +89,6 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
     }
 
     fun countCivilianBuildingsVictoryPoints(): Int {
-        return buildings.filter { it.type == CIVILIAN }.flatMap { it.effects }.asSequence().filterIsInstance<VictoryPoints>().sumBy { it.quantity }
+        return buildings.filterIsInstance<CivilianBuilding>().flatMap { it.effects }.asSequence().filterIsInstance<VictoryPoints>().sumBy { it.quantity }
     }
 }

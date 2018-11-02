@@ -1,23 +1,23 @@
 package fr.omi.sevenwondersduel
 
+import fr.omi.sevenwondersduel.material.*
 import fr.omi.sevenwondersduel.material.Age.AGE_I
-import fr.omi.sevenwondersduel.material.Building.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class MilitaryRulesTest {
 
     private val sampleAge1Structure = Structure(AGE_I, listOf(
-            CLAY_RESERVE, THEATER,
-            STONE_RESERVE, QUARRY, TAVERN,
-            WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
-            PALISADE, GARRISON, STABLE, LUMBER_YARD, STONE_PIT,
-            BATHS, PRESS, ALTAR, CLAY_PIT, GUARD_TOWER, PHARMACIST))
+            ClayReserve, Theater,
+            StoneReserve, Quarry, Tavern,
+            Workshop, WoodReserve, Glassworks, LoggingCamp,
+            Palisade, Garrison, Stable, LumberYard, StonePit,
+            Baths, Press, Altar, ClayPit, GuardTower, Pharmacist))
 
     @Test
     fun the_conflict_pawn_moves_when_a_shield_is_build() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 0)
-        game = game.build(GUARD_TOWER)
+        game = game.build(GuardTower)
         assertThat(game.conflictPawnPosition).isEqualTo(1)
     }
 
@@ -25,7 +25,7 @@ class MilitaryRulesTest {
     fun the_conflict_pawn_enter_a_zone_with_a_token() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 2,
                 players = Pair(Player(), Player(militaryTokensLooted = 0, coins = 7)))
-        game = game.build(GUARD_TOWER)
+        game = game.build(GuardTower)
         assertThat(game.conflictPawnPosition).isEqualTo(3)
         assertThat(game.players.second.militaryTokensLooted).isEqualTo(1)
         assertThat(game.players.second.coins).isEqualTo(5)

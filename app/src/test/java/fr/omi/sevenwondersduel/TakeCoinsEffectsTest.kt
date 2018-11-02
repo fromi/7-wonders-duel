@@ -2,7 +2,7 @@ package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.*
-import fr.omi.sevenwondersduel.material.Building.*
+import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.ProgressToken.AGRICULTURE
 import fr.omi.sevenwondersduel.material.ProgressToken.URBANISM
 import org.assertj.core.api.Assertions.assertThat
@@ -10,83 +10,83 @@ import org.junit.Test
 
 class TakeCoinsEffectsTest {
 
-    private val sampleAge1Structure = Structure(Age.AGE_I, listOf(
-            CLAY_RESERVE, THEATER,
-            STONE_RESERVE, QUARRY, GUARD_TOWER,
-            WORKSHOP, WOOD_RESERVE, GLASSWORKS, LOGGING_CAMP,
-            PALISADE, GARRISON, STABLE, LUMBER_YARD, STONE_PIT,
-            BATHS, PRESS, ALTAR, CLAY_PIT, TAVERN, PHARMACIST))
+    private val sampleAge1Structure = Structure(AGE_I, listOf(
+            ClayReserve, Theater,
+            StoneReserve, Quarry, GuardTower,
+            Workshop, WoodReserve, Glassworks, LoggingCamp,
+            Palisade, Garrison, Stable, LumberYard, StonePit,
+            Baths, Press, Altar, ClayPit, Tavern, Pharmacist))
 
-    private val sampleAge2Structure = Structure(Age.AGE_II, listOf(
-            BRICKYARD, SHELF_QUARRY, FORUM, LABORATORY, BARRACKS, LIBRARY,
-            AQUEDUCT, ROSTRUM, SCHOOL, DRYING_ROOM, HORSE_BREEDERS,
-            WALLS, PARADE_GROUND, STATUE, COURTHOUSE,
-            CUSTOMS_HOUSE, SAWMILL, GLASSBLOWER,
-            BREWERY, DISPENSARY))
+    private val sampleAge2Structure = Structure(AGE_II, listOf(
+            Brickyard, ShelfQuarry, Forum, Laboratory, Barracks, Library,
+            Aqueduct, Rostrum, School, DryingRoom, HorseBreeders,
+            Walls, ParadeGround, Statue, Courthouse,
+            CustomsHouse, Sawmill, Glassblower,
+            Brewery, Dispensary))
 
     @Test
     fun tavern_gives_4_coins() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(Player(coins = 0), Player(coins = 7)))
-        game = game.build(TAVERN)
+        game = game.build(Tavern)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
 
     @Test
     fun brewery_gives_6_coins() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(Player(coins = 0), Player(coins = 7)))
-        game = game.build(BREWERY)
+        game = game.build(Brewery)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
     @Test
     fun chamber_of_commerce_gives_3_coins_per_manufacture_building_I_have() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(CHAMBER_OF_COMMERCE)),
-                players = Pair(Player(coins = 0, buildings = setOf(PRESS, DRYING_ROOM)), Player(coins = 7, buildings = setOf(GLASSWORKS))))
-        game = game.build(CHAMBER_OF_COMMERCE)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(ChamberOfCommerce)),
+                players = Pair(Player(coins = 0, buildings = setOf(Press, DryingRoom)), Player(coins = 7, buildings = setOf(Glassworks))))
+        game = game.build(ChamberOfCommerce)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
     @Test
     fun port_gives_2_coins_per_raw_material_building_I_have() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(PORT)), players = Pair(
-                Player(coins = 0, buildings = setOf(PRESS, GLASSWORKS, LOGGING_CAMP, BRICKYARD)),
-                Player(coins = 7, buildings = setOf(CLAY_POOL, STONE_PIT, SAWMILL, SHELF_QUARRY))))
-        game = game.build(PORT)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(Port)), players = Pair(
+                Player(coins = 0, buildings = setOf(Press, Glassworks, LoggingCamp, Brickyard)),
+                Player(coins = 7, buildings = setOf(ClayPool, StonePit, Sawmill, ShelfQuarry))))
+        game = game.build(Port)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
 
     @Test
     fun armory_gives_1_coins_per_military_building_I_have() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(ARMORY)), players = Pair(
-                Player(coins = 0, buildings = setOf(SHELF_QUARRY, ARSENAL, GLASSBLOWER)),
-                Player(coins = 7, buildings = setOf(GUARD_TOWER, WALLS))))
-        game = game.build(ARMORY)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(Armory)), players = Pair(
+                Player(coins = 0, buildings = setOf(ShelfQuarry, Arsenal, Glassblower)),
+                Player(coins = 7, buildings = setOf(GuardTower, Walls))))
+        game = game.build(Armory)
         assertThat(game.players.first.coins).isEqualTo(1)
     }
 
     @Test
     fun lighthouse_gives_1_coins_per_commercial_building_I_have_including_it() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(LIGHTHOUSE)), players = Pair(
-                Player(coins = 0, buildings = setOf(CLAY_PIT, FORUM, CARAVANSERY, CLAY_RESERVE, BREWERY)),
-                Player(coins = 7, buildings = setOf(ARENA))))
-        game = game.build(LIGHTHOUSE)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(Lighthouse)), players = Pair(
+                Player(coins = 0, buildings = setOf(ClayPit, Forum, Caravansery, ClayReserve, Brewery)),
+                Player(coins = 7, buildings = setOf(Arena))))
+        game = game.build(Lighthouse)
         assertThat(game.players.first.coins).isEqualTo(5)
     }
 
     @Test
     fun arena_gives_2_coins_per_wonder_I_built() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(ARENA)), players = Pair(
-                Player(coins = 0, buildings = setOf(BREWERY), wonders = listOf(
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(Arena)), players = Pair(
+                Player(coins = 0, buildings = setOf(Brewery), wonders = listOf(
                         PlayerWonder(Piraeus),
-                        PlayerWonder(TheColossus, buildingUnder = GARRISON),
-                        PlayerWonder(ThePyramids, buildingUnder = STABLE),
+                        PlayerWonder(TheColossus, buildingUnder = Garrison),
+                        PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
-                Player(coins = 7, buildings = setOf(ARENA), wonders = listOf(
-                        PlayerWonder(TheHangingGardens, buildingUnder = LOGGING_CAMP),
-                        PlayerWonder(TheStatueOfZeus, buildingUnder = BRICKYARD),
-                        PlayerWonder(TheAppianWay, buildingUnder = PALACE),
-                        PlayerWonder(CircusMaximus, buildingUnder = MONEYLENDERS_GUILD)))))
-        game = game.build(ARENA)
+                Player(coins = 7, buildings = setOf(Arena), wonders = listOf(
+                        PlayerWonder(TheHangingGardens, buildingUnder = LoggingCamp),
+                        PlayerWonder(TheStatueOfZeus, buildingUnder = Brickyard),
+                        PlayerWonder(TheAppianWay, buildingUnder = Palace),
+                        PlayerWonder(CircusMaximus, buildingUnder = MoneylendersGuild)))))
+        game = game.build(Arena)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
 
@@ -109,39 +109,39 @@ class TakeCoinsEffectsTest {
     @Test
     fun the_appian_way_gives_3_coins() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
-                Player(coins = 8, buildings = setOf(FORUM), wonders = listOf(
+                Player(coins = 8, buildings = setOf(Forum), wonders = listOf(
                         PlayerWonder(TheAppianWay),
-                        PlayerWonder(TheColossus, buildingUnder = GARRISON),
-                        PlayerWonder(ThePyramids, buildingUnder = STABLE),
+                        PlayerWonder(TheColossus, buildingUnder = Garrison),
+                        PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(TheAppianWay, DISPENSARY)
+        game = game.build(TheAppianWay, Dispensary)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
     @Test
     fun the_hanging_gardens_gives_6_coins() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
-                Player(coins = 0, buildings = setOf(PRESS, FORUM, SAWMILL), wonders = listOf(
+                Player(coins = 0, buildings = setOf(Press, Forum, Sawmill), wonders = listOf(
                         PlayerWonder(TheHangingGardens),
-                        PlayerWonder(TheColossus, buildingUnder = GARRISON),
-                        PlayerWonder(ThePyramids, buildingUnder = STABLE),
+                        PlayerWonder(TheColossus, buildingUnder = Garrison),
+                        PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(TheHangingGardens, DISPENSARY)
+        game = game.build(TheHangingGardens, Dispensary)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
     @Test
     fun the_temple_of_artemis_gives_12_coins() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
-                Player(coins = 4, buildings = setOf(PRESS, GLASSBLOWER, BRICKYARD), wonders = listOf(
+                Player(coins = 4, buildings = setOf(Press, Glassblower, Brickyard), wonders = listOf(
                         PlayerWonder(TheTempleOfArtemis),
-                        PlayerWonder(TheColossus, buildingUnder = GARRISON),
-                        PlayerWonder(ThePyramids, buildingUnder = STABLE),
+                        PlayerWonder(TheColossus, buildingUnder = Garrison),
+                        PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(TheTempleOfArtemis, DISPENSARY)
+        game = game.build(TheTempleOfArtemis, Dispensary)
         assertThat(game.players.first.coins).isEqualTo(12)
     }
 }

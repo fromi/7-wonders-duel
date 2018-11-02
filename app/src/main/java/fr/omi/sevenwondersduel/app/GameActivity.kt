@@ -7,6 +7,7 @@ import fr.omi.sevenwondersduel.PlayerWonder
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.Structure
 import fr.omi.sevenwondersduel.material.Building
+import fr.omi.sevenwondersduel.material.BuildingCard
 import fr.omi.sevenwondersduel.material.ProgressToken
 import fr.omi.sevenwondersduel.material.Wonder
 import kotlinx.android.synthetic.main.activity_game.*
@@ -32,8 +33,8 @@ class GameActivity : AppCompatActivity() {
             game.wondersAvailable.forEachIndexed { index, wonder -> createView(wonder, 0, index) }
             game.players.first.wonders.forEachIndexed { index, wonder -> createView(wonder, 1, index) }
             game.players.second.wonders.forEachIndexed { index, wonder -> createView(wonder, 2, index) }
-            game.players.first.buildings.forEachIndexed { index, it -> BuildingView(this, it).apply { positionForPlayer(layout, 1, index) } }
-            game.players.second.buildings.forEachIndexed { index, it -> BuildingView(this, it).apply { positionForPlayer(layout, 2, index) } }
+            game.players.first.buildings.forEachIndexed { index, it -> BuildingView(this, it, faceUp = true).apply { positionForPlayer(layout, 1, index) } }
+            game.players.second.buildings.forEachIndexed { index, it -> BuildingView(this, it, faceUp = true).apply { positionForPlayer(layout, 2, index) } }
             firstPlayerCoins.text = game.players.first.coins.toString()
             secondPlayerCoins.text = game.players.second.coins.toString()
             conflictPawnView = ConflictPawnView(this, game.conflictPawnPosition)
@@ -50,8 +51,8 @@ class GameActivity : AppCompatActivity() {
 
     private fun createView(playerWonder: PlayerWonder, owner: Int, position: Int): WonderView {
         val wonderView = createView(playerWonder, owner, position)
-        if (playerWonder.isBuild()) {
-            BuildingView(this, playerWonder.buildingUnder!!).positionUnder(layout, wonderView, owner)
+        if (playerWonder.buildingUnder != null) {
+            BuildingView(this, playerWonder.buildingUnder, faceUp = false).positionUnder(layout, wonderView, owner)
         }
         return wonderView
     }
@@ -68,23 +69,12 @@ class GameActivity : AppCompatActivity() {
 
     fun display(structure: Structure) {
         structureBuildingsViews = structure.mapIndexed { rowIndex, row ->
-            row.mapValues { entry ->
-                if (structure.isFaceUp(rowIndex, entry.key))
-                    createView(entry.value, rowIndex, entry.key)
-                else
-                    createView(entry.value.deck, rowIndex, entry.key)
-            }
+            row.mapValues { entry -> createView(entry.value, rowIndex, entry.key) }
         }
     }
 
-    private fun createView(building: Building, row: Int, column: Int): BuildingView {
-        return buildingsViews.getOrPut(building) { BuildingView(this, building) }.apply {
-            positionInStructure(layout, row, column)
-        }
-    }
-
-    private fun createView(deck: Building.Deck, row: Int, column: Int): BuildingView {
-        return BuildingView(this, deck).apply {
+    private fun createView(buildingCard: BuildingCard, row: Int, column: Int): BuildingView {
+        return buildingsViews.getOrPut(buildingCard.building) { BuildingView(this, buildingCard) }.apply {
             positionInStructure(layout, row, column)
         }
     }

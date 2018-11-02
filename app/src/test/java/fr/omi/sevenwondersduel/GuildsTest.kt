@@ -1,7 +1,7 @@
 package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.material.*
-import fr.omi.sevenwondersduel.material.Building.*
+import fr.omi.sevenwondersduel.material.Age.AGE_III
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -9,112 +9,112 @@ class GuildsTest {
 
     @Test
     fun merchant_guild_gives_1_coins_per_commercial_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(MERCHANTS_GUILD)), players = Pair(
-                Player(coins = 0, buildings = setOf(CLAY_POOL, LUMBER_YARD, GLASSBLOWER, FORUM)),
-                Player(coins = 7, buildings = setOf(ARENA, CARAVANSERY, CUSTOMS_HOUSE, CLAY_RESERVE))))
-        game = game.build(MERCHANTS_GUILD)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(MerchantsGuild)), players = Pair(
+                Player(coins = 0, buildings = setOf(ClayPool, LumberYard, Glassblower, Forum)),
+                Player(coins = 7, buildings = setOf(Arena, Caravansery, CustomsHouse, ClayReserve))))
+        game = game.build(MerchantsGuild)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
 
     @Test
     fun count_merchant_guild_victory_points() {
         val game = SevenWondersDuel(players = Pair(
-                Player(coins = 0, buildings = setOf(MERCHANTS_GUILD, FORUM)),
-                Player(buildings = setOf(CLAY_POOL, CLAY_RESERVE, CARAVANSERY, ARMORY))))
+                Player(coins = 0, buildings = setOf(MerchantsGuild, Forum)),
+                Player(buildings = setOf(ClayPool, ClayReserve, Caravansery, Armory))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(3)
     }
 
     @Test
     fun shipowner_guild_gives_1_coins_per_material_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(SHIPOWNERS_GUILD)), players = Pair(
-                Player(coins = 0, buildings = setOf(BRICKYARD, GLASSBLOWER, DRYING_ROOM, CARAVANSERY)),
-                Player(coins = 7, buildings = setOf(SHELF_QUARRY))))
-        game = game.build(SHIPOWNERS_GUILD)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(ShipownersGuild)), players = Pair(
+                Player(coins = 0, buildings = setOf(Brickyard, Glassblower, DryingRoom, Caravansery)),
+                Player(coins = 7, buildings = setOf(ShelfQuarry))))
+        game = game.build(ShipownersGuild)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
     @Test
     fun count_shipowner_guild_victory_points() {
         val game = SevenWondersDuel(players = Pair(
-                Player(coins = 0, buildings = setOf(SHIPOWNERS_GUILD, QUARRY, BRICKYARD, DRYING_ROOM)),
-                Player(buildings = setOf(CLAY_POOL, CLAY_RESERVE, CARAVANSERY, ARMORY))))
+                Player(coins = 0, buildings = setOf(ShipownersGuild, Quarry, Brickyard, DryingRoom)),
+                Player(buildings = setOf(ClayPool, ClayReserve, Caravansery, Armory))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(3)
     }
 
     @Test
     fun count_builders_guild_victory_points() {
         val game = SevenWondersDuel(players = Pair(
-                Player(coins = 0, buildings = setOf(BUILDERS_GUILD),
+                Player(coins = 0, buildings = setOf(BuildersGuild),
                         wonders = listOf(
-                                PlayerWonder(TheTempleOfArtemis, buildingUnder = CIRCUS),
+                                PlayerWonder(TheTempleOfArtemis, buildingUnder = Circus),
                                 PlayerWonder(Piraeus),
                                 PlayerWonder(TheGreatLibrary),
                                 PlayerWonder(CircusMaximus))),
                 Player(wonders = listOf(
-                        PlayerWonder(ThePyramids, buildingUnder = PHARMACIST),
-                        PlayerWonder(TheHangingGardens, buildingUnder = GARRISON),
-                        PlayerWonder(TheColossus, buildingUnder = OBELISK),
+                        PlayerWonder(ThePyramids, buildingUnder = Pharmacist),
+                        PlayerWonder(TheHangingGardens, buildingUnder = Garrison),
+                        PlayerWonder(TheColossus, buildingUnder = Obelisk),
                         PlayerWonder(TheGreatLighthouse)
                 ))))
-        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(3)
+        assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(6)
     }
 
     @Test
     fun magistrates_guild_gives_1_coins_per_civilian_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(MAGISTRATE_GUILD)), players = Pair(
-                Player(coins = 4, buildings = setOf(LOGGING_CAMP, BRICKYARD, FORUM, TEMPLE)),
-                Player(coins = 7, buildings = setOf(SAWMILL, GLASSBLOWER, COURTHOUSE, STATUE, PANTHEON, SENATE, BATHS))))
-        game = game.build(MAGISTRATE_GUILD)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(MagistrateGuild)), players = Pair(
+                Player(coins = 4, buildings = setOf(LoggingCamp, Brickyard, Forum, Temple)),
+                Player(coins = 7, buildings = setOf(Sawmill, Glassblower, Courthouse, Statue, Pantheon, Senate, Baths))))
+        game = game.build(MagistrateGuild)
         assertThat(game.players.first.coins).isEqualTo(5)
     }
 
     @Test
     fun count_magistrates_guild_victory_points() {
         val game = SevenWondersDuel(players = Pair(
-                Player(coins = 0, buildings = setOf(MAGISTRATE_GUILD, QUARRY, BRICKYARD, DRYING_ROOM)),
-                Player(buildings = setOf(CLAY_POOL, PALACE, COURTHOUSE, OBELISK, STATUE, ALTAR, ARMORY))))
+                Player(coins = 0, buildings = setOf(MagistrateGuild, Quarry, Brickyard, DryingRoom)),
+                Player(buildings = setOf(ClayPool, Palace, Courthouse, Obelisk, Statue, Altar, Armory))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(5)
     }
 
     @Test
     fun scientists_guild_gives_1_coins_per_scientific_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(SCIENTISTS_GUILD)), players = Pair(
-                Player(coins = 0, buildings = setOf(SAWMILL, BRICKYARD, APOTHECARY, LIBRARY, DISPENSARY)),
-                Player(coins = 7, buildings = setOf(WORKSHOP))))
-        game = game.build(SCIENTISTS_GUILD)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(ScientistsGuild)), players = Pair(
+                Player(coins = 0, buildings = setOf(Sawmill, Brickyard, Apothecary, Library, Dispensary)),
+                Player(coins = 7, buildings = setOf(Workshop))))
+        game = game.build(ScientistsGuild)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
     @Test
     fun count_scientists_guild_victory_points() {
         val game = SevenWondersDuel(players = Pair(
-                Player(coins = 0, buildings = setOf(SCIENTISTS_GUILD, QUARRY, BRICKYARD, DRYING_ROOM, SCRIPTORIUM, OBSERVATORY)),
-                Player(buildings = setOf(CLAY_POOL, CLAY_RESERVE, CARAVANSERY, ARMORY, PHARMACIST, SCHOOL))))
+                Player(coins = 0, buildings = setOf(ScientistsGuild, Quarry, Brickyard, DryingRoom, Scriptorium, Observatory)),
+                Player(buildings = setOf(ClayPool, ClayReserve, Caravansery, Armory, Pharmacist, School))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(4)
     }
 
     @Test
     fun count_moneylender_guild_victory_points() {
         val game = SevenWondersDuel(players = Pair(
-                Player(coins = 5, buildings = setOf(MONEYLENDERS_GUILD)),
+                Player(coins = 5, buildings = setOf(MoneylendersGuild)),
                 Player(coins = 19)))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(7)
     }
 
     @Test
     fun tacticians_guild_gives_1_coins_per_military_buildings_in_city_which_has_the_most() {
-        var game = SevenWondersDuel(structure = Structure(Age.AGE_III, listOf(TACTICIANS_GUILD)), players = Pair(
-                Player(coins = 2, buildings = setOf(QUARRY, DRYING_ROOM, CARAVANSERY, PALISADE, FORTIFICATIONS, CIRCUS)),
-                Player(coins = 7, buildings = setOf(SHELF_QUARRY, WALLS, ARSENAL, ARCHERY_RANGE))))
-        game = game.build(TACTICIANS_GUILD)
+        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(TacticiansGuild)), players = Pair(
+                Player(coins = 2, buildings = setOf(Quarry, DryingRoom, Caravansery, Palisade, Fortifications, Circus)),
+                Player(coins = 7, buildings = setOf(ShelfQuarry, Walls, Arsenal, ArcheryRange))))
+        game = game.build(TacticiansGuild)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
     @Test
     fun count_tacticians_guild_victory_points() {
         val game = SevenWondersDuel(players = Pair(
-                Player(coins = 0, buildings = setOf(TACTICIANS_GUILD, QUARRY, BRICKYARD, DRYING_ROOM, PALISADE, SIEGE_WORKSHOP, CIRCUS, HORSE_BREEDERS)),
-                Player(buildings = setOf(CLAY_POOL, CLAY_RESERVE, CARAVANSERY, ARMORY, STABLE, GARRISON))))
+                Player(coins = 0, buildings = setOf(TacticiansGuild, Quarry, Brickyard, DryingRoom, Palisade, SiegeWorkshop, Circus, HorseBreeders)),
+                Player(buildings = setOf(ClayPool, ClayReserve, Caravansery, Armory, Stable, Garrison))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(4)
     }
 }
