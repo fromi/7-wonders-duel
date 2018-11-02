@@ -170,11 +170,11 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         }
     }
 
-    private fun playAgain() = copy(pendingActions = pendingActions.drop(1), structure = structure?.revealAccessibleBuildings())
+    private fun playAgain() = copy(pendingActions = pendingActions.drop(1), structure = checkNotNull(structure).revealAccessibleBuildings())
 
-    private fun nextPlayer() = copy(currentPlayer = if (currentPlayer == 1) 2 else 1, structure = structure?.revealAccessibleBuildings())
+    private fun nextPlayer() = copy(currentPlayer = if (currentPlayer == 1) 2 else 1, structure = checkNotNull(structure).revealAccessibleBuildings())
 
-    fun currentAgeIsOver() = structure?.isEmpty() ?: false
+    fun currentAgeIsOver(): Boolean = checkNotNull(structure).isEmpty()
 
     fun isOver(): Boolean = currentPlayer == null
 
@@ -189,7 +189,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     private fun discardIf7WondersBuilt(): SevenWondersDuel =
             if (players.toList().sumBy { player -> player.wonders.count { it.isBuild() } } == 7)
-                SevenWondersDuel(players = players.copy(players.first.discardUnfinishedWonder(), players.second.discardUnfinishedWonder()))
+                copy(players = players.copy(players.first.discardUnfinishedWonder(), players.second.discardUnfinishedWonder()))
             else this
 
     fun moveConflictPawn(quantity: Int): SevenWondersDuel {

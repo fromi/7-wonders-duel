@@ -12,7 +12,7 @@ class ProgressTokensTest {
 
     @Test
     fun agriculture() {
-        var game = SevenWondersDuel(pendingActions = listOf(ProgressTokenToChoose(setOf(AGRICULTURE))),
+        var game = SevenWondersDuel(structure = Structure(AGE_II), pendingActions = listOf(ProgressTokenToChoose(setOf(AGRICULTURE))),
                 players = Pair(Player(coins = 0), Player()))
         game = game.choose(AGRICULTURE)
         assertThat(game.players.first.coins).isEqualTo(6)

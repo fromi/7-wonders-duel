@@ -40,9 +40,7 @@ class BuildingConstructionTest {
     @Test
     fun building_become_accessible_once_uncovered() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
-        game = game.build(ClayPit).build(Altar)
-        assertThat(game.structure?.isAccessible(Stable)).isTrue()
-        game = game.build(Stable)
+        game = game.build(ClayPit).build(Altar).build(Stable)
         assertThat(game.players.first.buildings).containsExactly(ClayPit, Stable)
         assertThat(game.players.second.buildings).containsExactly(Altar)
     }

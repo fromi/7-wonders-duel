@@ -5,7 +5,6 @@ import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.BuildingCard
 import fr.omi.sevenwondersduel.material.Deck
-import kotlin.math.abs
 
 data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Age) : List<Map<Int, BuildingCard>> by list {
 
@@ -14,12 +13,21 @@ data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Age) : Lis
     constructor(age: Age, buildings: List<Building>) : this(createStructure(age, buildings), age)
 
     fun take(building: Building): Structure {
-        require(isAccessible(building)) { "This building cannot be taken" }
-        return copy(list = list.map { row -> row.minus(row.keys.filter { row[it]?.building == building }) })
+        val (row, column) = getCoordinatesOf(building)
+        require(isAccessible(row, column)) { "This building cannot be taken" }
+        return copy(list = list.map { line -> line.filterValues { it.building != building } }.filter { it.isNotEmpty() })
+    }
+
+    private fun getCoordinatesOf(building: Building): Pair<Int, Int> {
+        return requireNotNull(list.asSequence()
+                .mapIndexed { row, line -> Pair(row, line.entries.firstOrNull { it.value.building == building }?.key) }
+                .filter { coordinates -> coordinates.second != null }
+                .map { coordinates -> Pair(coordinates.first, coordinates.second!!) }
+                .lastOrNull()) { "This building is not in the structure" }
     }
 
     private fun isAccessible(row: Int, column: Int): Boolean {
-        return list.size < row + 1 || list[row + 1].keys.none { it == column - 1 || it == column + 1 }
+        return list.size <= row + 1 || list[row + 1].keys.none { it == column - 1 || it == column + 1 }
     }
 
     fun revealAccessibleBuildings(): Structure = copy(list = list.mapIndexed { index, row ->
@@ -28,37 +36,8 @@ data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Age) : Lis
         }
     })
 
-    fun isAccessible(building: Building): Boolean {
-        val remainingAccessibleColumns = (if (age == AGE_III) (-3..3) else (-5..5)).toMutableSet()
-        var row = size - 1
-        while (remainingAccessibleColumns.isNotEmpty() && row >= 0) {
-            get(row).filterKeys { remainingAccessibleColumns.contains(it) }.forEach { entry ->
-                if (entry.value.building == building) return true
-                else remainingAccessibleColumns.removeAll { abs(entry.key - it) <= 1 }
-            }
-            row--
-        }
-        return false
-    }
-
-    override fun isEmpty(): Boolean {
-        return get(0).isEmpty()
-    }
-
     fun accessibleBuildings(): Collection<Building> {
-        val remainingAccessibleColumns = (if (age == AGE_III) (-3..3) else (-5..5)).toMutableSet()
-        var row = size - 1
-        val accessibleBuildings = mutableListOf<Building>()
-        while (remainingAccessibleColumns.isNotEmpty() && row >= 0) {
-            get(row).forEach { entry ->
-                if (remainingAccessibleColumns.contains(entry.key)) {
-                    accessibleBuildings.add(entry.value.building)
-                }
-                remainingAccessibleColumns.removeAll { abs(entry.key - it) <= 1 }
-            }
-            row--
-        }
-        return accessibleBuildings
+        return mapIndexed { row, line -> line.filterKeys { isAccessible(row, it) }.map { it.value.building } }.flatten()
     }
 
     companion object {
@@ -85,7 +64,8 @@ data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Age) : Lis
                             in 1 until it.size -> it.take(deck.size)
                             else -> it
                         }
-                    }.mapIndexed { index, positions -> positions.associate { it to BuildingCard(deck.removeAt(0), index % 2 == 0) } }.toList()
+                    }.mapIndexed { index, positions -> positions.associate { it to BuildingCard(deck.removeAt(0), index % 2 == 0) } }
+                    .filter { it.isNotEmpty() }.toList()
         }
     }
 

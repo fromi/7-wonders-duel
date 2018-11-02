@@ -37,7 +37,7 @@ class WonderConstructionTest {
 
     @Test
     fun once_7_wonders_built_remaining_wonder_is_discarded() {
-        var game = SevenWondersDuel(players = Pair(
+        var game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(
                 Player(coins = 20, wonders = listOf(
                         PlayerWonder(Piraeus, buildingUnder = Statue),
                         PlayerWonder(ThePyramids, buildingUnder = HorseBreeders),
@@ -49,7 +49,7 @@ class WonderConstructionTest {
                         PlayerWonder(TheGreatLighthouse, buildingUnder = Garrison),
                         PlayerWonder(TheMausoleum)
                 ))
-        ), structure = sampleAge1Structure)
+        ))
         game = game.build(TheColossus, buildingUsed = ClayPit)
         assertThat(game.players.second.wonders).doesNotContain(PlayerWonder(TheMausoleum))
     }
