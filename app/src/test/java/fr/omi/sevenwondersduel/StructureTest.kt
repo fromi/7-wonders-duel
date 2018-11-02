@@ -1,14 +1,13 @@
 package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.material.*
-import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.ProgressToken.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class StructureTest {
 
-    private val sampleAge2Structure = Structure(AGE_II, listOf(
+    private val sampleAge2Structure = Structure(age = 2, buildings = listOf(
             Brickyard, ShelfQuarry, Forum, Laboratory, Barracks, Library,
             Aqueduct, Rostrum, School, DryingRoom, HorseBreeders,
             Walls, ParadeGround, Statue, Courthouse,
@@ -17,19 +16,19 @@ class StructureTest {
 
     @Test
     fun pair_row_cards_are_face_up_at_the_beginning() {
-        val age1 = Structure(AGE_I)
+        val age1 = Structure(age = 1)
         assertThat(age1[0].values).allMatch { it.faceUp }
         assertThat(age1[1].values).noneMatch { it.faceUp }
         assertThat(age1[2].values).allMatch { it.faceUp }
         assertThat(age1[3].values).noneMatch { it.faceUp }
         assertThat(age1[4].values).allMatch { it.faceUp }
-        val age2 = Structure(AGE_II)
+        val age2 = Structure(age = 2)
         assertThat(age2[0].values).allMatch { it.faceUp }
         assertThat(age2[1].values).noneMatch { it.faceUp }
         assertThat(age2[2].values).allMatch { it.faceUp }
         assertThat(age2[3].values).noneMatch { it.faceUp }
         assertThat(age2[4].values).allMatch { it.faceUp }
-        val age3 = Structure(AGE_III)
+        val age3 = Structure(age = 3)
         assertThat(age3[0].values).allMatch { it.faceUp }
         assertThat(age3[1].values).noneMatch { it.faceUp }
         assertThat(age3[2].values).allMatch { it.faceUp }

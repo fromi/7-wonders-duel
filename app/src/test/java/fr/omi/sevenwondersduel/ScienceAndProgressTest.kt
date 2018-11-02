@@ -2,28 +2,27 @@ package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.*
-import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.ProgressToken.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class ScienceAndProgressTest {
 
-    private val sampleAge1Structure = Structure(AGE_I, listOf(
+    private val sampleAge1Structure = Structure(age = 1, buildings = listOf(
             ClayReserve, Theater,
             StoneReserve, Quarry, Tavern,
             Workshop, WoodReserve, Glassworks, LoggingCamp,
             Palisade, Garrison, Stable, LumberYard, StonePit,
             Baths, Press, Altar, ClayPit, GuardTower, Pharmacist))
 
-    private val sampleAge2Structure = Structure(AGE_II, listOf(
+    private val sampleAge2Structure = Structure(age = 2, buildings = listOf(
             Brickyard, ShelfQuarry, Forum, Laboratory, Barracks, Library,
             Aqueduct, Brewery, School, DryingRoom, HorseBreeders,
             Walls, ParadeGround, Statue, Courthouse,
             CustomsHouse, Sawmill, Glassblower,
             Rostrum, Dispensary))
 
-    private val sampleAge3Structure = Structure(AGE_III, listOf(
+    private val sampleAge3Structure = Structure(age = 3, buildings = listOf(
             Circus, MerchantsGuild,
             BuildersGuild, Arsenal, Pantheon,
             Arena, Lighthouse, Senate, Palace,
@@ -45,7 +44,7 @@ class ScienceAndProgressTest {
         assertThat(game.currentPlayer).isEqualTo(2)
     }
 
-    val gameWithProgressTokenToChoose = SevenWondersDuel(currentPlayer = 1, structure = Structure(AGE_II, listOf(Brewery)),
+    val gameWithProgressTokenToChoose = SevenWondersDuel(currentPlayer = 1, structure = Structure(age = 2, buildings = listOf(Brewery)),
             players = Pair(Player(coins = 100, wonders = listOf(PlayerWonder(Piraeus))), Player()),
             pendingActions = listOf(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY))))
 
@@ -69,15 +68,15 @@ class ScienceAndProgressTest {
 
     @Test
     fun get_a_science_symbol_at_the_end_of_an_age() {
-        var game = SevenWondersDuel(currentPlayer = 1, conflictPawnPosition = 0, structure = Structure(AGE_II, listOf(Dispensary)),
+        var game = SevenWondersDuel(currentPlayer = 1, conflictPawnPosition = 0, structure = Structure(age = 2, buildings = listOf(Dispensary)),
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(Pharmacist)), Player()))
         game = game.build(Dispensary)
         assertThat(game.currentPlayer).isEqualTo(1)
-        assertThat(game.structure?.age).isEqualTo(AGE_II)
+        assertThat(game.structure?.age).isEqualTo(2)
         assertThat(game.pendingActions).containsExactly(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
         game = game.choose(LAW)
-        assertThat(game.structure?.age).isEqualTo(AGE_III)
+        assertThat(game.structure?.age).isEqualTo(3)
         assertThat(game.currentPlayer).isEqualTo(1)
     }
 

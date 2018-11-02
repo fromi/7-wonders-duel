@@ -1,16 +1,14 @@
 package fr.omi.sevenwondersduel
 
-import fr.omi.sevenwondersduel.material.Age
-import fr.omi.sevenwondersduel.material.Age.*
 import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.BuildingCard
-import fr.omi.sevenwondersduel.material.Deck
+import fr.omi.sevenwondersduel.material.Deck.*
 
-data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Age) : List<Map<Int, BuildingCard>> by list {
+data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Byte) : List<Map<Int, BuildingCard>> by list {
 
-    constructor(age: Age) : this(createStructure(age), age)
+    constructor(age: Byte) : this(createStructure(age), age)
 
-    constructor(age: Age, buildings: List<Building>) : this(createStructure(age, buildings), age)
+    constructor(age: Byte, buildings: List<Building>) : this(createStructure(age, buildings), age)
 
     fun take(building: Building): Structure {
         val (row, column) = getCoordinatesOf(building)
@@ -41,21 +39,27 @@ data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Age) : Lis
     }
 
     companion object {
-        private fun createStructure(age: Age): List<Map<Int, BuildingCard>> {
+        private const val age1 = 1.toByte()
+        private const val age2 = 2.toByte()
+        private const val age3 = 3.toByte()
+
+        private fun createStructure(age: Byte): List<Map<Int, BuildingCard>> {
             val deck = when (age) {
-                AGE_I -> Deck.AGE_I.buildings.shuffled()
-                AGE_II -> Deck.AGE_II.buildings.shuffled()
-                else -> Deck.AGE_III.buildings.shuffled().drop(3).plus(Deck.GUILDS.buildings.shuffled().take(3)).shuffled()
+                age1 -> AGE_I.buildings.shuffled()
+                age2 -> AGE_II.buildings.shuffled()
+                age3 -> AGE_III.buildings.shuffled().drop(3).plus(GUILDS.buildings.shuffled().take(3)).shuffled()
+                else -> throw IllegalArgumentException("Age $age does not exists")
             }
             return createStructure(age, deck)
         }
 
-        private fun createStructure(age: Age, buildings: List<Building>): List<Map<Int, BuildingCard>> {
+        private fun createStructure(age: Byte, buildings: List<Building>): List<Map<Int, BuildingCard>> {
             val deck = buildings.toMutableList()
             val structureDescription = when (age) {
-                AGE_I -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-4, -2, 0, 2, 4), listOf(-5, -3, -1, 1, 3, 5))
-                AGE_II -> listOf(listOf(-5, -3, -1, 1, 3, 5), listOf(-4, -2, 0, 2, 4), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
-                AGE_III -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-2, 2), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
+                age1 -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-4, -2, 0, 2, 4), listOf(-5, -3, -1, 1, 3, 5))
+                age2 -> listOf(listOf(-5, -3, -1, 1, 3, 5), listOf(-4, -2, 0, 2, 4), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
+                age3 -> listOf(listOf(-1, 1), listOf(-2, 0, 2), listOf(-3, -1, 1, 3), listOf(-2, 2), listOf(-3, -1, 1, 3), listOf(-2, 0, 2), listOf(-1, 1))
+                else -> throw IllegalArgumentException("Age $age does not exists")
             }
             return structureDescription.asSequence()
                     .map {
@@ -68,5 +72,4 @@ data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Age) : Lis
                     .filter { it.isNotEmpty() }.toList()
         }
     }
-
 }

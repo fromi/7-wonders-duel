@@ -1,13 +1,12 @@
 package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.material.*
-import fr.omi.sevenwondersduel.material.Age.AGE_I
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class WonderConstructionTest {
 
-    private val sampleAge1Structure = Structure(AGE_I, listOf(
+    private val sampleAge1Structure = Structure(age = 1, buildings = listOf(
             ClayReserve, Theater,
             StoneReserve, Quarry, Tavern,
             Workshop, WoodReserve, Glassworks, LoggingCamp,

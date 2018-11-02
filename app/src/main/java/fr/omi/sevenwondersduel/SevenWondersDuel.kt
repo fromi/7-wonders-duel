@@ -3,7 +3,7 @@ package fr.omi.sevenwondersduel
 import fr.omi.sevenwondersduel.effects.*
 import fr.omi.sevenwondersduel.effects.victorypoints.VictoryPointsEffect
 import fr.omi.sevenwondersduel.material.*
-import fr.omi.sevenwondersduel.material.Age.*
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), Player()),
@@ -15,6 +15,8 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
                             val discardedCards: List<Building> = emptyList(),
                             val pendingActions: List<PendingAction> = emptyList()) {
 
+    private val lastAge = 3.toByte()
+
     fun choose(wonder: Wonder): SevenWondersDuel {
         var game = give(currentPlayer(), wonder)
         if (game.wondersAvailable.size == 3)
@@ -22,7 +24,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         else if (game.wondersAvailable.size == 1) {
             game = game.give(opponent(), game.wondersAvailable.last())
             game = if (game.players.toList().all { it.wonders.size == 4 })
-                game.copy(structure = Structure(AGE_I))
+                game.copy(structure = Structure(age = 1))
             else
                 game.copy(wondersAvailable = remainingWonders().shuffled().asSequence().take(4).toSet())
         }
@@ -128,13 +130,13 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     private fun remainingWonders() = wonders.filter { wonder -> !wondersAvailable.contains(wonder) && players.toList().none { player -> player.wonders.any { it.wonder == wonder } } }
 
-    private fun prepareNextAge(age: Age): SevenWondersDuel {
+    private fun prepareNextAge(): SevenWondersDuel {
         val playerChoosingWhoBeginsNextAge = when {
             conflictPawnPosition < 0 -> 1
             conflictPawnPosition > 0 -> 2
             else -> currentPlayer
         }
-        return copy(structure = Structure(age), currentPlayer = playerChoosingWhoBeginsNextAge, pendingActions = listOf(PlayerBeginningAgeToChoose))
+        return copy(structure = Structure(age = checkNotNull(structure).age.inc()), currentPlayer = playerChoosingWhoBeginsNextAge, pendingActions = listOf(PlayerBeginningAgeToChoose))
     }
 
     private fun take(building: Building): SevenWondersDuel {
@@ -159,13 +161,9 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     private fun continueGame(): SevenWondersDuel {
         return when {
-            isOver() -> this
+            isOver() -> copy(currentPlayer = null)
             pendingActions.isNotEmpty() -> if (pendingActions.first() == PlayAgain) playAgain() else this
-            currentAgeIsOver() -> when (structure?.age) {
-                AGE_I -> prepareNextAge(AGE_II)
-                AGE_II -> prepareNextAge(AGE_III)
-                else -> copy(currentPlayer = null)
-            }
+            currentAgeIsOver() -> prepareNextAge()
             else -> nextPlayer()
         }
     }
@@ -175,8 +173,6 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     private fun nextPlayer() = copy(currentPlayer = if (currentPlayer == 1) 2 else 1, structure = checkNotNull(structure).revealAccessibleBuildings())
 
     fun currentAgeIsOver(): Boolean = checkNotNull(structure).isEmpty()
-
-    fun isOver(): Boolean = currentPlayer == null
 
     private fun applyEffects(construction: Construction): SevenWondersDuel {
         val triggeredEffects = currentPlayer().effects().filterIsInstance<ConstructionTriggeredEffect>().filter { it.appliesTo(construction) }.map { it.triggeredEffect }
@@ -212,15 +208,17 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         return pairInOrder(currentPlayer().takeCoins(quantity), opponent())
     }
 
+    fun isOver(): Boolean = abs(conflictPawnPosition) == 9
+            || players.first.countDifferentScientificSymbols() == 6 || players.second.countDifferentScientificSymbols() == 6
+            || structure != null && structure.age == lastAge && structure.isEmpty()
+
     fun getWinner(): Player? {
         return when {
             conflictPawnPosition >= 9 -> players.first
             conflictPawnPosition <= -9 -> players.second
             players.first.countDifferentScientificSymbols() == 6 -> players.first
             players.second.countDifferentScientificSymbols() == 6 -> players.second
-            structure?.age == AGE_III && currentAgeIsOver() -> getHighest(players, ::countVictoryPoint)
-                    ?: getHighest(players, Player::countCivilianBuildingsVictoryPoints)
-            else -> null
+            else -> getHighest(players, ::countVictoryPoint) ?: getHighest(players, Player::countCivilianBuildingsVictoryPoints)
         }
     }
 

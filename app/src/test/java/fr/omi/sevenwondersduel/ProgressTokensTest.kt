@@ -2,8 +2,6 @@ package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.*
-import fr.omi.sevenwondersduel.material.Age.AGE_II
-import fr.omi.sevenwondersduel.material.Age.AGE_III
 import fr.omi.sevenwondersduel.material.ProgressToken.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -12,7 +10,7 @@ class ProgressTokensTest {
 
     @Test
     fun agriculture() {
-        var game = SevenWondersDuel(structure = Structure(AGE_II), pendingActions = listOf(ProgressTokenToChoose(setOf(AGRICULTURE))),
+        var game = SevenWondersDuel(structure = Structure(age = 2), pendingActions = listOf(ProgressTokenToChoose(setOf(AGRICULTURE))),
                 players = Pair(Player(coins = 0), Player()))
         game = game.choose(AGRICULTURE)
         assertThat(game.players.first.coins).isEqualTo(6)
@@ -21,7 +19,7 @@ class ProgressTokensTest {
 
     @Test
     fun architecture_gives_a_reduction_on_wonders_construction() {
-        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(Palace)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Palace)), players = Pair(
                 Player(coins = 1, progressTokens = setOf(ARCHITECTURE),
                         buildings = setOf(Press, StoneReserve),
                         wonders = listOf(PlayerWonder(TheTempleOfArtemis))),
@@ -32,7 +30,7 @@ class ProgressTokensTest {
 
     @Test
     fun with_the_economy_I_gain_the_money_spent_by_my_opponent_on_resources() {
-        val game = SevenWondersDuel(structure = Structure(AGE_III, listOf(TownHall, Pretorium)), players = Pair(
+        val game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(TownHall, Pretorium)), players = Pair(
                 Player(coins = 10, buildings = setOf(Press, StoneReserve)),
                 Player(coins = 0, progressTokens = setOf(ECONOMY))))
         assertThat(game.build(TownHall).players.second.coins).isEqualTo(7)
@@ -47,7 +45,7 @@ class ProgressTokensTest {
 
     @Test
     fun masonry_gives_a_reduction_on_civilian_building_construction() {
-        val game = SevenWondersDuel(structure = Structure(AGE_III, listOf(Palace, Academy)), players = Pair(
+        val game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Palace, Academy)), players = Pair(
                 Player(coins = 10, progressTokens = setOf(MASONRY),
                         buildings = setOf(CustomsHouse, ClayPool)),
                 Player(buildings = setOf(Sawmill, Glassblower))))
@@ -74,7 +72,7 @@ class ProgressTokensTest {
 
     @Test
     fun strategy_give_extra_shield_for_military_buildings() {
-        var game = SevenWondersDuel(structure = Structure(AGE_II, listOf(ArcheryRange)),
+        var game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(ArcheryRange)),
                 conflictPawnPosition = 0, players = Pair(Player(progressTokens = setOf(STRATEGY)), Player()))
         game = game.build(ArcheryRange)
         assertThat(game.conflictPawnPosition).isEqualTo(3)
@@ -82,7 +80,7 @@ class ProgressTokensTest {
 
     @Test
     fun strategy_does_not_give_extra_shield_for_wonders() {
-        var game = SevenWondersDuel(structure = Structure(AGE_II, listOf(ArcheryRange)),
+        var game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(ArcheryRange)),
                 conflictPawnPosition = 0, players = Pair(
                 Player(coins = 42, progressTokens = setOf(STRATEGY), wonders = listOf(PlayerWonder(TheColossus))),
                 Player()))
@@ -92,7 +90,7 @@ class ProgressTokensTest {
 
     @Test
     fun theology_give_play_again_effect_to_all_my_wonders() {
-        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(Palace, Observatory)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Palace, Observatory)), players = Pair(
                 Player(coins = 42, progressTokens = setOf(THEOLOGY),
                         wonders = listOf(PlayerWonder(ThePyramids))),
                 Player(buildings = setOf(Sawmill))))
@@ -102,7 +100,7 @@ class ProgressTokensTest {
 
     @Test
     fun a_wonder_cannot_have_play_again_effect_twice_with_theology() {
-        var game = SevenWondersDuel(structure = Structure(AGE_III, listOf(Palace, Observatory)), players = Pair(
+        var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Palace, Observatory)), players = Pair(
                 Player(coins = 42, progressTokens = setOf(THEOLOGY),
                         wonders = listOf(PlayerWonder(TheSphinx))),
                 Player(buildings = setOf(Sawmill))))
@@ -113,7 +111,7 @@ class ProgressTokensTest {
 
     @Test
     fun urbanism_gives_4_coin_for_each_chained_building() {
-        val game = SevenWondersDuel(structure = Structure(AGE_II, listOf(Barracks, Temple, Aqueduct)),
+        val game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Barracks, Temple, Aqueduct)),
                 players = Pair(Player(coins = 0,
                         progressTokens = setOf(URBANISM),
                         buildings = setOf(Baths, Garrison, LoggingCamp, Press)
