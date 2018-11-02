@@ -25,28 +25,30 @@ class EndOfAnAgeTest {
 
     @Test
     fun weakest_military_chooses_which_player_begins_the_next_age() {
-        var game = SevenWondersDuel(structure = Structure(age = 1, buildings = listOf(Press)), currentPlayer = 1, conflictPawnPosition = 3)
+        var game = SevenWondersDuel(structure = Structure(age = 1, buildings = listOf(Press)), currentPlayerNumber = 1, conflictPawnPosition = 3)
         game = game.discard(Press)
-        assertThat(game.currentPlayer).isEqualTo(2)
-        assertThat(game.choosePlayerBeginningNextAge(1).currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
+        game = game.choosePlayerBeginningNextAge(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
     }
 
     @Test
     fun weakest_military_can_begin_the_next_age() {
-        var game = SevenWondersDuel(structure = Structure(age = 1, buildings = listOf(Press)), currentPlayer = 1, conflictPawnPosition = 3)
+        var game = SevenWondersDuel(structure = Structure(age = 1, buildings = listOf(Press)), currentPlayerNumber = 1, conflictPawnPosition = 3)
         game = game.discard(Press)
         val nextAgeAccessibleCard = game.structure!!.last().values.first()
         game = game.choosePlayerBeginningNextAge(1).discard(nextAgeAccessibleCard.building)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
         assertThat(game.pendingActions).isEmpty()
     }
 
     @Test
     fun if_military_equality_last_active_player_chooses_witch_player_begins_next_age() {
-        var game = SevenWondersDuel(structure = Structure(age = 1, buildings = listOf(Press)), currentPlayer = 1, conflictPawnPosition = 0)
+        var game = SevenWondersDuel(structure = Structure(age = 1, buildings = listOf(Press)), currentPlayerNumber = 1, conflictPawnPosition = 0)
         game = game.discard(Press)
-        assertThat(game.currentPlayer).isEqualTo(1)
-        assertThat(game.choosePlayerBeginningNextAge(1).currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
+        game = game.choosePlayerBeginningNextAge(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
     }
 
     @Test(expected = IllegalStateException::class)

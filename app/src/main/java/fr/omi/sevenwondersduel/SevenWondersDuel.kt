@@ -10,18 +10,18 @@ import kotlin.math.absoluteValue
 data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), Player()),
                             val conflictPawnPosition: Int = 0,
                             val progressTokensAvailable: Set<ProgressToken> = ProgressToken.values().toList().shuffled().asSequence().take(5).toSet(),
-                            val currentPlayer: Int? = 1,
+                            val currentPlayerNumber: Int? = 1,
                             val wondersAvailable: Set<Wonder> = wonders.shuffled().take(4).toSet(),
                             val structure: Structure? = null,
                             val discardedCards: List<Building> = emptyList(),
                             val pendingActions: List<PendingAction> = emptyList()) {
 
     fun choose(wonder: Wonder): SevenWondersDuel {
-        var game = give(currentPlayer(), wonder)
+        var game = give(currentPlayer, wonder)
         if (game.wondersAvailable.size == 3)
             game = game.swapCurrentPlayer()
         else if (game.wondersAvailable.size == 1) {
-            game = game.give(opponent(), game.wondersAvailable.last())
+            game = game.give(opponent, game.wondersAvailable.last())
             game = if (game.players.toList().all { it.wonders.size == 4 })
                 game.copy(structure = Structure(age = 1))
             else
@@ -44,8 +44,8 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     private fun takeAndPay(building: Building): SevenWondersDuel {
         val game = take(building)
-        return if (currentPlayer().buildings.contains(building.freeLink)) {
-            game.applyEffects(currentPlayer().effects().filterIsInstance<ChainBuildingTriggeredEffect>().map { it.triggeredEffect }.toList())
+        return if (currentPlayer.buildings.contains(building.freeLink)) {
+            game.applyEffects(currentPlayer.effects.filterIsInstance<ChainBuildingTriggeredEffect>().map { it.triggeredEffect }.toList())
         } else {
             game.pay(building)
         }
@@ -67,7 +67,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
 
     fun choosePlayerBeginningNextAge(player: Int): SevenWondersDuel {
         check(pendingActions.firstOrNull() is PlayerBeginningAgeToChoose)
-        return copy(currentPlayer = player, pendingActions = pendingActions.drop(1))
+        return copy(currentPlayerNumber = player, pendingActions = pendingActions.drop(1))
     }
 
     fun choose(progressToken: ProgressToken): SevenWondersDuel {
@@ -84,34 +84,35 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         check(pendingActions.isNotEmpty() && pendingActions.first() is OpponentBuildingToDestroy) { "You are not currently allowed to destroy an opponent building" }
         val action = pendingActions.first() as OpponentBuildingToDestroy
         require(action.isEligible(building)) { "You are not allowed to destroy this kind of building" }
-        return pairInOrder(currentPlayer(), opponent().destroy(building))
+        return pairInOrder(currentPlayer, opponent.destroy(building))
                 .copy(pendingActions = pendingActions.minus(action), discardedCards = discardedCards.plus(building))
                 .continueGame()
     }
 
-    fun currentPlayer(): Player = when (currentPlayer) {
-        1 -> players.first
-        2 -> players.second
-        else -> throw IllegalStateException("Game is over")
-    }
+    val currentPlayer: Player
+        get() = when (currentPlayerNumber) {
+            1 -> players.first
+            2 -> players.second
+            else -> throw IllegalStateException("Game is over")
+        }
 
-    fun opponent(): Player = when (currentPlayer) {
-        1 -> players.second
-        2 -> players.first
-        else -> throw IllegalStateException("Game is over")
-    }
+    val opponent: Player
+        get() = when (currentPlayerNumber) {
+            1 -> players.second
+            2 -> players.first
+            else -> throw IllegalStateException("Game is over")
+        }
 
-    private fun swapCurrentPlayer(): SevenWondersDuel = copy(currentPlayer = when (currentPlayer) {
+    private fun swapCurrentPlayer(): SevenWondersDuel = copy(currentPlayerNumber = when (currentPlayerNumber) {
         1 -> 2
         2 -> 1
         else -> throw IllegalStateException("Game is over")
     })
 
-    private fun currentPlayerDo(action: (Player) -> Player): SevenWondersDuel =
-            pairInOrder(action(currentPlayer()), opponent())
+    private fun currentPlayerDo(action: (Player) -> Player): SevenWondersDuel = pairInOrder(action(currentPlayer), opponent)
 
     fun pairInOrder(player: Player, opponent: Player): SevenWondersDuel =
-            copy(players = when (currentPlayer) {
+            copy(players = when (currentPlayerNumber) {
                 1 -> Pair(first = player, second = opponent)
                 2 -> Pair(first = opponent, second = player)
                 else -> throw IllegalStateException("Game is over")
@@ -133,9 +134,9 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         val playerChoosingWhoBeginsNextAge = when {
             conflictPawnPosition < 0 -> 1
             conflictPawnPosition > 0 -> 2
-            else -> currentPlayer
+            else -> currentPlayerNumber
         }
-        return copy(structure = Structure(age = checkNotNull(structure).age.inc()), currentPlayer = playerChoosingWhoBeginsNextAge, pendingActions = listOf(PlayerBeginningAgeToChoose))
+        return copy(structure = Structure(age = checkNotNull(structure).age.inc()), currentPlayerNumber = playerChoosingWhoBeginsNextAge, pendingActions = listOf(PlayerBeginningAgeToChoose))
     }
 
     private fun take(building: Building): SevenWondersDuel {
@@ -144,37 +145,35 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     private fun pay(construction: Construction): SevenWondersDuel {
-        val player = currentPlayer().pay(construction, ::getTradingCost)
-        val opponent = if (opponent().effects().any { it is GainTradingCost })
-            opponent().takeCoins(currentPlayer().sumTradingCost(construction, ::getTradingCost))
-        else opponent()
+        val player = currentPlayer.pay(construction, ::getTradingCost)
+        val opponent = if (opponent.effects.any { it is GainTradingCost })
+            opponent.takeCoins(currentPlayer.sumTradingCost(construction, ::getTradingCost))
+        else opponent
         return pairInOrder(player, opponent)
     }
 
-    fun coinsToPay(construction: Construction): Int {
-        return construction.cost.coins + currentPlayer().sumTradingCost(construction, ::getTradingCost)
-    }
+    fun coinsToPay(construction: Construction): Int = construction.cost.coins + currentPlayer.sumTradingCost(construction, ::getTradingCost)
 
     private fun getTradingCost(resource: Resource): Int =
-            if (currentPlayer().effects().any { it is FixTradingCostTo1 && it.resource == resource }) 1 else 2 + opponent().productionOf(resource)
+            if (currentPlayer.effects.any { it is FixTradingCostTo1 && it.resource == resource }) 1 else 2 + opponent.productionOf(resource)
 
     private fun continueGame(): SevenWondersDuel {
         return when {
-            isOver() -> copy(currentPlayer = null)
+            isOver -> copy(currentPlayerNumber = null)
             pendingActions.isNotEmpty() -> if (pendingActions.first() == PlayAgain) playAgain() else this
-            currentAgeIsOver() -> prepareNextAge()
+            currentAgeIsOver -> prepareNextAge()
             else -> nextPlayer()
         }
     }
 
     private fun playAgain() = copy(pendingActions = pendingActions.drop(1), structure = checkNotNull(structure).revealAccessibleBuildings())
 
-    private fun nextPlayer() = copy(currentPlayer = if (currentPlayer == 1) 2 else 1, structure = checkNotNull(structure).revealAccessibleBuildings())
+    private fun nextPlayer() = copy(currentPlayerNumber = if (currentPlayerNumber == 1) 2 else 1, structure = checkNotNull(structure).revealAccessibleBuildings())
 
-    fun currentAgeIsOver(): Boolean = checkNotNull(structure).isEmpty()
+    val currentAgeIsOver: Boolean get() = checkNotNull(structure).isEmpty()
 
     private fun applyEffects(construction: Construction): SevenWondersDuel {
-        val triggeredEffects = currentPlayer().effects().filterIsInstance<ConstructionTriggeredEffect>().filter { it.appliesTo(construction) }.map { it.triggeredEffect }
+        val triggeredEffects = currentPlayer.effects.filterIsInstance<ConstructionTriggeredEffect>().filter { it.appliesTo(construction) }.map { it.triggeredEffect }
         return applyEffects(construction.effects.plus(triggeredEffects))
     }
 
@@ -188,8 +187,8 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             else this
 
     fun moveConflictPawn(quantity: Int): SevenWondersDuel {
-        val newConflictPosition = if (currentPlayer == 1) minOf(conflictPawnPosition + quantity, 9) else maxOf(conflictPawnPosition - quantity, -9)
-        return if (newConflictPosition.absoluteValue >= 9) copy(conflictPawnPosition = newConflictPosition, currentPlayer = null)
+        val newConflictPosition = if (currentPlayerNumber == 1) minOf(conflictPawnPosition + quantity, 9) else maxOf(conflictPawnPosition - quantity, -9)
+        return if (newConflictPosition.absoluteValue >= 9) copy(conflictPawnPosition = newConflictPosition, currentPlayerNumber = null)
         else copy(conflictPawnPosition = newConflictPosition).lootMilitaryTokens()
     }
 
@@ -204,21 +203,21 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun takeCoins(quantity: Int): SevenWondersDuel {
-        return pairInOrder(currentPlayer().takeCoins(quantity), opponent())
+        return pairInOrder(currentPlayer.takeCoins(quantity), opponent)
     }
 
-    fun isOver(): Boolean = abs(conflictPawnPosition) == 9
-            || players.first.countDifferentScientificSymbols() == 6 || players.second.countDifferentScientificSymbols() == 6
+    val isOver: Boolean
+        get() = abs(conflictPawnPosition) == 9
+                || players.first.hasScientificSupremacy || players.second.hasScientificSupremacy
             || structure != null && structure.age == age3 && structure.isEmpty()
 
-    fun getWinner(): Player? {
-        return when {
+    val winner: Player?
+        get() = when {
             conflictPawnPosition >= 9 -> players.first
             conflictPawnPosition <= -9 -> players.second
-            players.first.countDifferentScientificSymbols() == 6 -> players.first
-            players.second.countDifferentScientificSymbols() == 6 -> players.second
+            players.first.hasScientificSupremacy -> players.first
+            players.second.hasScientificSupremacy -> players.second
             else -> getHighest(players, ::countVictoryPoint) ?: getHighest(players, Player::countCivilianBuildingsVictoryPoints)
-        }
     }
 
     private fun getHighest(players: Pair<Player, Player>, selector: (Player) -> Int): Player? {
@@ -232,7 +231,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     fun countVictoryPoint(player: Player): Int {
-        return militaryPoints(player) + player.effects().filterIsInstance<VictoryPointsEffect>().sumBy { it.count(this, player) } + player.coins / 3
+        return militaryPoints(player) + player.effects.filterIsInstance<VictoryPointsEffect>().sumBy { it.count(this, player) } + player.coins / 3
     }
 
     private fun militaryPoints(player: Player): Int {

@@ -4,6 +4,6 @@ import fr.omi.sevenwondersduel.SevenWondersDuel
 
 class OpponentLosesCoins(private val quantity: Int) : Effect {
     override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
-        return game.pairInOrder(game.currentPlayer(), game.opponent().loseCoins(quantity))
+        return game.pairInOrder(game.currentPlayer, game.opponent.loseCoins(quantity))
     }
 }

@@ -15,14 +15,14 @@ class MilitaryRulesTest {
 
     @Test
     fun the_conflict_pawn_moves_when_a_shield_is_build() {
-        var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 0)
+        var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayerNumber = 1, conflictPawnPosition = 0)
         game = game.build(GuardTower)
         assertThat(game.conflictPawnPosition).isEqualTo(1)
     }
 
     @Test
     fun the_conflict_pawn_enter_a_zone_with_a_token() {
-        var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayer = 1, conflictPawnPosition = 2,
+        var game = SevenWondersDuel(structure = sampleAge1Structure, currentPlayerNumber = 1, conflictPawnPosition = 2,
                 players = Pair(Player(), Player(militaryTokensLooted = 0, coins = 7)))
         game = game.build(GuardTower)
         assertThat(game.conflictPawnPosition).isEqualTo(3)
@@ -43,8 +43,8 @@ class MilitaryRulesTest {
     fun victory_by_military_supremacy() {
         var game = SevenWondersDuel(conflictPawnPosition = 7)
         game = game.moveConflictPawn(2)
-        assertThat(game.isOver()).isTrue()
-        assertThat(game.getWinner()).isEqualTo(game.players.first)
-        assertThat(game.currentPlayer).isNull()
+        assertThat(game.isOver).isTrue()
+        assertThat(game.winner).isEqualTo(game.players.first)
+        assertThat(game.currentPlayerNumber).isNull()
     }
 }

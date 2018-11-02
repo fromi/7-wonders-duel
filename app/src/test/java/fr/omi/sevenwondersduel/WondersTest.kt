@@ -31,10 +31,10 @@ class WondersTest {
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
         game = game.build(TheTempleOfArtemis, Dispensary)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
         game = game.build(Glassblower)
         assertThat(game.players.first.buildings).contains(Glassblower)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
 
     @Test
@@ -48,7 +48,7 @@ class WondersTest {
                 Player()))
         game = game.build(Piraeus, Forum)
         assertThat(game.structure?.age).isEqualTo(3)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
         assertThat(game.pendingActions).doesNotContain(PlayAgain)
     }
 
@@ -71,11 +71,11 @@ class WondersTest {
                 Player(coins = 42, wonders = listOf(PlayerWonder(CircusMaximus))),
                 Player(buildings = setOf(Glassworks, Press))))
         game = game.build(CircusMaximus, Dispensary)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
         game = game.destroy(Glassworks)
         assertThat(game.players.second.buildings).doesNotContain(Glassworks)
         assertThat(game.discardedCards).contains(Glassworks)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -105,7 +105,7 @@ class WondersTest {
                 Player(buildings = setOf(Temple, Stable, ClayPit))))
         game = game.build(CircusMaximus, Dispensary)
         assertThat(game.pendingActions).isEmpty()
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
 
     @Test
@@ -114,11 +114,11 @@ class WondersTest {
                 Player(coins = 42, wonders = listOf(PlayerWonder(TheStatueOfZeus))),
                 Player(buildings = setOf(Sawmill))))
         game = game.build(TheStatueOfZeus, Dispensary)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
         game = game.destroy(Sawmill)
         assertThat(game.players.second.buildings).doesNotContain(Sawmill)
         assertThat(game.discardedCards).contains(Sawmill)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -152,7 +152,7 @@ class WondersTest {
                 Player(progressTokens = setOf(AGRICULTURE, URBANISM))),
                 progressTokensAvailable = setOf(STRATEGY, LAW, THEOLOGY))
         game = game.build(TheGreatLibrary, Dispensary)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
         assertThat(game.pendingActions[0]).isInstanceOfSatisfying(ProgressTokenToChoose::class.java) {
             assertThat(it.tokens.size).isEqualTo(3)
             assertThat(it.tokens).doesNotContain(AGRICULTURE, URBANISM, STRATEGY, LAW, THEOLOGY)
@@ -161,7 +161,7 @@ class WondersTest {
                 pendingActions = listOf(ProgressTokenToChoose(setOf(MASONRY, ECONOMY, ARCHITECTURE))),
                 progressTokensAvailable = setOf(STRATEGY, LAW, THEOLOGY))
         game = game.choose(ECONOMY)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
         assertThat(game.pendingActions).isEmpty()
         assertThat(game.players.first.progressTokens).contains(ECONOMY)
         assertThat(game.progressTokensAvailable).containsExactly(STRATEGY, LAW, THEOLOGY)
@@ -184,7 +184,7 @@ class WondersTest {
         game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Forum)), players = Pair(
                 Player(wonders = listOf(PlayerWonder(TheGreatLighthouse, buildingUnder = Stable))),
                 Player(coins = 5)
-        ), currentPlayer = 2)
+        ), currentPlayerNumber = 2)
         game = game.build(Forum)
         assertThat(game.players.second.coins).isEqualTo(0)
     }
@@ -206,7 +206,7 @@ class WondersTest {
         game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(ChamberOfCommerce)), players = Pair(
                 Player(wonders = listOf(PlayerWonder(Piraeus, buildingUnder = Stable))),
                 Player(coins = 4)
-        ), currentPlayer = 2)
+        ), currentPlayerNumber = 2)
         game = game.build(ChamberOfCommerce)
         assertThat(game.players.second.coins).isEqualTo(0)
     }
@@ -218,7 +218,7 @@ class WondersTest {
                 Player()), discardedCards = listOf(Walls, Courthouse))
         game = game.build(TheMausoleum, Dispensary)
         assertThat(game.players.first.coins).isEqualTo(0)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
         game = game.build(Courthouse)
         assertThat(game.players.first.buildings).contains(Courthouse)
         assertThat(game.discardedCards).doesNotContain(Courthouse)
@@ -230,7 +230,7 @@ class WondersTest {
                 Player(coins = 10, wonders = listOf(PlayerWonder(TheMausoleum))),
                 Player()), discardedCards = emptyList())
         game = game.build(TheMausoleum, Dispensary)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
 
     @Test(expected = IllegalArgumentException::class)

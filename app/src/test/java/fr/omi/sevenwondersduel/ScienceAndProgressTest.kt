@@ -33,18 +33,18 @@ class ScienceAndProgressTest {
 
     @Test
     fun after_I_get_a_pair_of_science_symbol_I_choose_a_progress_token() {
-        var game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge2Structure,
+        var game = SevenWondersDuel(currentPlayerNumber = 1, structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(Pharmacist)), Player()))
         game = game.build(Dispensary)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
         assertThat(game.pendingActions).containsExactly(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
         game = game.choose(LAW)
         assertThat(game.players.first.progressTokens).contains(LAW)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
 
-    val gameWithProgressTokenToChoose = SevenWondersDuel(currentPlayer = 1, structure = Structure(age = 2, buildings = listOf(Brewery)),
+    val gameWithProgressTokenToChoose = SevenWondersDuel(currentPlayerNumber = 1, structure = Structure(age = 2, buildings = listOf(Brewery)),
             players = Pair(Player(coins = 100, wonders = listOf(PlayerWonder(Piraeus))), Player()),
             pendingActions = listOf(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY))))
 
@@ -68,16 +68,16 @@ class ScienceAndProgressTest {
 
     @Test
     fun get_a_science_symbol_at_the_end_of_an_age() {
-        var game = SevenWondersDuel(currentPlayer = 1, conflictPawnPosition = 0, structure = Structure(age = 2, buildings = listOf(Dispensary)),
+        var game = SevenWondersDuel(currentPlayerNumber = 1, conflictPawnPosition = 0, structure = Structure(age = 2, buildings = listOf(Dispensary)),
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(Pharmacist)), Player()))
         game = game.build(Dispensary)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
         assertThat(game.structure?.age).isEqualTo(2)
         assertThat(game.pendingActions).containsExactly(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
         game = game.choose(LAW)
         assertThat(game.structure?.age).isEqualTo(3)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
     }
 
     @Test
@@ -94,7 +94,7 @@ class ScienceAndProgressTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_choose_a_symbol_not_available() {
-        val game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge2Structure,
+        val game = SevenWondersDuel(currentPlayerNumber = 1, structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(Pharmacist)), Player()))
         game.build(Dispensary).choose(STRATEGY)
@@ -102,14 +102,14 @@ class ScienceAndProgressTest {
 
     @Test
     fun victory_by_scientific_supremacy() {
-        var game = SevenWondersDuel(currentPlayer = 1, structure = sampleAge3Structure,
+        var game = SevenWondersDuel(currentPlayerNumber = 1, structure = sampleAge3Structure,
                 players = Pair(
                         Player(buildings = setOf(Pharmacist, Scriptorium, School, Laboratory),
                                 progressTokens = setOf(LAW)),
                         Player()))
         game = game.build(University)
-        assertThat(game.isOver()).isTrue()
-        assertThat(game.getWinner()).isEqualTo(game.players.first)
-        assertThat(game.currentPlayer).isNull()
+        assertThat(game.isOver).isTrue()
+        assertThat(game.winner).isEqualTo(game.players.first)
+        assertThat(game.currentPlayerNumber).isNull()
     }
 }

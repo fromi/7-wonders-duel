@@ -21,7 +21,7 @@ object RandomBot {
             when (firstPendingAction) {
                 is ProgressTokenToChoose -> return firstPendingAction.tokens.map { ChooseProgressToken(it) }
                 is DiscardedBuildingToBuild -> return game.discardedCards.map { Build(it) }
-                is OpponentBuildingToDestroy -> return game.opponent().buildings.asSequence().filter { firstPendingAction.isEligible(it) }.map { DestroyBuilding(it) }.toList()
+                is OpponentBuildingToDestroy -> return game.opponent.buildings.asSequence().filter { firstPendingAction.isEligible(it) }.map { DestroyBuilding(it) }.toList()
                 is PlayerBeginningAgeToChoose -> return listOf(ChoosePlayerBeginningAge(1), ChoosePlayerBeginningAge(2))
             }
         }
@@ -32,9 +32,9 @@ object RandomBot {
 
     private fun possibleMovesWith(game: SevenWondersDuel, building: Building): Iterable<SevenWondersDuelMove> {
         val moves: MutableList<SevenWondersDuelMove> = mutableListOf(Discard(building))
-        game.currentPlayer().wonders.filter { !it.isBuild() && game.coinsToPay(it.wonder) <= game.currentPlayer().coins }
+        game.currentPlayer.wonders.filter { !it.isBuild() && game.coinsToPay(it.wonder) <= game.currentPlayer.coins }
                 .forEach { moves.add(BuildWonder(it.wonder, building)) }
-        if (game.coinsToPay(building) <= game.currentPlayer().coins)
+        if (game.coinsToPay(building) <= game.currentPlayer.coins)
             moves.add(Build(building))
         return moves
     }

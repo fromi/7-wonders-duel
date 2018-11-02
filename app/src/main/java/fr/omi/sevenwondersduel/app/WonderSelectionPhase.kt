@@ -21,7 +21,7 @@ class WonderSelectionPhase(gameActivity: GameActivity) : GameActivityState(gameA
     }
 
     private fun positionToNextWonderPlace(wonderView: WonderView) {
-        wonderView.positionInto(layout, checkNotNull(game.currentPlayer), game.currentPlayer().wonders.size)
+        wonderView.positionInto(layout, checkNotNull(game.currentPlayerNumber), game.currentPlayer.wonders.size)
     }
 
     private fun wonderDropListener(event: DragEvent): Boolean {

@@ -26,7 +26,7 @@ class BuildingConstructionTest {
         game = game.build(ClayPit)
         assertThat(game.structure?.sumBy { it.size }).isEqualTo(19)
         assertThat(game.players.first.buildings).containsExactly(ClayPit)
-        assertThat(game.currentPlayer).isEqualTo(2)
+        assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
 
     @Test(expected = IllegalArgumentException::class)

@@ -12,13 +12,12 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
                   val wonders: List<PlayerWonder> = emptyList(),
                   val buildings: Set<Building> = emptySet(),
                   val progressTokens: Set<ProgressToken> = emptySet()) {
+
     fun take(wonder: Wonder): Player = copy(wonders = wonders.plus(PlayerWonder(wonder)))
 
     fun build(building: Building): Player = copy(buildings = buildings.plus(building))
 
-    fun discard(): Player = copy(coins = coins + getDiscardCoins())
-
-    fun getDiscardCoins(): Int = 2 + buildings.count { it is CommercialBuilding }
+    fun discard(): Player = copy(coins = coins + 2 + buildings.count { it is CommercialBuilding })
 
     fun build(wonder: Wonder, buildingUsed: Building): Player {
         require(wonders.any { it.wonder == wonder }) { "You do not have this wonder" }
@@ -33,24 +32,22 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     fun sumTradingCost(construction: Construction, getTradingCost: (resource: Resource) -> Int): Int =
             Resource.Type.values().flatMap { listTradingCostByType(it, construction.cost, getTradingCost) }
-                    .sorted().dropLast(effects().filterIsInstance<ResourcesRebate>().filter { it.appliesTo(construction) }.toList().sumBy { it.quantity })
+                    .sorted().dropLast(effects.filterIsInstance<ResourcesRebate>().filter { it.appliesTo(construction) }.toList().sumBy { it.quantity })
                     .sum()
 
     private fun listTradingCostByType(resourceType: Resource.Type, cost: Construction.Cost, getTradingCost: (resource: Resource) -> Int): List<Int> =
             cost.resources.filter { it.key.type == resourceType }
                     .flatMap { entry -> List(max(entry.value - productionOf(entry.key), 0)) { getTradingCost(entry.key) } }
-                    .sorted().dropLast(effects().count { it is ProductionOfAny && it.resourceType == resourceType })
+                    .sorted().dropLast(effects.count { it is ProductionOfAny && it.resourceType == resourceType })
 
-    fun productionOf(resource: Resource): Int =
-            effects().filterIsInstance<Production>().filter { it.resource == resource }.sumBy { it.quantity }
+    fun productionOf(resource: Resource): Int = effects.filterIsInstance<Production>().filter { it.resource == resource }.sumBy { it.quantity }
 
-    fun effects() = buildings.flatMap { it.effects }.asSequence()
-            .plus(wonders.filter { it.isBuild() }.flatMap { it.wonder.effects })
-            .plus(progressTokens.flatMap { it.effects })
+    val effects
+        get() = buildings.flatMap { it.effects }.asSequence()
+                .plus(wonders.filter { it.isBuild() }.flatMap { it.wonder.effects })
+                .plus(progressTokens.flatMap { it.effects })
 
-    fun discardUnfinishedWonder(): Player {
-        return copy(wonders = wonders.filter { it.isBuild() })
-    }
+    fun discardUnfinishedWonder(): Player = copy(wonders = wonders.filter { it.isBuild() })
 
     fun lootFirstToken(): Player {
         check(militaryTokensLooted < 1) { "First military token is already looted" }
@@ -63,32 +60,19 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
         else loseCoins(5).copy(militaryTokensLooted = militaryTokensLooted + 1)
     }
 
-    fun loseCoins(quantity: Int): Player {
-        return copy(coins = maxOf(coins - quantity, 0))
-    }
+    fun loseCoins(quantity: Int): Player = copy(coins = maxOf(coins - quantity, 0))
 
-    fun count(scientificSymbol: ScientificSymbol): Int {
-        return effects().count { it == scientificSymbol }
-    }
+    val hasScientificSupremacy: Boolean get() = effects.filterIsInstance<ScientificSymbol>().toSet().count() == 6
 
-    fun countDifferentScientificSymbols(): Int {
-        return effects().filterIsInstance<ScientificSymbol>().toSet().count()
-    }
+    fun take(progressToken: ProgressToken): Player = copy(progressTokens = progressTokens.plus(progressToken))
 
-    fun take(progressToken: ProgressToken): Player {
-        return copy(progressTokens = progressTokens.plus(progressToken))
-    }
-
-    fun takeCoins(quantity: Int): Player {
-        return copy(coins = coins + quantity)
-    }
+    fun takeCoins(quantity: Int): Player = copy(coins = coins + quantity)
 
     fun destroy(building: Building): Player {
         require(buildings.contains(building))
         return copy(buildings = buildings.minus(building))
     }
 
-    fun countCivilianBuildingsVictoryPoints(): Int {
-        return buildings.filterIsInstance<CivilianBuilding>().flatMap { it.effects }.asSequence().filterIsInstance<VictoryPoints>().sumBy { it.quantity }
-    }
+    fun countCivilianBuildingsVictoryPoints(): Int =
+            buildings.filterIsInstance<CivilianBuilding>().flatMap { it.effects }.asSequence().filterIsInstance<VictoryPoints>().sumBy { it.quantity }
 }

@@ -15,10 +15,10 @@ class CivilianVictoryTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Port)), players = Pair(
                 Player(coins = 3, buildings = setOf(Theater, Rostrum, Aqueduct, Palace, Obelisk)),
                 Player(coins = 0, buildings = emptySet())),
-                currentPlayer = 2)
+                currentPlayerNumber = 2)
         game = game.discard(Port)
-        assertThat(game.isOver()).isTrue()
-        assertThat(game.getWinner()).isEqualTo(game.players.first)
+        assertThat(game.isOver).isTrue()
+        assertThat(game.winner).isEqualTo(game.players.first)
     }
 
     @Test
@@ -95,7 +95,7 @@ class CivilianVictoryTest {
                 Player(coins = 0, buildings = setOf(Theater, Senate, ArcheryRange, University), progressTokens = setOf(AGRICULTURE))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(14)
         assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(14)
-        assertThat(game.getWinner()).isEqualTo(game.players.second)
+        assertThat(game.winner).isEqualTo(game.players.second)
     }
 
     @Test
@@ -105,6 +105,6 @@ class CivilianVictoryTest {
                 Player(coins = 0, buildings = setOf(Theater, Gardens, ArcheryRange, Dispensary), progressTokens = setOf(AGRICULTURE))))
         assertThat(game.countVictoryPoint(game.players.first)).isEqualTo(15)
         assertThat(game.countVictoryPoint(game.players.second)).isEqualTo(15)
-        assertThat(game.getWinner()).isNull()
+        assertThat(game.winner).isNull()
     }
 }

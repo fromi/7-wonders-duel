@@ -49,7 +49,7 @@ class BuildingView(context: Context, private val deck: Deck, val building: Build
     }
 
     fun positionToNextBuildingPlace(constraintLayout: ConstraintLayout, game: SevenWondersDuel) {
-        positionForPlayer(constraintLayout, checkNotNull(game.currentPlayer), game.currentPlayer().buildings.size)
+        positionForPlayer(constraintLayout, checkNotNull(game.currentPlayerNumber), game.currentPlayer.buildings.size)
         bringToFront()
     }
 

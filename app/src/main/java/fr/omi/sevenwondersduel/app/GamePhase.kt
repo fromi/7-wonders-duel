@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import fr.omi.sevenwondersduel.R
+import fr.omi.sevenwondersduel.material.CommercialBuilding
 import fr.omi.sevenwondersduel.material.Deck
 import fr.omi.sevenwondersduel.material.LumberYard
 import kotlinx.android.synthetic.main.activity_game.*
@@ -68,7 +69,7 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             ACTION_DRAG_STARTED -> {
                 discard.scaleX = 1.2F
                 discard.scaleY = 1.2F
-                discardCoins.text = discardCoins.resources.getString(R.string.plus_coins, game.currentPlayer().getDiscardCoins())
+                discardCoins.text = discardCoins.resources.getString(R.string.plus_coins, 2 + game.currentPlayer.buildings.count { it is CommercialBuilding })
                 discardCoins.alpha = 0.5F
                 buildingView.visibility = View.INVISIBLE
             }

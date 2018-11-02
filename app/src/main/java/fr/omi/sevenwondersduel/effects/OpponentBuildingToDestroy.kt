@@ -7,6 +7,6 @@ interface OpponentBuildingToDestroy : PendingEffect {
     fun isEligible(building: Building): Boolean
 
     override fun applyTo(game: SevenWondersDuel): SevenWondersDuel {
-        return if (game.opponent().buildings.any(::isEligible)) super.applyTo(game) else game
+        return if (game.opponent.buildings.any(::isEligible)) super.applyTo(game) else game
     }
 }

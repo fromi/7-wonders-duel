@@ -1,6 +1,7 @@
 package fr.omi.sevenwondersduel
 
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
+import fr.omi.sevenwondersduel.effects.ScientificSymbol
 import fr.omi.sevenwondersduel.material.*
 import fr.omi.sevenwondersduel.material.ProgressToken.*
 import org.assertj.core.api.Assertions.assertThat
@@ -40,7 +41,7 @@ class ProgressTokensTest {
     @Test
     fun law_gives_a_scientific_symbol() {
         val game = SevenWondersDuel(players = Pair(Player(progressTokens = setOf(LAW)), Player()))
-        assertThat(game.players.first.countDifferentScientificSymbols()).isEqualTo(1)
+        assertThat(game.players.first.effects.filterIsInstance<ScientificSymbol>().count()).isEqualTo(1)
     }
 
     @Test
@@ -95,7 +96,7 @@ class ProgressTokensTest {
                         wonders = listOf(PlayerWonder(ThePyramids))),
                 Player(buildings = setOf(Sawmill))))
         game = game.build(ThePyramids, Palace)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
     }
 
     @Test
@@ -105,7 +106,7 @@ class ProgressTokensTest {
                         wonders = listOf(PlayerWonder(TheSphinx))),
                 Player(buildings = setOf(Sawmill))))
         game = game.build(TheSphinx, Palace)
-        assertThat(game.currentPlayer).isEqualTo(1)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
         assertThat(game.pendingActions).isEmpty()
     }
 
