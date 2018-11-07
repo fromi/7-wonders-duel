@@ -9,8 +9,8 @@ sealed class SevenWondersDuelMove {
     abstract fun applyTo(game: SevenWondersDuel): SevenWondersDuel
 }
 
-data class ChooseWonder(val wonder: Wonder) : SevenWondersDuelMove() {
-    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.choose(wonder)
+data class TakeWonder(val wonder: Wonder) : SevenWondersDuelMove() {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.take(wonder)
 }
 
 data class Build(val building: Building) : SevenWondersDuelMove() {

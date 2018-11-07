@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.support.constraint.ConstraintLayout.LayoutParams
 import android.support.constraint.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
 import android.support.constraint.ConstraintSet
-import android.transition.TransitionManager
 import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.material.*
@@ -40,11 +39,6 @@ class WonderView(override val gameActivity: GameActivity, val wonder: Wonder? = 
             }
         }
         return this
-    }
-
-    fun moveInto(owner: Int, position: Int) {
-        TransitionManager.beginDelayedTransition(layout)
-        positionInto(owner, position)
     }
 
     companion object {

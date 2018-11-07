@@ -6,6 +6,9 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import fr.omi.sevenwondersduel.R
+import fr.omi.sevenwondersduel.ai.Build
+import fr.omi.sevenwondersduel.ai.Discard
+import fr.omi.sevenwondersduel.event.Action
 import fr.omi.sevenwondersduel.material.CommercialBuilding
 import fr.omi.sevenwondersduel.material.Deck
 import fr.omi.sevenwondersduel.material.LumberYard
@@ -20,11 +23,18 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
     private val discardCoins: TextView
         get() = gameActivity.discardCoins
 
-
     init {
         buildDropZone = createBuildingDropZone()
         discard.setOnDragListener { _, event -> discardDropListener(event) }
         checkNotNull(game.structure).accessibleBuildings().forEach { building -> gameActivity.getView(building).enableDragAndDrop() }
+    }
+
+    override fun handle(action: Action) {
+        gameActivity.firstPlayerCoins.text = game.players.first.coins.toString()
+        gameActivity.secondPlayerCoins.text = game.players.second.coins.toString()
+        if (game.conflictPawnPosition != gameActivity.conflictPawnView.position) {
+            gameActivity.conflictPawnView.position = game.conflictPawnPosition
+        }
     }
 
     private fun createBuildingDropZone(): BuildingView {
@@ -50,7 +60,7 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             ACTION_DROP -> {
                 buildingView.positionToNextBuildingPlace(game)
                 buildingView.disableDragAndDrop()
-                model.build(checkNotNull(buildingView.building))
+                model.execute(Build(checkNotNull(buildingView.building)))
             }
             ACTION_DRAG_ENDED -> {
                 buildDropZone.alpha = 0F
@@ -77,7 +87,7 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             ACTION_DRAG_EXITED -> discardCoins.alpha = 0.5F
             ACTION_DROP -> {
                 gameActivity.remove(buildingView)
-                model.discard(checkNotNull(buildingView.building))
+                model.execute(Discard(checkNotNull(buildingView.building)))
             }
             ACTION_DRAG_ENDED -> {
                 discardCoins.alpha = 0F

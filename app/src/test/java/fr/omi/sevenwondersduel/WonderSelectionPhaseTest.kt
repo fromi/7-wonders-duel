@@ -16,14 +16,17 @@ class WonderSelectionPhaseTest {
     @Test
     fun first_4_wonders_selection() {
         var game = SevenWondersDuel(wondersAvailable = setOf(ThePyramids, TheGreatLighthouse, TheColossus, TheHangingGardens))
-        game = game.choose(ThePyramids)
+        game = game.take(ThePyramids)
         assertThat(game.wondersAvailable).containsExactly(TheGreatLighthouse, TheColossus, TheHangingGardens)
         assertThat(game.players.first.wonders).containsExactly(PlayerWonder(ThePyramids))
         assertThat(game.currentPlayer).isEqualTo(game.players.second)
-        game = game.choose(TheGreatLighthouse)
+        game = game.take(TheGreatLighthouse)
         assertThat(game.currentPlayer).isEqualTo(game.players.second)
         assertThat(game.players.second.wonders).containsExactly(PlayerWonder(TheGreatLighthouse))
-        game = game.choose(TheHangingGardens)
+        game = game.take(TheHangingGardens)
+        assertThat(game.players.second.wonders).containsExactly(PlayerWonder(TheGreatLighthouse), PlayerWonder(TheHangingGardens))
+        assertThat(game.players.first.wonders).containsExactly(PlayerWonder(ThePyramids))
+        game = game.take(TheColossus)
         assertThat(game.players.second.wonders).containsExactly(PlayerWonder(TheGreatLighthouse), PlayerWonder(TheHangingGardens))
         assertThat(game.players.first.wonders).containsExactly(PlayerWonder(ThePyramids), PlayerWonder(TheColossus))
         assertThat(game.wondersAvailable).doesNotContain(ThePyramids, TheGreatLighthouse, TheColossus, TheHangingGardens).size().isEqualTo(4)
@@ -33,7 +36,7 @@ class WonderSelectionPhaseTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_select_a_wonder_not_available() {
         val game = SevenWondersDuel(wondersAvailable = setOf(ThePyramids, TheGreatLighthouse, TheColossus, TheHangingGardens))
-        game.choose(TheMausoleum)
+        game.take(TheMausoleum)
     }
 
     @Test
@@ -42,14 +45,19 @@ class WonderSelectionPhaseTest {
                 Player(wonders = listOf(PlayerWonder(TheGreatLighthouse), PlayerWonder(TheMausoleum)))),
                 wondersAvailable = setOf(ThePyramids, TheGreatLibrary, TheStatueOfZeus, TheTempleOfArtemis),
                 currentPlayerNumber = 2)
-        game = game.choose(TheStatueOfZeus)
+        game = game.take(TheStatueOfZeus)
         assertThat(game.wondersAvailable).containsExactly(ThePyramids, TheGreatLibrary, TheTempleOfArtemis)
         assertThat(game.players.second.wonders).contains(PlayerWonder(TheStatueOfZeus))
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
-        game = game.choose(TheGreatLibrary)
+        game = game.take(TheGreatLibrary)
         assertThat(game.wondersAvailable).containsExactly(ThePyramids, TheTempleOfArtemis)
         assertThat(game.players.first.wonders).contains(PlayerWonder(TheGreatLibrary))
-        game = game.choose(TheTempleOfArtemis)
+        game = game.take(TheTempleOfArtemis)
+        assertThat(game.players.first.wonders).containsExactly(PlayerWonder(TheColossus), PlayerWonder(TheHangingGardens),
+                PlayerWonder(TheGreatLibrary), PlayerWonder(TheTempleOfArtemis))
+        assertThat(game.players.second.wonders).containsExactly(PlayerWonder(TheGreatLighthouse), PlayerWonder(TheMausoleum),
+                PlayerWonder(TheStatueOfZeus))
+        game = game.take(ThePyramids)
         assertThat(game.players.first.wonders).containsExactly(PlayerWonder(TheColossus), PlayerWonder(TheHangingGardens),
                 PlayerWonder(TheGreatLibrary), PlayerWonder(TheTempleOfArtemis))
         assertThat(game.players.second.wonders).containsExactly(PlayerWonder(TheGreatLighthouse), PlayerWonder(TheMausoleum),

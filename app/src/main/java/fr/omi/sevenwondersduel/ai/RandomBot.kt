@@ -14,7 +14,7 @@ object RandomBot {
 
     private fun possibleMoves(game: SevenWondersDuel): List<SevenWondersDuelMove> {
         if (game.wondersAvailable.isNotEmpty()) {
-            return game.wondersAvailable.map { ChooseWonder(it) }
+            return game.wondersAvailable.map { TakeWonder(it) }
         }
         if (game.pendingActions.isNotEmpty()) {
             val firstPendingAction = game.pendingActions.first()

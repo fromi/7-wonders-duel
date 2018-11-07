@@ -16,17 +16,14 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
                             val discardedCards: List<Building> = emptyList(),
                             val pendingActions: List<PendingAction> = emptyList()) {
 
-    fun choose(wonder: Wonder): SevenWondersDuel {
+    fun take(wonder: Wonder): SevenWondersDuel {
         var game = give(currentPlayer, wonder)
-        if (game.wondersAvailable.size == 3)
+        if (game.wondersAvailable.size != 2)
             game = game.swapCurrentPlayer()
-        else if (game.wondersAvailable.size == 1) {
-            game = game.give(opponent, game.wondersAvailable.last())
-            game = if (game.players.toList().all { it.wonders.size == 4 })
-                game.copy(structure = Structure(age = 1))
-            else
-                game.copy(wondersAvailable = remainingWonders().shuffled().asSequence().take(4).toSet())
-        }
+        if (game.players.toList().all { it.wonders.size == 4 })
+            game = game.copy(structure = Structure(age = 1))
+        else if (game.wondersAvailable.isEmpty())
+            game = game.copy(wondersAvailable = remainingWonders().shuffled().asSequence().take(4).toSet())
         return game
     }
 
@@ -209,7 +206,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     val isOver: Boolean
         get() = abs(conflictPawnPosition) == 9
                 || players.first.hasScientificSupremacy || players.second.hasScientificSupremacy
-            || structure != null && structure.age == age3 && structure.isEmpty()
+                || structure != null && structure.age == age3 && structure.isEmpty()
 
     val winner: Player?
         get() = when {
@@ -218,7 +215,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
             players.first.hasScientificSupremacy -> players.first
             players.second.hasScientificSupremacy -> players.second
             else -> getHighest(players, ::countVictoryPoint) ?: getHighest(players, Player::countCivilianBuildingsVictoryPoints)
-    }
+        }
 
     private fun getHighest(players: Pair<Player, Player>, selector: (Player) -> Int): Player? {
         val firstValue = selector(players.first)
