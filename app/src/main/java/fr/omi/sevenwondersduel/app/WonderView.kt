@@ -1,7 +1,6 @@
 package fr.omi.sevenwondersduel.app
 
 import android.annotation.SuppressLint
-import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintLayout.LayoutParams
 import android.support.constraint.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
 import android.support.constraint.ConstraintSet
@@ -43,8 +42,8 @@ class WonderView(override val gameActivity: GameActivity, val wonder: Wonder? = 
         return this
     }
 
-    fun moveInto(constraintLayout: ConstraintLayout, owner: Int, position: Int) {
-        TransitionManager.beginDelayedTransition(constraintLayout)
+    fun moveInto(owner: Int, position: Int) {
+        TransitionManager.beginDelayedTransition(layout)
         positionInto(owner, position)
     }
 

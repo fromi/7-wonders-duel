@@ -12,7 +12,7 @@ class GameViewModel : ViewModel() {
 
     init {
         game.value = SevenWondersDuel()
-        repeat(0) { game.value = RandomBot.play(game.value!!) }
+        repeat(6) { game.value = RandomBot.play(game.value!!) }
     }
 
     fun choose(wonder: Wonder) {

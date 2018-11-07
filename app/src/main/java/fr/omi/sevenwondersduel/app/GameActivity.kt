@@ -50,6 +50,11 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun updateGame(game: SevenWondersDuel) {
+        firstPlayerCoins.text = game.players.first.coins.toString()
+        secondPlayerCoins.text = game.players.second.coins.toString()
+        if (game.conflictPawnPosition != conflictPawnView.position) {
+            conflictPawnView.position = game.conflictPawnPosition
+        }
     }
 
     private fun createView(playerWonder: PlayerWonder, owner: Int, position: Int) {

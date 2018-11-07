@@ -63,7 +63,7 @@ class WonderSelectionPhase(gameActivity: GameActivity) : GameActivityState(gameA
         if (game.wondersAvailable.isNotEmpty()) {
             prepareNextWonderSelection()
         } else {
-            gameActivity.getView(game.players.second.wonders[3].wonder).moveInto(layout, 2, 3)
+            gameActivity.getView(game.players.second.wonders[3].wonder).moveInto(2, 3)
             goToGamePhase()
         }
     }
@@ -71,7 +71,7 @@ class WonderSelectionPhase(gameActivity: GameActivity) : GameActivityState(gameA
     private fun prepareNextWonderSelection() {
         positionToNextWonderPlace(wonderDropZone)
         if (game.wondersAvailable.size == 4) {
-            gameActivity.getView(game.players.first.wonders[1].wonder).moveInto(layout, 1, 1)
+            gameActivity.getView(game.players.first.wonders[1].wonder).moveInto(1, 1)
             game.wondersAvailable.forEachIndexed { index, wonder ->
                 val wonderView = WonderView(gameActivity, wonder).positionInto(0, index)
                 gameActivity.wondersViews[wonder] = wonderView
