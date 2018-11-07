@@ -122,4 +122,13 @@
         app:layout_constraintBottom_toBottomOf="@id/discard"
         app:layout_constraintEnd_toEndOf="@id/discard" />
 
+    <Button
+        android:id="@+id/resetButton"
+        android:layout_width="55dp"
+        android:layout_height="30dp"
+        android:text="Reset"
+        android:textSize="8sp"
+        app:layout_constraintStart_toEndOf="@+id/board"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

@@ -19,4 +19,8 @@ class GameViewModel : ViewModel() {
         actions.postValue(Action(game, move))
         game = move.applyTo(game)
     }
+
+    fun reset() {
+        game = SevenWondersDuel()
+    }
 }

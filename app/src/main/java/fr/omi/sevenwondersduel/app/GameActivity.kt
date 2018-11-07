@@ -45,6 +45,11 @@ class GameActivity : AppCompatActivity() {
             model.game.isOver -> GameOverPhase(this)
             else -> GamePhase(this)
         }
+
+        resetButton.setOnClickListener {
+            model.reset()
+            recreate()
+        }
     }
 
     private fun createView(playerWonder: PlayerWonder, owner: Int, position: Int) {
