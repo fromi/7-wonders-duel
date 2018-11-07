@@ -12,7 +12,7 @@ class GameViewModel : ViewModel() {
     val actions = MutableLiveData<Action>()
 
     init {
-        repeat(0) { game = RandomBot.play(game) }
+        repeat(8) { game = RandomBot.play(game) }
     }
 
     fun execute(move: SevenWondersDuelMove) {

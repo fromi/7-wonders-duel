@@ -9,6 +9,8 @@ import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.ai.ConstructBuilding
 import fr.omi.sevenwondersduel.ai.Discard
 import fr.omi.sevenwondersduel.event.Action
+import fr.omi.sevenwondersduel.event.BuildingMadeAccessibleEvent
+import fr.omi.sevenwondersduel.event.GameEvent
 import fr.omi.sevenwondersduel.material.CommercialBuilding
 import fr.omi.sevenwondersduel.material.Deck
 import fr.omi.sevenwondersduel.material.LumberYard
@@ -34,6 +36,16 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
         gameActivity.secondPlayerCoins.text = game.players.second.coins.toString()
         if (game.conflictPawnPosition != gameActivity.conflictPawnView.position) {
             gameActivity.conflictPawnView.position = game.conflictPawnPosition
+        }
+        super.handle(action)
+    }
+
+    override fun handleEvent(event: GameEvent) {
+        when (event) {
+            is BuildingMadeAccessibleEvent -> gameActivity.getView(event.building).apply {
+                reveal()
+                enableDragAndDrop()
+            }
         }
     }
 

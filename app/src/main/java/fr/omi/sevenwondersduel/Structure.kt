@@ -16,7 +16,7 @@ data class Structure(val list: List<Map<Int, BuildingCard>>, val age: Byte) : Li
         return copy(list = list.map { line -> line.filterValues { it.building != building } }.filter { it.isNotEmpty() })
     }
 
-    private fun getCoordinatesOf(building: Building): Pair<Int, Int> {
+    fun getCoordinatesOf(building: Building): Pair<Int, Int> {
         return requireNotNull(list.asSequence()
                 .mapIndexed { row, line -> Pair(row, line.entries.firstOrNull { it.value.building == building }?.key) }
                 .filter { coordinates -> coordinates.second != null }

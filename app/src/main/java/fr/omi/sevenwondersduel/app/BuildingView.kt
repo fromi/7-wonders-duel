@@ -9,7 +9,7 @@ import fr.omi.sevenwondersduel.SevenWondersDuel
 import fr.omi.sevenwondersduel.material.*
 
 @SuppressLint("ViewConstructor")
-class BuildingView(override val gameActivity: GameActivity, private val deck: Deck, val building: Building, faceUp: Boolean) : ImageView(gameActivity), GameView {
+class BuildingView(override val gameActivity: GameActivity, private val deck: Deck, val building: Building, var faceUp: Boolean) : ImageView(gameActivity), GameView {
     constructor(gameActivity: GameActivity, building: Building, faceUp: Boolean) : this(gameActivity, Deck.values().first { it.buildings.contains(building) }, building, faceUp)
     constructor(gameActivity: GameActivity, buildingCard: BuildingCard) : this(gameActivity, Deck.values().first { it.buildings.contains(buildingCard.building) }, buildingCard.building, buildingCard.faceUp)
 
@@ -58,7 +58,16 @@ class BuildingView(override val gameActivity: GameActivity, private val deck: De
         }
     }
 
+    fun reveal() {
+        if (!faceUp) {
+            faceUp = true
+            setImageResource(getResource(building))
+            contentDescription = resources.getString(getContentDescription(building))
+        }
+    }
+
     private fun putFaceDown() {
+        faceUp = false
         setImageResource(getResource(deck))
         contentDescription = resources.getString(getContentDescription(deck))
     }

@@ -29,10 +29,10 @@ class WonderSelectionPhase(gameActivity: GameActivity) : GameActivityState(gameA
         if (game.wondersAvailable.isNotEmpty()) {
             positionToNextWonderPlace(wonderDropZone)
         }
-        action.inferEventsLeadingTo(game).forEach(::handleEvent)
+        super.handle(action)
     }
 
-    private fun handleEvent(event: GameEvent) {
+    override fun handleEvent(event: GameEvent) {
         when (event) {
             is PlaceFourAvailableWondersEvent -> event.wonders.forEachIndexed { index, wonder ->
                 val wonderView = WonderView(gameActivity, wonder).positionInto(0, index)
