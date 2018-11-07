@@ -9,7 +9,11 @@ class WonderSelectionPhase(gameActivity: GameActivity) : GameActivityState(gameA
 
     init {
         wonderDropZone = createWonderDropZone()
-        game.wondersAvailable.forEach { gameActivity.getView(it).enableDragAndDrop() }
+        game.wondersAvailable.forEachIndexed { index, wonder ->
+            val wonderView = WonderView(gameActivity, wonder).positionInto(0, index)
+            gameActivity.wondersViews[wonder] = wonderView
+            wonderView.enableDragAndDrop()
+        }
     }
 
     private fun createWonderDropZone(): WonderView {
@@ -21,7 +25,7 @@ class WonderSelectionPhase(gameActivity: GameActivity) : GameActivityState(gameA
     }
 
     private fun positionToNextWonderPlace(wonderView: WonderView) {
-        wonderView.positionInto(layout, checkNotNull(game.currentPlayerNumber), game.currentPlayer.wonders.size)
+        wonderView.positionInto(checkNotNull(game.currentPlayerNumber), game.currentPlayer.wonders.size)
     }
 
     private fun wonderDropListener(event: DragEvent): Boolean {
@@ -68,7 +72,11 @@ class WonderSelectionPhase(gameActivity: GameActivity) : GameActivityState(gameA
         positionToNextWonderPlace(wonderDropZone)
         if (game.wondersAvailable.size == 4) {
             gameActivity.getView(game.players.first.wonders[1].wonder).moveInto(layout, 1, 1)
-            game.wondersAvailable.forEachIndexed { index, it -> gameActivity.createView(it, 0, index).enableDragAndDrop() }
+            game.wondersAvailable.forEachIndexed { index, wonder ->
+                val wonderView = WonderView(gameActivity, wonder).positionInto(0, index)
+                gameActivity.wondersViews[wonder] = wonderView
+                wonderView.enableDragAndDrop()
+            }
         }
     }
 

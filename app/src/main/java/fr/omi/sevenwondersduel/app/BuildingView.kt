@@ -1,7 +1,6 @@
 package fr.omi.sevenwondersduel.app
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
 import android.widget.ImageView
@@ -10,9 +9,9 @@ import fr.omi.sevenwondersduel.SevenWondersDuel
 import fr.omi.sevenwondersduel.material.*
 
 @SuppressLint("ViewConstructor")
-class BuildingView(context: Context, private val deck: Deck, val building: Building, faceUp: Boolean) : ImageView(context) {
-    constructor(context: GameActivity, building: Building, faceUp: Boolean) : this(context, Deck.values().first { it.buildings.contains(building) }, building, faceUp)
-    constructor(context: GameActivity, buildingCard: BuildingCard) : this(context, Deck.values().first { it.buildings.contains(buildingCard.building) }, buildingCard.building, buildingCard.faceUp)
+class BuildingView(override val gameActivity: GameActivity, private val deck: Deck, val building: Building, faceUp: Boolean) : ImageView(gameActivity), GameView {
+    constructor(gameActivity: GameActivity, building: Building, faceUp: Boolean) : this(gameActivity, Deck.values().first { it.buildings.contains(building) }, building, faceUp)
+    constructor(gameActivity: GameActivity, buildingCard: BuildingCard) : this(gameActivity, Deck.values().first { it.buildings.contains(buildingCard.building) }, buildingCard.building, buildingCard.faceUp)
 
     init {
         id = generateViewId()
@@ -20,53 +19,43 @@ class BuildingView(context: Context, private val deck: Deck, val building: Build
         contentDescription = resources.getString(if (faceUp) getContentDescription(building) else getContentDescription(deck))
         layoutParams = ConstraintLayout.LayoutParams(dpsToPx(35), ConstraintLayout.LayoutParams.WRAP_CONTENT)
         adjustViewBounds = true
+        layout.addView(this)
     }
 
-    fun positionInStructure(constraintLayout: ConstraintLayout, row: Int, column: Int) {
-        if (parent == null) {
-            constraintLayout.addView(this)
-        }
-        ConstraintSet().apply {
-            clone(constraintLayout)
+    fun positionInStructure(row: Int, column: Int) {
+        layout.transform {
             connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(row * 30))
             connect(id, ConstraintSet.START, R.id.layout, ConstraintSet.START, if (column > 0) dpsToPx(column * 40) else 0)
             connect(id, ConstraintSet.END, R.id.layout, ConstraintSet.END, if (column < 0) dpsToPx(-column * 40) else 0)
-        }.applyTo(constraintLayout)
+        }
     }
 
-    fun positionForPlayer(constraintLayout: ConstraintLayout, player: Int, position: Int) {
-        if (parent == null) {
-            constraintLayout.addView(this)
-        }
-        ConstraintSet().apply {
-            clone(constraintLayout)
+    fun positionForPlayer(player: Int, position: Int): BuildingView {
+        layout.transform {
             clear(id, ConstraintSet.START)
             clear(id, ConstraintSet.END)
             connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(position * 12))
             val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
             connect(id, constraint, R.id.layout, constraint, dpsToPx(100))
-        }.applyTo(constraintLayout)
+        }
+        return this
     }
 
-    fun positionToNextBuildingPlace(constraintLayout: ConstraintLayout, game: SevenWondersDuel) {
-        positionForPlayer(constraintLayout, checkNotNull(game.currentPlayerNumber), game.currentPlayer.buildings.size)
+    fun positionToNextBuildingPlace(game: SevenWondersDuel) {
+        positionForPlayer(checkNotNull(game.currentPlayerNumber), game.currentPlayer.buildings.size)
         bringToFront()
     }
 
-    fun positionUnder(constraintLayout: ConstraintLayout, wonderView: WonderView, player: Int) {
+    fun positionUnder(wonderView: WonderView, player: Int) {
         putFaceDown()
         rotation = if (player == 1) 270F else 90F
-        if (parent == null) {
-            constraintLayout.addView(this)
-        }
         wonderView.bringToFront()
-        ConstraintSet().apply {
-            clone(constraintLayout)
+        layout.transform {
             connect(id, ConstraintSet.TOP, wonderView.id, ConstraintSet.TOP)
             connect(id, ConstraintSet.BOTTOM, wonderView.id, ConstraintSet.BOTTOM)
             val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
             connect(id, constraint, wonderView.id, constraint, dpsToPx(40))
-        }.applyTo(constraintLayout)
+        }
     }
 
     private fun putFaceDown() {

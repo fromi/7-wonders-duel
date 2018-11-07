@@ -8,27 +8,22 @@ import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.Wonder
 
 class GameViewModel : ViewModel() {
-    val game: MutableLiveData<SevenWondersDuel> by lazy {
-        MutableLiveData<SevenWondersDuel>().apply {
-            var game = SevenWondersDuel()
-            repeat(0) {
-                game = RandomBot.play(game)
-            }
-            postValue(game)
-        }
+    val game = MutableLiveData<SevenWondersDuel>()
+
+    init {
+        game.value = SevenWondersDuel()
+        repeat(0) { game.value = RandomBot.play(game.value!!) }
     }
 
-    private val gameNotNull: SevenWondersDuel get() = checkNotNull(game.value)
-
     fun choose(wonder: Wonder) {
-        game.postValue(gameNotNull.choose(wonder))
+        game.postValue(checkNotNull(game.value).choose(wonder))
     }
 
     fun build(building: Building) {
-        game.postValue(gameNotNull.build(building))
+        game.postValue(checkNotNull(game.value).build(building))
     }
 
     fun discard(building: Building) {
-        game.postValue(gameNotNull.discard(building))
+        game.postValue(checkNotNull(game.value).discard(building))
     }
 }

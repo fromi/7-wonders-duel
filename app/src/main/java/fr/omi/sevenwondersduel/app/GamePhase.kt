@@ -31,7 +31,7 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
         // TODO improve building and wonder drop zone
         return BuildingView(gameActivity, Deck.AGE_I, LumberYard, faceUp = false).apply {
             alpha = 0F
-            positionToNextBuildingPlace(layout, game)
+            positionToNextBuildingPlace(game)
             setOnDragListener { _, event -> buildingDropListener(event) }
         }
     }
@@ -48,14 +48,14 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             ACTION_DRAG_ENTERED -> buildDropZone.alpha = 1F
             ACTION_DRAG_EXITED -> buildDropZone.alpha = 0.5F
             ACTION_DROP -> {
-                buildingView.positionToNextBuildingPlace(layout, game)
+                buildingView.positionToNextBuildingPlace(game)
                 buildingView.disableDragAndDrop()
                 model.build(checkNotNull(buildingView.building))
             }
             ACTION_DRAG_ENDED -> {
                 buildDropZone.alpha = 0F
                 if (event.result) {
-                    buildDropZone.positionToNextBuildingPlace(layout, game)
+                    buildDropZone.positionToNextBuildingPlace(game)
                 }
             }
         }

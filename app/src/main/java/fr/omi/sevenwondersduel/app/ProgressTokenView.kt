@@ -8,7 +8,6 @@ import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.material.ProgressToken
 import fr.omi.sevenwondersduel.material.ProgressToken.*
-import kotlin.properties.Delegates
 
 @SuppressLint("ViewConstructor")
 class ProgressTokenView(override val gameActivity: GameActivity, progressToken: ProgressToken) : ImageView(gameActivity), GameView {
@@ -22,39 +21,34 @@ class ProgressTokenView(override val gameActivity: GameActivity, progressToken: 
         layout.addView(this)
     }
 
-    fun availableAt(position: Int) {
-        this.position = position
-    }
-
-    private var position: Int? by Delegates.observable(null) { _, oldPosition: Int?, newPosition: Int? ->
-        if (oldPosition != newPosition) {
-            layout.transform {
-                connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.TOP, dpsToPx(7))
-                when (newPosition) {
-                    0 -> {
-                        connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
-                        connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END, dpsToPx(120))
-                    }
-                    1 -> {
-                        connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
-                        connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END, dpsToPx(60))
-                    }
-                    2 -> {
-                        connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
-                        connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
-                    }
-                    3 -> {
-                        connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START, dpsToPx(60))
-                        connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
-                    }
-                    4 -> {
-                        connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START, dpsToPx(120))
-                        connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
-                    }
-                    else -> throw IllegalArgumentException("Illegal progress token position: $newPosition")
+    fun availableAt(position: Int): ProgressTokenView {
+        layout.transform {
+            connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.TOP, dpsToPx(7))
+            when (position) {
+                0 -> {
+                    connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
+                    connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END, dpsToPx(120))
                 }
+                1 -> {
+                    connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
+                    connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END, dpsToPx(60))
+                }
+                2 -> {
+                    connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START)
+                    connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
+                }
+                3 -> {
+                    connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START, dpsToPx(60))
+                    connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
+                }
+                4 -> {
+                    connect(id, ConstraintSet.START, R.id.board, ConstraintSet.START, dpsToPx(120))
+                    connect(id, ConstraintSet.END, R.id.board, ConstraintSet.END)
+                }
+                else -> throw IllegalArgumentException("Illegal progress token position: $position")
             }
         }
+        return this
     }
 
     companion object {
