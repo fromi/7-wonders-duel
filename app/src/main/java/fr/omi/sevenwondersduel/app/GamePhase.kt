@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import fr.omi.sevenwondersduel.R
-import fr.omi.sevenwondersduel.ai.Build
+import fr.omi.sevenwondersduel.ai.ConstructBuilding
 import fr.omi.sevenwondersduel.ai.Discard
 import fr.omi.sevenwondersduel.event.Action
 import fr.omi.sevenwondersduel.material.CommercialBuilding
@@ -60,7 +60,7 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             ACTION_DROP -> {
                 buildingView.positionToNextBuildingPlace(game)
                 buildingView.disableDragAndDrop()
-                model.execute(Build(checkNotNull(buildingView.building)))
+                model.execute(ConstructBuilding(checkNotNull(buildingView.building)))
             }
             ACTION_DRAG_ENDED -> {
                 buildDropZone.alpha = 0F

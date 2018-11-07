@@ -17,7 +17,7 @@ class WonderConstructionTest {
     fun build_a_wonder() {
         var game = SevenWondersDuel(players = Pair(Player(coins = 8, wonders = listOf(PlayerWonder(Piraeus))), Player()),
                 structure = sampleAge1Structure)
-        game = game.build(Piraeus, Press)
+        game = game.construct(Piraeus, Press)
         assertThat(game.players.first.wonders).containsExactly(PlayerWonder(Piraeus, buildingUnder = Press))
         assertThat(game.players.first.coins).isEqualTo(0)
     }
@@ -25,13 +25,13 @@ class WonderConstructionTest {
     @Test(expected = IllegalStateException::class)
     fun cannot_build_a_wonder_already_built() {
         val wonder = PlayerWonder(Piraeus, buildingUnder = Press)
-        wonder.buildWith(Statue)
+        wonder.constructWith(Statue)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_build_a_wonder_I_do_not_have() {
         val player = Player(wonders = emptyList())
-        player.build(Piraeus, buildingUsed = School)
+        player.construct(Piraeus, buildingUsed = School)
     }
 
     @Test
@@ -49,7 +49,7 @@ class WonderConstructionTest {
                         PlayerWonder(TheMausoleum)
                 ))
         ))
-        game = game.build(TheColossus, buildingUsed = ClayPit)
+        game = game.construct(TheColossus, buildingUsed = ClayPit)
         assertThat(game.players.second.wonders).doesNotContain(PlayerWonder(TheMausoleum))
     }
 }

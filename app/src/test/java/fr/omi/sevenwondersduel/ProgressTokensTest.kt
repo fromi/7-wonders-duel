@@ -25,7 +25,7 @@ class ProgressTokensTest {
                         buildings = setOf(Press, StoneReserve),
                         wonders = listOf(PlayerWonder(TheTempleOfArtemis))),
                 Player(buildings = setOf(Sawmill))))
-        game = game.build(TheTempleOfArtemis, Palace)
+        game = game.construct(TheTempleOfArtemis, Palace)
         assertThat(game.players.first.coins).isEqualTo(12)
     }
 
@@ -34,8 +34,8 @@ class ProgressTokensTest {
         val game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(TownHall, Pretorium)), players = Pair(
                 Player(coins = 10, buildings = setOf(Press, StoneReserve)),
                 Player(coins = 0, progressTokens = setOf(ECONOMY))))
-        assertThat(game.build(TownHall).players.second.coins).isEqualTo(7)
-        assertThat(game.build(Pretorium).players.second.coins).isEqualTo(0)
+        assertThat(game.construct(TownHall).players.second.coins).isEqualTo(7)
+        assertThat(game.construct(Pretorium).players.second.coins).isEqualTo(0)
     }
 
     @Test
@@ -50,8 +50,8 @@ class ProgressTokensTest {
                 Player(coins = 10, progressTokens = setOf(MASONRY),
                         buildings = setOf(CustomsHouse, ClayPool)),
                 Player(buildings = setOf(Sawmill, Glassblower))))
-        assertThat(game.build(Palace).players.first.coins).isEqualTo(8)
-        assertThat(game.build(Academy).players.first.coins).isEqualTo(2)
+        assertThat(game.construct(Palace).players.first.coins).isEqualTo(8)
+        assertThat(game.construct(Academy).players.first.coins).isEqualTo(2)
     }
 
     @Test
@@ -75,7 +75,7 @@ class ProgressTokensTest {
     fun strategy_give_extra_shield_for_military_buildings() {
         var game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(ArcheryRange)),
                 conflictPawnPosition = 0, players = Pair(Player(progressTokens = setOf(STRATEGY)), Player()))
-        game = game.build(ArcheryRange)
+        game = game.construct(ArcheryRange)
         assertThat(game.conflictPawnPosition).isEqualTo(3)
     }
 
@@ -85,7 +85,7 @@ class ProgressTokensTest {
                 conflictPawnPosition = 0, players = Pair(
                 Player(coins = 42, progressTokens = setOf(STRATEGY), wonders = listOf(PlayerWonder(TheColossus))),
                 Player()))
-        game = game.build(TheColossus, ArcheryRange)
+        game = game.construct(TheColossus, ArcheryRange)
         assertThat(game.conflictPawnPosition).isEqualTo(2)
     }
 
@@ -95,7 +95,7 @@ class ProgressTokensTest {
                 Player(coins = 42, progressTokens = setOf(THEOLOGY),
                         wonders = listOf(PlayerWonder(ThePyramids))),
                 Player(buildings = setOf(Sawmill))))
-        game = game.build(ThePyramids, Palace)
+        game = game.construct(ThePyramids, Palace)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
     }
 
@@ -105,7 +105,7 @@ class ProgressTokensTest {
                 Player(coins = 42, progressTokens = setOf(THEOLOGY),
                         wonders = listOf(PlayerWonder(TheSphinx))),
                 Player(buildings = setOf(Sawmill))))
-        game = game.build(TheSphinx, Palace)
+        game = game.construct(TheSphinx, Palace)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
         assertThat(game.pendingActions).isEmpty()
     }
@@ -117,8 +117,8 @@ class ProgressTokensTest {
                         progressTokens = setOf(URBANISM),
                         buildings = setOf(Baths, Garrison, LoggingCamp, Press)
                 ), Player()))
-        assertThat(game.build(Barracks).players.first.coins).isEqualTo(4)
-        assertThat(game.build(Temple).players.first.coins).isEqualTo(0)
-        assertThat(game.build(Aqueduct).players.first.coins).isEqualTo(4)
+        assertThat(game.construct(Barracks).players.first.coins).isEqualTo(4)
+        assertThat(game.construct(Temple).players.first.coins).isEqualTo(0)
+        assertThat(game.construct(Aqueduct).players.first.coins).isEqualTo(4)
     }
 }

@@ -11,7 +11,7 @@ class GuildsTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(MerchantsGuild)), players = Pair(
                 Player(coins = 0, buildings = setOf(ClayPool, LumberYard, Glassblower, Forum)),
                 Player(coins = 7, buildings = setOf(Arena, Caravansery, CustomsHouse, ClayReserve))))
-        game = game.build(MerchantsGuild)
+        game = game.construct(MerchantsGuild)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
 
@@ -28,7 +28,7 @@ class GuildsTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(ShipownersGuild)), players = Pair(
                 Player(coins = 0, buildings = setOf(Brickyard, Glassblower, DryingRoom, Caravansery)),
                 Player(coins = 7, buildings = setOf(ShelfQuarry))))
-        game = game.build(ShipownersGuild)
+        game = game.construct(ShipownersGuild)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
@@ -63,7 +63,7 @@ class GuildsTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(MagistrateGuild)), players = Pair(
                 Player(coins = 4, buildings = setOf(LoggingCamp, Brickyard, Forum, Temple)),
                 Player(coins = 7, buildings = setOf(Sawmill, Glassblower, Courthouse, Statue, Pantheon, Senate, Baths))))
-        game = game.build(MagistrateGuild)
+        game = game.construct(MagistrateGuild)
         assertThat(game.players.first.coins).isEqualTo(5)
     }
 
@@ -80,7 +80,7 @@ class GuildsTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(ScientistsGuild)), players = Pair(
                 Player(coins = 0, buildings = setOf(Sawmill, Brickyard, Apothecary, Library, Dispensary)),
                 Player(coins = 7, buildings = setOf(Workshop))))
-        game = game.build(ScientistsGuild)
+        game = game.construct(ScientistsGuild)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
@@ -105,7 +105,7 @@ class GuildsTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(TacticiansGuild)), players = Pair(
                 Player(coins = 2, buildings = setOf(Quarry, DryingRoom, Caravansery, Palisade, Fortifications, Circus)),
                 Player(coins = 7, buildings = setOf(ShelfQuarry, Walls, Arsenal, ArcheryRange))))
-        game = game.build(TacticiansGuild)
+        game = game.construct(TacticiansGuild)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 

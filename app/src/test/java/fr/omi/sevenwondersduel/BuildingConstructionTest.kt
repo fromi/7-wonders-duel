@@ -23,7 +23,7 @@ class BuildingConstructionTest {
     @Test
     fun build_first_building() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
-        game = game.build(ClayPit)
+        game = game.construct(ClayPit)
         assertThat(game.structure?.sumBy { it.size }).isEqualTo(19)
         assertThat(game.players.first.buildings).containsExactly(ClayPit)
         assertThat(game.currentPlayer).isEqualTo(game.players.second)
@@ -32,13 +32,13 @@ class BuildingConstructionTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_build_unaccessible_building() {
         val game = SevenWondersDuel(structure = sampleAge1Structure)
-        game.build(Stable)
+        game.construct(Stable)
     }
 
     @Test
     fun building_become_accessible_once_uncovered() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
-        game = game.build(ClayPit).build(Altar).build(Stable)
+        game = game.construct(ClayPit).construct(Altar).construct(Stable)
         assertThat(game.players.first.buildings).containsExactly(ClayPit, Stable)
         assertThat(game.players.second.buildings).containsExactly(Altar)
     }
@@ -46,7 +46,7 @@ class BuildingConstructionTest {
     @Test
     fun pay_building_cost_in_coins() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
-        game = game.build(ClayPit)
+        game = game.construct(ClayPit)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
@@ -54,14 +54,14 @@ class BuildingConstructionTest {
     fun build_with_resources() {
         var game = SevenWondersDuel(players = Pair(Player(buildings = setOf(Quarry)), Player()),
                 structure = sampleAge1Structure)
-        game = game.build(Baths)
+        game = game.construct(Baths)
         assertThat(game.players.first.coins).isEqualTo(7)
     }
 
     @Test
     fun trade_resource_for_2_coins() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
-        game = game.build(Baths)
+        game = game.construct(Baths)
         assertThat(game.players.first.coins).isEqualTo(5)
     }
 
@@ -71,14 +71,14 @@ class BuildingConstructionTest {
                 first = Player(coins = 7),
                 second = Player(buildings = setOf(Quarry))
         ))
-        game = game.build(Baths)
+        game = game.construct(Baths)
         assertThat(game.players.first.coins).isEqualTo(4)
 
         game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(
                 first = Player(coins = 7),
                 second = Player(buildings = setOf(Quarry, StonePit))
         ))
-        game = game.build(Baths)
+        game = game.construct(Baths)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
@@ -88,7 +88,7 @@ class BuildingConstructionTest {
                 first = Player(coins = 1, buildings = setOf(StoneReserve)),
                 second = Player(buildings = setOf(Quarry))
         ))
-        game = game.build(Baths)
+        game = game.construct(Baths)
         assertThat(game.players.first.coins).isEqualTo(0)
     }
 
@@ -97,7 +97,7 @@ class BuildingConstructionTest {
         var game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(
                 first = Player(coins = 7, buildings = setOf(Caravansery)),
                 second = Player()))
-        game = game.build(Baths)
+        game = game.construct(Baths)
         assertThat(game.players.first.coins).isEqualTo(7)
     }
 
@@ -107,7 +107,7 @@ class BuildingConstructionTest {
                 first = Player(coins = 8, buildings = setOf(Caravansery)),
                 second = Player(buildings = setOf(Quarry))
         ))
-        game = game.build(Rostrum)
+        game = game.construct(Rostrum)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
@@ -117,7 +117,7 @@ class BuildingConstructionTest {
                 first = Player(coins = 7),
                 second = Player(buildings = setOf(Caravansery))
         ))
-        game = game.build(Baths)
+        game = game.construct(Baths)
         assertThat(game.players.first.coins).isEqualTo(5)
     }
 
@@ -127,13 +127,13 @@ class BuildingConstructionTest {
                 first = Player(coins = 5, buildings = setOf(Pharmacist)),
                 second = Player()
         ))
-        game = game.build(Dispensary)
+        game = game.construct(Dispensary)
         assertThat(game.players.first.coins).isEqualTo(5)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_build_if_not_enough_coins() {
         val game = SevenWondersDuel(players = Pair(Player(coins = 1), Player()), structure = sampleAge1Structure)
-        game.build(Baths)
+        game.construct(Baths)
     }
 }

@@ -36,7 +36,7 @@ class ScienceAndProgressTest {
         var game = SevenWondersDuel(currentPlayerNumber = 1, structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(Pharmacist)), Player()))
-        game = game.build(Dispensary)
+        game = game.construct(Dispensary)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
         assertThat(game.pendingActions).containsExactly(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
         game = game.choose(LAW)
@@ -50,7 +50,7 @@ class ScienceAndProgressTest {
 
     @Test(expected = IllegalStateException::class)
     fun cannot_build_when_I_have_to_choose_a_progress_token() {
-        gameWithProgressTokenToChoose.build(Brewery)
+        gameWithProgressTokenToChoose.construct(Brewery)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -61,7 +61,7 @@ class ScienceAndProgressTest {
 
     @Test(expected = IllegalStateException::class)
     fun cannot_build_a_wonder_when_I_have_to_choose_a_progress_token() {
-        gameWithProgressTokenToChoose.build(Piraeus, Brewery)
+        gameWithProgressTokenToChoose.construct(Piraeus, Brewery)
 
     }
 
@@ -71,7 +71,7 @@ class ScienceAndProgressTest {
         var game = SevenWondersDuel(currentPlayerNumber = 1, conflictPawnPosition = 0, structure = Structure(age = 2, buildings = listOf(Dispensary)),
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(Pharmacist)), Player()))
-        game = game.build(Dispensary)
+        game = game.construct(Dispensary)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
         assertThat(game.structure?.age).isEqualTo(2)
         assertThat(game.pendingActions).containsExactly(ProgressTokenToChoose(setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY)))
@@ -83,7 +83,7 @@ class ScienceAndProgressTest {
     @Test
     fun after_I_get_a_single_science_symbol_I_do_not_choose_a_progress_token() {
         var game = SevenWondersDuel(structure = sampleAge1Structure)
-        game = game.build(Pharmacist)
+        game = game.construct(Pharmacist)
         assertThat(game.pendingActions).isEmpty()
     }
 
@@ -97,7 +97,7 @@ class ScienceAndProgressTest {
         val game = SevenWondersDuel(currentPlayerNumber = 1, structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(Pharmacist)), Player()))
-        game.build(Dispensary).choose(STRATEGY)
+        game.construct(Dispensary).choose(STRATEGY)
     }
 
     @Test
@@ -107,7 +107,7 @@ class ScienceAndProgressTest {
                         Player(buildings = setOf(Pharmacist, Scriptorium, School, Laboratory),
                                 progressTokens = setOf(LAW)),
                         Player()))
-        game = game.build(University)
+        game = game.construct(University)
         assertThat(game.isOver).isTrue()
         assertThat(game.winner).isEqualTo(game.players.first)
         assertThat(game.currentPlayerNumber).isNull()

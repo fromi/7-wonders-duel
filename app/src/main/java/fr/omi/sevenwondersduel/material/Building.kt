@@ -121,11 +121,11 @@ object ChamberOfCommerce : CommercialBuilding(listOf(TakeCoinsForPlayerBuildings
 object Port : CommercialBuilding(listOf(TakeCoinsForPlayerBuildings(2) { it is RawMaterialBuilding }, VictoryPoints(3)), Cost(resources = mapOf(WOOD to 1, GLASS to 1, PAPYRUS to 1)))
 object Armory : CommercialBuilding(listOf(TakeCoinsForPlayerBuildings(1) { it is MilitaryBuilding }, VictoryPoints(3)), Cost(resources = mapOf(STONE to 2, GLASS to 1)))
 object Lighthouse : CommercialBuilding(listOf(TakeCoinsForPlayerBuildings(1) { it is CommercialBuilding }, VictoryPoints(3)), Cost(resources = mapOf(CLAY to 2, GLASS to 1)), freeLink = Tavern)
-object Arena : CommercialBuilding(listOf(TakeCoinsForPlayer { player -> 2 * player.wonders.count { it.isBuild() } }, VictoryPoints(3)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1)), freeLink = Brewery)
+object Arena : CommercialBuilding(listOf(TakeCoinsForPlayer { player -> 2 * player.wonders.count { it.isConstructed() } }, VictoryPoints(3)), Cost(resources = mapOf(CLAY to 1, STONE to 1, WOOD to 1)), freeLink = Brewery)
 
 object MerchantsGuild : GuildBuilding(majority = { player -> player.buildings.count { it is CommercialBuilding } }, coins = 1, victoryPoints = 1, cost = Cost(resources = mapOf(CLAY to 1, WOOD to 1, GLASS to 1, PAPYRUS to 1)))
 object ShipownersGuild : GuildBuilding(majority = { player -> player.buildings.count { it is RawMaterialBuilding || it is ManufactureBuilding } }, coins = 1, victoryPoints = 1, cost = Cost(resources = mapOf(CLAY to 1, STONE to 1, GLASS to 1, PAPYRUS to 1)))
-object BuildersGuild : GuildBuilding(majority = { player -> player.wonders.count { it.isBuild() } }, victoryPoints = 2, cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, WOOD to 1, GLASS to 1)))
+object BuildersGuild : GuildBuilding(majority = { player -> player.wonders.count { it.isConstructed() } }, victoryPoints = 2, cost = Cost(resources = mapOf(STONE to 2, CLAY to 1, WOOD to 1, GLASS to 1)))
 object MagistrateGuild : GuildBuilding(majority = { player -> player.buildings.count { it is CivilianBuilding } }, coins = 1, victoryPoints = 1, cost = Cost(resources = mapOf(WOOD to 2, CLAY to 1, PAPYRUS to 1)))
 object ScientistsGuild : GuildBuilding(majority = { player -> player.buildings.count { it is ScientificBuilding } }, coins = 1, victoryPoints = 1, cost = Cost(resources = mapOf(CLAY to 2, WOOD to 2)))
 object MoneylendersGuild : GuildBuilding(majority = { it.coins / 3 }, victoryPoints = 1, cost = Cost(resources = mapOf(STONE to 2, WOOD to 2)))

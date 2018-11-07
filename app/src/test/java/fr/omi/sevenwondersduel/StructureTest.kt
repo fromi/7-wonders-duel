@@ -41,7 +41,7 @@ class StructureTest {
     @Test
     fun after_a_card_is_taken_free_cards_below_are_revealed_for_next_turn() {
         var game = SevenWondersDuel(structure = sampleAge2Structure)
-        game = game.build(Brewery)
+        game = game.construct(Brewery)
         assertThat(game.structure!![3][-2]?.faceUp).isTrue()
         assertThat(game.structure!![3][0]?.faceUp).isFalse()
         assertThat(game.structure!![3][2]?.faceUp).isFalse()
@@ -56,7 +56,7 @@ class StructureTest {
         var progressTokenExample = SevenWondersDuel(structure = sampleAge2Structure,
                 progressTokensAvailable = setOf(LAW, ECONOMY, MASONRY, MATHEMATICS, THEOLOGY),
                 players = Pair(Player(buildings = setOf(Pharmacist)), Player()))
-        progressTokenExample = progressTokenExample.build(Dispensary)
+        progressTokenExample = progressTokenExample.construct(Dispensary)
         assertThat(progressTokenExample.structure!![3][2]?.faceUp).isFalse()
         progressTokenExample = progressTokenExample.choose(LAW)
         assertThat(progressTokenExample.structure!![3][2]?.faceUp).isTrue()
@@ -64,7 +64,7 @@ class StructureTest {
         var statueOfZeusExample = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
                 Player(coins = 42, wonders = listOf(PlayerWonder(TheStatueOfZeus))),
                 Player(buildings = setOf(Sawmill))))
-        statueOfZeusExample = statueOfZeusExample.build(TheStatueOfZeus, Dispensary)
+        statueOfZeusExample = statueOfZeusExample.construct(TheStatueOfZeus, Dispensary)
         assertThat(statueOfZeusExample.structure!![3][2]?.faceUp).isFalse()
         statueOfZeusExample = statueOfZeusExample.destroy(Sawmill)
         assertThat(statueOfZeusExample.structure!![3][2]?.faceUp).isTrue()
@@ -72,14 +72,14 @@ class StructureTest {
         var mausoleumExample = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
                 Player(coins = 10, wonders = listOf(PlayerWonder(TheMausoleum))),
                 Player()), discardedCards = listOf(Walls, Courthouse))
-        mausoleumExample = mausoleumExample.build(TheMausoleum, Dispensary)
+        mausoleumExample = mausoleumExample.construct(TheMausoleum, Dispensary)
         assertThat(mausoleumExample.structure!![3][2]?.faceUp).isFalse()
-        mausoleumExample = mausoleumExample.build(Courthouse)
+        mausoleumExample = mausoleumExample.construct(Courthouse)
         assertThat(mausoleumExample.structure!![3][2]?.faceUp).isTrue()
 
         var playAgainExample = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
                 Player(coins = 10, wonders = listOf(PlayerWonder(Piraeus))), Player()))
-        playAgainExample = playAgainExample.build(Piraeus, Dispensary)
+        playAgainExample = playAgainExample.construct(Piraeus, Dispensary)
         assertThat(playAgainExample.structure!![3][2]?.faceUp).isTrue()
     }
 }

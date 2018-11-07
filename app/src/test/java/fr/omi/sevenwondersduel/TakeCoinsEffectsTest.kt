@@ -26,14 +26,14 @@ class TakeCoinsEffectsTest {
     @Test
     fun tavern_gives_4_coins() {
         var game = SevenWondersDuel(structure = sampleAge1Structure, players = Pair(Player(coins = 0), Player(coins = 7)))
-        game = game.build(Tavern)
+        game = game.construct(Tavern)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
 
     @Test
     fun brewery_gives_6_coins() {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(Player(coins = 0), Player(coins = 7)))
-        game = game.build(Brewery)
+        game = game.construct(Brewery)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
@@ -41,7 +41,7 @@ class TakeCoinsEffectsTest {
     fun chamber_of_commerce_gives_3_coins_per_manufacture_building_I_have() {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(ChamberOfCommerce)),
                 players = Pair(Player(coins = 0, buildings = setOf(Press, DryingRoom)), Player(coins = 7, buildings = setOf(Glassworks))))
-        game = game.build(ChamberOfCommerce)
+        game = game.construct(ChamberOfCommerce)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
@@ -50,7 +50,7 @@ class TakeCoinsEffectsTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Port)), players = Pair(
                 Player(coins = 0, buildings = setOf(Press, Glassworks, LoggingCamp, Brickyard)),
                 Player(coins = 7, buildings = setOf(ClayPool, StonePit, Sawmill, ShelfQuarry))))
-        game = game.build(Port)
+        game = game.construct(Port)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
 
@@ -59,7 +59,7 @@ class TakeCoinsEffectsTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Armory)), players = Pair(
                 Player(coins = 0, buildings = setOf(ShelfQuarry, Arsenal, Glassblower)),
                 Player(coins = 7, buildings = setOf(GuardTower, Walls))))
-        game = game.build(Armory)
+        game = game.construct(Armory)
         assertThat(game.players.first.coins).isEqualTo(1)
     }
 
@@ -68,7 +68,7 @@ class TakeCoinsEffectsTest {
         var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Lighthouse)), players = Pair(
                 Player(coins = 0, buildings = setOf(ClayPit, Forum, Caravansery, ClayReserve, Brewery)),
                 Player(coins = 7, buildings = setOf(Arena))))
-        game = game.build(Lighthouse)
+        game = game.construct(Lighthouse)
         assertThat(game.players.first.coins).isEqualTo(5)
     }
 
@@ -85,7 +85,7 @@ class TakeCoinsEffectsTest {
                         PlayerWonder(TheStatueOfZeus, buildingUnder = Brickyard),
                         PlayerWonder(TheAppianWay, buildingUnder = Palace),
                         PlayerWonder(CircusMaximus, buildingUnder = MoneylendersGuild)))))
-        game = game.build(Arena)
+        game = game.construct(Arena)
         assertThat(game.players.first.coins).isEqualTo(4)
     }
 
@@ -114,7 +114,7 @@ class TakeCoinsEffectsTest {
                         PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(TheAppianWay, Dispensary)
+        game = game.construct(TheAppianWay, Dispensary)
         assertThat(game.players.first.coins).isEqualTo(3)
     }
 
@@ -127,7 +127,7 @@ class TakeCoinsEffectsTest {
                         PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(TheHangingGardens, Dispensary)
+        game = game.construct(TheHangingGardens, Dispensary)
         assertThat(game.players.first.coins).isEqualTo(6)
     }
 
@@ -140,7 +140,7 @@ class TakeCoinsEffectsTest {
                         PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(TheTempleOfArtemis, Dispensary)
+        game = game.construct(TheTempleOfArtemis, Dispensary)
         assertThat(game.players.first.coins).isEqualTo(12)
     }
 }

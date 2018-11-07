@@ -15,13 +15,13 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     fun take(wonder: Wonder): Player = copy(wonders = wonders.plus(PlayerWonder(wonder)))
 
-    fun build(building: Building): Player = copy(buildings = buildings.plus(building))
+    fun construct(building: Building): Player = copy(buildings = buildings.plus(building))
 
     fun discard(): Player = copy(coins = coins + 2 + buildings.count { it is CommercialBuilding })
 
-    fun build(wonder: Wonder, buildingUsed: Building): Player {
+    fun construct(wonder: Wonder, buildingUsed: Building): Player {
         require(wonders.any { it.wonder == wonder }) { "You do not have this wonder" }
-        return copy(wonders = wonders.map { if (it.wonder == wonder) it.buildWith(buildingUsed) else it })
+        return copy(wonders = wonders.map { if (it.wonder == wonder) it.constructWith(buildingUsed) else it })
     }
 
     fun pay(construction: Construction, getTradingCost: (resource: Resource) -> Int): Player {
@@ -44,10 +44,10 @@ data class Player(val militaryTokensLooted: Int = 0, val coins: Int = 7,
 
     val effects
         get() = buildings.flatMap { it.effects }.asSequence()
-                .plus(wonders.filter { it.isBuild() }.flatMap { it.wonder.effects })
+                .plus(wonders.filter { it.isConstructed() }.flatMap { it.wonder.effects })
                 .plus(progressTokens.flatMap { it.effects })
 
-    fun discardUnfinishedWonder(): Player = copy(wonders = wonders.filter { it.isBuild() })
+    fun discardUnfinishedWonder(): Player = copy(wonders = wonders.filter { it.isConstructed() })
 
     fun lootFirstToken(): Player {
         check(militaryTokensLooted < 1) { "First military token is already looted" }

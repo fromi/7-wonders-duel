@@ -30,9 +30,9 @@ class WondersTest {
                         PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(TheTempleOfArtemis, Dispensary)
+        game = game.construct(TheTempleOfArtemis, Dispensary)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
-        game = game.build(Glassblower)
+        game = game.construct(Glassblower)
         assertThat(game.players.first.buildings).contains(Glassblower)
         assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
@@ -46,7 +46,7 @@ class WondersTest {
                         PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player()))
-        game = game.build(Piraeus, Forum)
+        game = game.construct(Piraeus, Forum)
         assertThat(game.structure?.age).isEqualTo(3)
         assertThat(game.currentPlayer).isEqualTo(game.players.second)
         assertThat(game.pendingActions).doesNotContain(PlayAgain)
@@ -61,7 +61,7 @@ class WondersTest {
                         PlayerWonder(ThePyramids, buildingUnder = Stable),
                         PlayerWonder(TheGreatLibrary))),
                 Player(coins = 2)))
-        game = game.build(TheAppianWay, Dispensary)
+        game = game.construct(TheAppianWay, Dispensary)
         assertThat(game.players.second.coins).isEqualTo(0)
     }
 
@@ -70,7 +70,7 @@ class WondersTest {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
                 Player(coins = 42, wonders = listOf(PlayerWonder(CircusMaximus))),
                 Player(buildings = setOf(Glassworks, Press))))
-        game = game.build(CircusMaximus, Dispensary)
+        game = game.construct(CircusMaximus, Dispensary)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
         game = game.destroy(Glassworks)
         assertThat(game.players.second.buildings).doesNotContain(Glassworks)
@@ -103,7 +103,7 @@ class WondersTest {
         var game = SevenWondersDuel(structure = sampleAge2Structure, players = Pair(
                 Player(coins = 42, wonders = listOf(PlayerWonder(CircusMaximus))),
                 Player(buildings = setOf(Temple, Stable, ClayPit))))
-        game = game.build(CircusMaximus, Dispensary)
+        game = game.construct(CircusMaximus, Dispensary)
         assertThat(game.pendingActions).isEmpty()
         assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
@@ -113,7 +113,7 @@ class WondersTest {
         var game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary)), players = Pair(
                 Player(coins = 42, wonders = listOf(PlayerWonder(TheStatueOfZeus))),
                 Player(buildings = setOf(Sawmill))))
-        game = game.build(TheStatueOfZeus, Dispensary)
+        game = game.construct(TheStatueOfZeus, Dispensary)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
         game = game.destroy(Sawmill)
         assertThat(game.players.second.buildings).doesNotContain(Sawmill)
@@ -126,7 +126,7 @@ class WondersTest {
         val game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, Brewery)), players = Pair(
                 Player(coins = 42, wonders = listOf(PlayerWonder(TheStatueOfZeus))),
                 Player(buildings = setOf(Sawmill))))
-        game.build(TheStatueOfZeus, Dispensary).build(Brewery)
+        game.construct(TheStatueOfZeus, Dispensary).construct(Brewery)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -134,7 +134,7 @@ class WondersTest {
         val game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, Brewery)), players = Pair(
                 Player(coins = 42, wonders = listOf(PlayerWonder(TheStatueOfZeus), PlayerWonder(Piraeus))),
                 Player(buildings = setOf(Sawmill))))
-        game.build(TheStatueOfZeus, Dispensary).discard(Brewery)
+        game.construct(TheStatueOfZeus, Dispensary).discard(Brewery)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -142,7 +142,7 @@ class WondersTest {
         val game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, Brewery)), players = Pair(
                 Player(coins = 42, wonders = listOf(PlayerWonder(TheStatueOfZeus), PlayerWonder(Piraeus))),
                 Player(buildings = setOf(Sawmill))))
-        game.build(TheStatueOfZeus, Dispensary).build(Piraeus, Brewery)
+        game.construct(TheStatueOfZeus, Dispensary).construct(Piraeus, Brewery)
     }
 
     @Test
@@ -151,7 +151,7 @@ class WondersTest {
                 Player(coins = 42, wonders = listOf(PlayerWonder(TheGreatLibrary))),
                 Player(progressTokens = setOf(AGRICULTURE, URBANISM))),
                 progressTokensAvailable = setOf(STRATEGY, LAW, THEOLOGY))
-        game = game.build(TheGreatLibrary, Dispensary)
+        game = game.construct(TheGreatLibrary, Dispensary)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
         assertThat(game.pendingActions[0]).isInstanceOfSatisfying(ProgressTokenToChoose::class.java) {
             assertThat(it.tokens.size).isEqualTo(3)
@@ -173,19 +173,19 @@ class WondersTest {
                 Player(coins = 5, wonders = listOf(PlayerWonder(TheGreatLighthouse))),
                 Player()
         ))
-        game = game.build(Forum)
+        game = game.construct(Forum)
         assertThat(game.players.first.coins).isEqualTo(0)
         game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Forum)), players = Pair(
                 Player(coins = 5, wonders = listOf(PlayerWonder(TheGreatLighthouse, buildingUnder = Stable))),
                 Player()
         ))
-        game = game.build(Forum)
+        game = game.construct(Forum)
         assertThat(game.players.first.coins).isEqualTo(2)
         game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Forum)), players = Pair(
                 Player(wonders = listOf(PlayerWonder(TheGreatLighthouse, buildingUnder = Stable))),
                 Player(coins = 5)
         ), currentPlayerNumber = 2)
-        game = game.build(Forum)
+        game = game.construct(Forum)
         assertThat(game.players.second.coins).isEqualTo(0)
     }
 
@@ -195,19 +195,19 @@ class WondersTest {
                 Player(coins = 4, wonders = listOf(PlayerWonder(Piraeus))),
                 Player()
         ))
-        game = game.build(ChamberOfCommerce)
+        game = game.construct(ChamberOfCommerce)
         assertThat(game.players.first.coins).isEqualTo(0)
         game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(ChamberOfCommerce)), players = Pair(
                 Player(coins = 4, wonders = listOf(PlayerWonder(Piraeus, buildingUnder = Stable))),
                 Player()
         ))
-        game = game.build(ChamberOfCommerce)
+        game = game.construct(ChamberOfCommerce)
         assertThat(game.players.first.coins).isEqualTo(2)
         game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(ChamberOfCommerce)), players = Pair(
                 Player(wonders = listOf(PlayerWonder(Piraeus, buildingUnder = Stable))),
                 Player(coins = 4)
         ), currentPlayerNumber = 2)
-        game = game.build(ChamberOfCommerce)
+        game = game.construct(ChamberOfCommerce)
         assertThat(game.players.second.coins).isEqualTo(0)
     }
 
@@ -216,10 +216,10 @@ class WondersTest {
         var game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, DryingRoom)), players = Pair(
                 Player(coins = 10, wonders = listOf(PlayerWonder(TheMausoleum))),
                 Player()), discardedCards = listOf(Walls, Courthouse))
-        game = game.build(TheMausoleum, Dispensary)
+        game = game.construct(TheMausoleum, Dispensary)
         assertThat(game.players.first.coins).isEqualTo(0)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
-        game = game.build(Courthouse)
+        game = game.construct(Courthouse)
         assertThat(game.players.first.buildings).contains(Courthouse)
         assertThat(game.discardedCards).doesNotContain(Courthouse)
     }
@@ -229,7 +229,7 @@ class WondersTest {
         var game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, DryingRoom)), players = Pair(
                 Player(coins = 10, wonders = listOf(PlayerWonder(TheMausoleum))),
                 Player()), discardedCards = emptyList())
-        game = game.build(TheMausoleum, Dispensary)
+        game = game.construct(TheMausoleum, Dispensary)
         assertThat(game.currentPlayer).isEqualTo(game.players.second)
     }
 
@@ -238,7 +238,7 @@ class WondersTest {
         val game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, DryingRoom)), players = Pair(
                 Player(coins = 10, wonders = listOf(PlayerWonder(TheMausoleum))),
                 Player()), discardedCards = listOf(Walls, Courthouse))
-        game.build(TheMausoleum, Dispensary).build(Palace)
+        game.construct(TheMausoleum, Dispensary).construct(Palace)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -246,7 +246,7 @@ class WondersTest {
         val game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, DryingRoom)), players = Pair(
                 Player(coins = 50, wonders = listOf(PlayerWonder(TheMausoleum))),
                 Player()), discardedCards = listOf(Walls, Courthouse))
-        game.build(TheMausoleum, Dispensary).build(DryingRoom)
+        game.construct(TheMausoleum, Dispensary).construct(DryingRoom)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -254,7 +254,7 @@ class WondersTest {
         val game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, DryingRoom)), players = Pair(
                 Player(coins = 50, wonders = listOf(PlayerWonder(TheMausoleum), PlayerWonder(Piraeus))),
                 Player()), discardedCards = listOf(Walls, Courthouse))
-        game.build(TheMausoleum, Dispensary).build(Piraeus, DryingRoom)
+        game.construct(TheMausoleum, Dispensary).construct(Piraeus, DryingRoom)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -262,6 +262,6 @@ class WondersTest {
         val game = SevenWondersDuel(structure = Structure(age = 2, buildings = listOf(Dispensary, DryingRoom)), players = Pair(
                 Player(coins = 50, wonders = listOf(PlayerWonder(TheMausoleum), PlayerWonder(Piraeus))),
                 Player()), discardedCards = listOf(Walls, Courthouse))
-        game.build(TheMausoleum, Dispensary).discard(DryingRoom)
+        game.construct(TheMausoleum, Dispensary).discard(DryingRoom)
     }
 }

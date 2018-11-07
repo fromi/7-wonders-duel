@@ -27,14 +27,14 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         return game
     }
 
-    fun build(building: Building): SevenWondersDuel {
+    fun construct(building: Building): SevenWondersDuel {
         val game = if (pendingActions.firstOrNull() == DiscardedBuildingToBuild) {
             require(discardedCards.contains(building))
             copy(discardedCards = discardedCards.minus(building), pendingActions = pendingActions.drop(1))
         } else {
             takeAndPay(building)
         }
-        return game.currentPlayerDo { it.build(building) }
+        return game.currentPlayerDo { it.construct(building) }
                 .applyEffects(building)
                 .continueGame()
     }
@@ -54,10 +54,10 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
                     .copy(discardedCards = discardedCards.plus(building))
                     .continueGame()
 
-    fun build(wonder: Wonder, buildingUsed: Building): SevenWondersDuel =
+    fun construct(wonder: Wonder, buildingUsed: Building): SevenWondersDuel =
             take(buildingUsed)
                     .pay(wonder)
-                    .currentPlayerDo { it.build(wonder, buildingUsed) }
+                    .currentPlayerDo { it.construct(wonder, buildingUsed) }
                     .applyEffects(wonder)
                     .discardIf7WondersBuilt()
                     .continueGame()
@@ -179,7 +179,7 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
     }
 
     private fun discardIf7WondersBuilt(): SevenWondersDuel =
-            if (players.toList().sumBy { player -> player.wonders.count { it.isBuild() } } == 7)
+            if (players.toList().sumBy { player -> player.wonders.count { it.isConstructed() } } == 7)
                 copy(players = players.copy(players.first.discardUnfinishedWonder(), players.second.discardUnfinishedWonder()))
             else this
 

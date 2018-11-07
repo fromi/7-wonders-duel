@@ -13,16 +13,16 @@ data class TakeWonder(val wonder: Wonder) : SevenWondersDuelMove() {
     override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.take(wonder)
 }
 
-data class Build(val building: Building) : SevenWondersDuelMove() {
-    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.build(building)
+data class ConstructBuilding(val building: Building) : SevenWondersDuelMove() {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.construct(building)
 }
 
 data class Discard(val building: Building) : SevenWondersDuelMove() {
     override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.discard(building)
 }
 
-data class BuildWonder(val wonder: Wonder, val buildingUsed: Building) : SevenWondersDuelMove() {
-    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.build(wonder, buildingUsed)
+data class ConstructWonder(val wonder: Wonder, val buildingUsed: Building) : SevenWondersDuelMove() {
+    override fun applyTo(game: SevenWondersDuel): SevenWondersDuel = game.construct(wonder, buildingUsed)
 }
 
 data class ChoosePlayerBeginningAge(val player: Int) : SevenWondersDuelMove() {
