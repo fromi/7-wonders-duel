@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.ai.ConstructBuilding
+import fr.omi.sevenwondersduel.ai.ConstructWonder
 import fr.omi.sevenwondersduel.ai.Discard
 import fr.omi.sevenwondersduel.event.Action
 import fr.omi.sevenwondersduel.event.BuildingMadeAccessibleEvent
@@ -27,8 +28,10 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
 
     init {
         buildDropZone = createBuildingDropZone()
-        discard.setOnDragListener { _, event -> discardDropListener(event) }
+        discard.setOnDragListener { _, event -> discardDragListener(event) }
         checkNotNull(game.structure).accessibleBuildings().forEach { building -> gameActivity.getView(building).enableDragAndDrop() }
+        game.players.toList().flatMap { it.wonders }.filter { !it.isConstructed() }.map { it.wonder }
+                .forEach { gameActivity.getView(it).setOnDragListener { view, event -> wonderDragListener(view as WonderView, event) } }
     }
 
     override fun handle(action: Action) {
@@ -36,6 +39,18 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
         gameActivity.secondPlayerCoins.text = game.players.second.coins.toString()
         if (game.conflictPawnPosition != gameActivity.conflictPawnView.position) {
             gameActivity.conflictPawnView.position = game.conflictPawnPosition
+        }
+        if (action.move is ConstructBuilding || action.move is Discard || action.move is ConstructWonder) {
+            buildDropZone.positionToNextBuildingPlace(game)
+            buildDropZone.bringToFront()
+        }
+        when (action.move) {
+            is ConstructBuilding -> gameActivity.getView(action.move.building).disableDragAndDrop()
+            is Discard -> gameActivity.remove(gameActivity.getView(action.move.building))
+            is ConstructWonder -> {
+                gameActivity.getView(action.move.buildingUsed).disableDragAndDrop()
+                gameActivity.getView(action.move.wonder).removeDragListener()
+            }
         }
         super.handle(action)
     }
@@ -65,26 +80,19 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             ACTION_DRAG_STARTED -> {
                 buildDropZone.alpha = 0.5F
                 buildDropZone.setImageResource(BuildingView.getResource(checkNotNull(buildingView.building)))
-                buildDropZone.bringToFront()
             }
             ACTION_DRAG_ENTERED -> buildDropZone.alpha = 1F
             ACTION_DRAG_EXITED -> buildDropZone.alpha = 0.5F
             ACTION_DROP -> {
                 buildingView.positionToNextBuildingPlace(game)
-                buildingView.disableDragAndDrop()
                 model.execute(ConstructBuilding(checkNotNull(buildingView.building)))
             }
-            ACTION_DRAG_ENDED -> {
-                buildDropZone.alpha = 0F
-                if (event.result) {
-                    buildDropZone.positionToNextBuildingPlace(game)
-                }
-            }
+            ACTION_DRAG_ENDED -> buildDropZone.alpha = 0F
         }
         return true
     }
 
-    private fun discardDropListener(event: DragEvent): Boolean {
+    private fun discardDragListener(event: DragEvent): Boolean {
         if (event.localState !is BuildingView) return false
         val buildingView = event.localState as BuildingView
         when (event.action) {
@@ -97,16 +105,37 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             }
             ACTION_DRAG_ENTERED -> discardCoins.alpha = 1F
             ACTION_DRAG_EXITED -> discardCoins.alpha = 0.5F
-            ACTION_DROP -> {
-                gameActivity.remove(buildingView)
-                model.execute(Discard(checkNotNull(buildingView.building)))
-            }
+            ACTION_DROP -> model.execute(Discard(checkNotNull(buildingView.building)))
             ACTION_DRAG_ENDED -> {
                 discardCoins.alpha = 0F
                 discard.scaleX = 1F
                 discard.scaleY = 1F
                 buildingView.visibility = View.VISIBLE
             }
+        }
+        return true
+    }
+
+    private fun wonderDragListener(wonderView: WonderView, event: DragEvent): Boolean {
+        if (event.localState !is BuildingView) return false
+        val buildingView = event.localState as BuildingView
+        val wonder = checkNotNull(wonderView.wonder)
+        val constructionCost = game.coinsToPay(wonder)
+        val constructionEnabled = constructionCost <= game.currentPlayer.coins
+        when (event.action) {
+            ACTION_DRAG_STARTED -> {
+                if (game.currentPlayer.wonders.none { !it.isConstructed() && it.wonder == wonder }) return false
+                if (constructionEnabled) wonderView.showConstructionAvailable(constructionCost) else wonderView.showConstructionUnavailable(constructionCost)
+            }
+            ACTION_DRAG_ENTERED -> if (constructionEnabled) wonderView.showConstructionDrop()
+            ACTION_DRAG_EXITED -> if (constructionEnabled) wonderView.hideConstructionDrop()
+            ACTION_DROP -> {
+                if (constructionEnabled) {
+                    buildingView.positionUnder(wonderView, checkNotNull(game.currentPlayerNumber))
+                    model.execute(ConstructWonder(wonder, checkNotNull(buildingView.building)))
+                } else return false
+            }
+            ACTION_DRAG_ENDED -> wonderView.hideConstructionAvailability()
         }
         return true
     }

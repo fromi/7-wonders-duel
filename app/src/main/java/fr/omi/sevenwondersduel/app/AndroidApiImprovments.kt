@@ -31,6 +31,8 @@ fun View.startDragAndDrop() {
 
 fun View.disableDragAndDrop() = setOnTouchListener(null)
 
+fun View.removeDragListener() = setOnDragListener(null)
+
 fun View.dpsToPx(dps: Int): Int {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps.toFloat(), resources.displayMetrics).toInt()
 }

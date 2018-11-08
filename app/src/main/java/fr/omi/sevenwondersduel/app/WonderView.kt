@@ -4,7 +4,12 @@ import android.annotation.SuppressLint
 import android.support.constraint.ConstraintLayout.LayoutParams
 import android.support.constraint.ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
 import android.support.constraint.ConstraintSet
+import android.support.v4.content.ContextCompat
+import android.util.TypedValue.COMPLEX_UNIT_SP
+import android.view.Gravity
+import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.material.*
 
@@ -39,6 +44,48 @@ class WonderView(override val gameActivity: GameActivity, val wonder: Wonder? = 
             }
         }
         return this
+    }
+
+    private lateinit var constructionAvailability: TextView
+
+    fun showConstructionAvailable(cost: Int) {
+        createConstructionAvailabilityView(cost, android.R.color.black)
+    }
+
+    fun showConstructionUnavailable(cost: Int) {
+        createConstructionAvailabilityView(cost, android.R.color.holo_red_dark)
+    }
+
+    private fun createConstructionAvailabilityView(cost: Int, color: Int) {
+        constructionAvailability = TextView(gameActivity).apply {
+            id = View.generateViewId()
+            layoutParams = LayoutParams(dpsToPx(20), dpsToPx(20))
+            gravity = Gravity.CENTER
+            setBackgroundResource(R.drawable.coin)
+            setTextSize(COMPLEX_UNIT_SP, 10F)
+            text = if (cost == 0) "0" else resources.getString(R.string.minus_coins, cost)
+            setTextColor(ContextCompat.getColor(gameActivity, color))
+        }
+        layout.addView(constructionAvailability)
+        layout.transform {
+            connect(constructionAvailability.id, ConstraintSet.TOP, id, ConstraintSet.TOP)
+            connect(constructionAvailability.id, ConstraintSet.BOTTOM, id, ConstraintSet.BOTTOM)
+            connect(constructionAvailability.id, ConstraintSet.LEFT, id, ConstraintSet.LEFT, dpsToPx(20))
+        }
+    }
+
+    fun showConstructionDrop() {
+        constructionAvailability.scaleX = 1.2F
+        constructionAvailability.scaleY = 1.2F
+    }
+
+    fun hideConstructionDrop() {
+        constructionAvailability.scaleX = 1F
+        constructionAvailability.scaleY = 1F
+    }
+
+    fun hideConstructionAvailability() {
+        layout.removeView(constructionAvailability)
     }
 
     companion object {

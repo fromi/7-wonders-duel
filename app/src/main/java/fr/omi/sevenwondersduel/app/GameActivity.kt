@@ -81,4 +81,7 @@ class GameActivity : AppCompatActivity() {
         buildingsViews.remove(buildingView.building)
     }
 
+    fun getView(wonder: Wonder): WonderView {
+        return checkNotNull(wondersViews[wonder])
+    }
 }

@@ -51,6 +51,10 @@ class BuildingView(override val gameActivity: GameActivity, private val deck: De
         rotation = if (player == 1) 270F else 90F
         wonderView.bringToFront()
         layout.transform {
+            clear(id, ConstraintSet.START)
+            clear(id, ConstraintSet.END)
+            clear(id, ConstraintSet.TOP)
+            clear(id, ConstraintSet.BOTTOM)
             connect(id, ConstraintSet.TOP, wonderView.id, ConstraintSet.TOP)
             connect(id, ConstraintSet.BOTTOM, wonderView.id, ConstraintSet.BOTTOM)
             val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
