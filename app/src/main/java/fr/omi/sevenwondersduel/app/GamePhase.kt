@@ -76,6 +76,8 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
     private fun buildingDropListener(event: DragEvent): Boolean {
         if (event.localState !is BuildingView) return false
         val buildingView = event.localState as BuildingView
+        val constructionCost = game.coinsToPay(buildingView.building)
+        val constructionEnabled = constructionCost <= game.currentPlayer.coins
         when (event.action) {
             ACTION_DRAG_STARTED -> {
                 buildDropZone.alpha = 0.5F
@@ -83,10 +85,10 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             }
             ACTION_DRAG_ENTERED -> buildDropZone.alpha = 1F
             ACTION_DRAG_EXITED -> buildDropZone.alpha = 0.5F
-            ACTION_DROP -> {
+            ACTION_DROP -> if (constructionEnabled) {
                 buildingView.positionToNextBuildingPlace(game)
                 model.execute(ConstructBuilding(checkNotNull(buildingView.building)))
-            }
+            } else return false
             ACTION_DRAG_ENDED -> buildDropZone.alpha = 0F
         }
         return true

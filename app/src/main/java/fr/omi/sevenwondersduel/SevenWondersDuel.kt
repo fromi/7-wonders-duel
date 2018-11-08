@@ -149,7 +149,9 @@ data class SevenWondersDuel(val players: Pair<Player, Player> = Pair(Player(), P
         return pairInOrder(player, opponent)
     }
 
-    fun coinsToPay(construction: Construction): Int = construction.cost.coins + currentPlayer.sumTradingCost(construction, ::getTradingCost)
+    fun coinsToPay(construction: Construction): Int =
+            if (construction is Building && currentPlayer.buildings.contains(construction.freeLink)) 0
+            else construction.cost.coins + currentPlayer.sumTradingCost(construction, ::getTradingCost)
 
     private fun getTradingCost(resource: Resource): Int =
             if (currentPlayer.effects.any { it is FixTradingCostTo1 && it.resource == resource }) 1 else 2 + opponent.productionOf(resource)
