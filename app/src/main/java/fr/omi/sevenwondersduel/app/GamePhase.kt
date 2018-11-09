@@ -9,10 +9,7 @@ import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.ai.ConstructBuilding
 import fr.omi.sevenwondersduel.ai.ConstructWonder
 import fr.omi.sevenwondersduel.ai.Discard
-import fr.omi.sevenwondersduel.event.Action
-import fr.omi.sevenwondersduel.event.BuildingMadeAccessibleEvent
-import fr.omi.sevenwondersduel.event.GameEvent
-import fr.omi.sevenwondersduel.event.PrepareStructureEvent
+import fr.omi.sevenwondersduel.event.*
 import fr.omi.sevenwondersduel.material.CommercialBuilding
 import fr.omi.sevenwondersduel.material.Deck
 import fr.omi.sevenwondersduel.material.LumberYard
@@ -65,6 +62,16 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             is PrepareStructureEvent -> {
                 gameActivity.display(event.structure)
                 event.structure.accessibleBuildings().forEach { building -> gameActivity.getView(building).enableDragAndDrop() }
+            }
+            is MilitaryTokenLooted -> when (event.playerNumber) {
+                1 -> when (event.tokenNumber) {
+                    1 -> layout.removeView(gameActivity.loot2player1)
+                    2 -> layout.removeView(gameActivity.loot5player1)
+                }
+                2 -> when (event.tokenNumber) {
+                    1 -> layout.removeView(gameActivity.loot2player2)
+                    2 -> layout.removeView(gameActivity.loot5player2)
+                }
             }
         }
     }

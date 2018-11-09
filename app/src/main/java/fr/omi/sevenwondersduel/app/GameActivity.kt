@@ -36,6 +36,10 @@ class GameActivity : AppCompatActivity() {
         firstPlayerCoins.text = model.game.players.first.coins.toString()
         secondPlayerCoins.text = model.game.players.second.coins.toString()
         conflictPawnView = ConflictPawnView(this, model.game.conflictPawnPosition)
+        if (model.game.players.first.militaryTokensLooted >= 1) layout.removeView(loot2player1)
+        if (model.game.players.first.militaryTokensLooted >= 2) layout.removeView(loot5player1)
+        if (model.game.players.second.militaryTokensLooted >= 1) layout.removeView(loot2player2)
+        if (model.game.players.second.militaryTokensLooted >= 2) layout.removeView(loot5player2)
         model.game.structure?.let { display(it) }
 
         model.actions.observe(this) { action -> state?.handle(action) }

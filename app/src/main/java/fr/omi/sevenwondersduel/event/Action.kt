@@ -12,11 +12,26 @@ class Action(val game: SevenWondersDuel, val move: SevenWondersDuelMove) {
                 newState.wondersAvailable.isEmpty() -> listOf(PrepareStructureEvent(checkNotNull(newState.structure)))
                 else -> emptyList()
             }
-            is ConstructBuilding -> inferStructureConsequencesAfterTaking(move.building, newState)
+            is ConstructBuilding -> inferConstructionEffects(newState).plus(inferStructureConsequencesAfterTaking(move.building, newState))
             is Discard -> inferStructureConsequencesAfterTaking(move.building, newState)
-            is ConstructWonder -> inferStructureConsequencesAfterTaking(move.buildingUsed, newState)
+            is ConstructWonder -> inferConstructionEffects(newState).plus(inferStructureConsequencesAfterTaking(move.buildingUsed, newState))
             else -> emptyList()
         }
+    }
+
+    private fun inferConstructionEffects(newState: SevenWondersDuel): List<GameEvent> {
+        val events = mutableListOf<GameEvent>()
+        val opponentNumber = if (game.currentPlayerNumber == 1) 2 else 1
+        val newStateOpponent = if (game.currentPlayerNumber == 1) newState.players.second else newState.players.first
+        when {
+            newStateOpponent.militaryTokensLooted == 1 -> events.add(MilitaryTokenLooted(opponentNumber, 1))
+            newStateOpponent.militaryTokensLooted == 2 && game.opponent.militaryTokensLooted == 1 -> events.add(MilitaryTokenLooted(opponentNumber, 2))
+            newStateOpponent.militaryTokensLooted == 2 && game.opponent.militaryTokensLooted == 0 -> {
+                events.add(MilitaryTokenLooted(opponentNumber, 1))
+                events.add(MilitaryTokenLooted(opponentNumber, 2))
+            }
+        }
+        return events
     }
 
     private fun inferStructureConsequencesAfterTaking(building: Building, newState: SevenWondersDuel): List<GameEvent> {

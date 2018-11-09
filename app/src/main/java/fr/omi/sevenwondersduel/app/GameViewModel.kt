@@ -14,7 +14,7 @@ class GameViewModel : ViewModel() {
     val actions = MutableLiveData<Action>()
 
     init {
-        repeat(47) { game = RandomBot.play(game) }
+        repeat(8) { game = RandomBot.play(game) }
         //game = RandomBot.playUntilMoveAvailable { it is ConstructWonder }
     }
 
@@ -26,6 +26,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun reset() {
+        actions.value = null
         game = SevenWondersDuel()
     }
 }
