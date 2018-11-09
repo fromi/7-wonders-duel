@@ -25,7 +25,7 @@ class WonderView(override val gameActivity: GameActivity, val wonder: Wonder? = 
         layout.addView(this)
     }
 
-    fun positionInto(owner: Int, position: Int): WonderView {
+    fun positionInto(owner: Int, position: Int) {
         layout.transform {
             connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(position * 50))
             when (owner) {
@@ -43,7 +43,6 @@ class WonderView(override val gameActivity: GameActivity, val wonder: Wonder? = 
                 }
             }
         }
-        return this
     }
 
     private lateinit var constructionAvailability: TextView

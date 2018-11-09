@@ -1,4 +1,4 @@
-package fr.omi.sevenwondersduel.app
+package fr.omi.sevenwondersduel.app.state
 
 import android.view.DragEvent
 import android.view.DragEvent.*
@@ -9,14 +9,21 @@ import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.ai.ConstructBuilding
 import fr.omi.sevenwondersduel.ai.ConstructWonder
 import fr.omi.sevenwondersduel.ai.Discard
-import fr.omi.sevenwondersduel.event.*
+import fr.omi.sevenwondersduel.app.*
 import fr.omi.sevenwondersduel.material.CommercialBuilding
 import fr.omi.sevenwondersduel.material.Deck
 import fr.omi.sevenwondersduel.material.LumberYard
 import kotlinx.android.synthetic.main.activity_game.*
 
-class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
-    private val buildDropZone: BuildingView
+class PlayAccessibleCardState(gameActivity: GameActivity) : GameActivityState(gameActivity) {
+    private val buildDropZone = BuildingView(gameActivity, Deck.AGE_I, LumberYard, faceUp = false).apply {
+        alpha = 0F
+        positionToNextBuildingPlace(game)
+        setOnDragListener { _, event -> buildingDropListener(event) }
+    }
+
+    private val accessibleBuildings = checkNotNull(game.structure).accessibleBuildings()
+    private val buildableWonders = game.currentPlayer.wonders.filter { !it.isConstructed() }.map { it.wonder }
 
     private val discard: ImageView
         get() = gameActivity.discard
@@ -25,64 +32,9 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
         get() = gameActivity.discardCoins
 
     init {
-        buildDropZone = createBuildingDropZone()
         discard.setOnDragListener { _, event -> discardDragListener(event) }
-        checkNotNull(game.structure).accessibleBuildings().forEach { building -> gameActivity.getView(building).enableDragAndDrop() }
-        game.players.toList().flatMap { it.wonders }.filter { !it.isConstructed() }.map { it.wonder }
-                .forEach { gameActivity.getView(it).setOnDragListener { view, event -> wonderDragListener(view as WonderView, event) } }
-    }
-
-    override fun handle(action: Action) {
-        gameActivity.firstPlayerCoins.text = game.players.first.coins.toString()
-        gameActivity.secondPlayerCoins.text = game.players.second.coins.toString()
-        if (game.conflictPawnPosition != gameActivity.conflictPawnView.position) {
-            gameActivity.conflictPawnView.position = game.conflictPawnPosition
-        }
-        if (action.move is ConstructBuilding || action.move is Discard || action.move is ConstructWonder) {
-            buildDropZone.positionToNextBuildingPlace(game)
-            buildDropZone.bringToFront()
-        }
-        when (action.move) {
-            is ConstructBuilding -> gameActivity.getView(action.move.building).disableDragAndDrop()
-            is Discard -> gameActivity.remove(gameActivity.getView(action.move.building))
-            is ConstructWonder -> {
-                gameActivity.getView(action.move.buildingUsed).disableDragAndDrop()
-                gameActivity.getView(action.move.wonder).removeDragListener()
-            }
-        }
-        super.handle(action)
-    }
-
-    override fun handleEvent(event: GameEvent) {
-        when (event) {
-            is BuildingMadeAccessibleEvent -> gameActivity.getView(event.building).apply {
-                reveal()
-                enableDragAndDrop()
-            }
-            is PrepareStructureEvent -> {
-                gameActivity.display(event.structure)
-                event.structure.accessibleBuildings().forEach { building -> gameActivity.getView(building).enableDragAndDrop() }
-            }
-            is MilitaryTokenLooted -> when (event.playerNumber) {
-                1 -> when (event.tokenNumber) {
-                    1 -> layout.removeView(gameActivity.loot2player1)
-                    2 -> layout.removeView(gameActivity.loot5player1)
-                }
-                2 -> when (event.tokenNumber) {
-                    1 -> layout.removeView(gameActivity.loot2player2)
-                    2 -> layout.removeView(gameActivity.loot5player2)
-                }
-            }
-        }
-    }
-
-    private fun createBuildingDropZone(): BuildingView {
-        // TODO improve building and wonder drop zone
-        return BuildingView(gameActivity, Deck.AGE_I, LumberYard, faceUp = false).apply {
-            alpha = 0F
-            positionToNextBuildingPlace(game)
-            setOnDragListener { _, event -> buildingDropListener(event) }
-        }
+        accessibleBuildings.forEach { gameActivity.getView(it).enableDragAndDrop() }
+        buildableWonders.forEach { gameActivity.getView(it).setOnDragListener { view, event -> wonderDragListener(view as WonderView, event) } }
     }
 
     private fun buildingDropListener(event: DragEvent): Boolean {
@@ -119,7 +71,10 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             }
             ACTION_DRAG_ENTERED -> discardCoins.alpha = 1F
             ACTION_DRAG_EXITED -> discardCoins.alpha = 0.5F
-            ACTION_DROP -> model.execute(Discard(checkNotNull(buildingView.building)))
+            ACTION_DROP -> {
+                gameActivity.remove(buildingView)
+                model.execute(Discard(checkNotNull(buildingView.building)))
+            }
             ACTION_DRAG_ENDED -> {
                 discardCoins.alpha = 0F
                 discard.scaleX = 1F
@@ -152,5 +107,11 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             ACTION_DRAG_ENDED -> wonderView.hideConstructionAvailability()
         }
         return true
+    }
+
+    override fun leave() {
+        discard.removeDragListener()
+        accessibleBuildings.forEach { gameActivity.getView(it).disableDragAndDrop() }
+        buildableWonders.forEach { gameActivity.getView(it).removeDragListener() }
     }
 }
