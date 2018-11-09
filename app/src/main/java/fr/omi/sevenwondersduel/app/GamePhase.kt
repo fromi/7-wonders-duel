@@ -12,6 +12,7 @@ import fr.omi.sevenwondersduel.ai.Discard
 import fr.omi.sevenwondersduel.event.Action
 import fr.omi.sevenwondersduel.event.BuildingMadeAccessibleEvent
 import fr.omi.sevenwondersduel.event.GameEvent
+import fr.omi.sevenwondersduel.event.PrepareStructureEvent
 import fr.omi.sevenwondersduel.material.CommercialBuilding
 import fr.omi.sevenwondersduel.material.Deck
 import fr.omi.sevenwondersduel.material.LumberYard
@@ -60,6 +61,10 @@ class GamePhase(gameActivity: GameActivity) : GameActivityState(gameActivity) {
             is BuildingMadeAccessibleEvent -> gameActivity.getView(event.building).apply {
                 reveal()
                 enableDragAndDrop()
+            }
+            is PrepareStructureEvent -> {
+                gameActivity.display(event.structure)
+                event.structure.accessibleBuildings().forEach { building -> gameActivity.getView(building).enableDragAndDrop() }
             }
         }
     }
