@@ -12,12 +12,12 @@ object RandomBot {
         return possibleMoves(game).shuffled().firstOrNull()?.applyTo(game) ?: game
     }
 
-    fun playUntilMoveAvailable(predicate: (SevenWondersDuelMove) -> Boolean): SevenWondersDuel {
+    fun playUntilMoveAvailable(predicate: (SevenWondersDuel, SevenWondersDuelMove) -> Boolean): SevenWondersDuel {
         var game = SevenWondersDuel()
         while (true) {
             val moves = possibleMoves(game)
             game = when {
-                moves.any(predicate) -> return game
+                moves.any { move -> predicate(game, move) } -> return game
                 moves.isEmpty() -> SevenWondersDuel()
                 else -> moves.shuffled().first().applyTo(game)
             }
