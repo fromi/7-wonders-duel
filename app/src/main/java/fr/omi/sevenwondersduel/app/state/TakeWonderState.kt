@@ -33,14 +33,13 @@ class TakeWonderState(gameActivity: GameActivity) : GameActivityState(gameActivi
             ACTION_DRAG_EXITED -> wonderDropZone.alpha = 0.5F
             ACTION_DROP -> {
                 positionToNextWonderPlace(wonderView)
+                wonderView.visibility = View.VISIBLE
                 wonderView.disableDragAndDrop()
+                model.execute(TakeWonder(checkNotNull(wonderView.wonder)))
             }
             ACTION_DRAG_ENDED -> {
                 wonderView.visibility = View.VISIBLE
                 wonderDropZone.alpha = 0F
-                if (event.result) {
-                    model.execute(TakeWonder(checkNotNull(wonderView.wonder)))
-                }
             }
         }
         return true

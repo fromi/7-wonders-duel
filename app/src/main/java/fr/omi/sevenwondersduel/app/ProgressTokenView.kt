@@ -8,9 +8,10 @@ import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.material.ProgressToken
 import fr.omi.sevenwondersduel.material.ProgressToken.*
+import kotlinx.android.synthetic.main.activity_game.*
 
 @SuppressLint("ViewConstructor")
-class ProgressTokenView(override val gameActivity: GameActivity, progressToken: ProgressToken) : ImageView(gameActivity), GameView {
+class ProgressTokenView(override val gameActivity: GameActivity, val progressToken: ProgressToken) : ImageView(gameActivity), GameView {
 
     init {
         id = generateViewId()
@@ -21,7 +22,7 @@ class ProgressTokenView(override val gameActivity: GameActivity, progressToken: 
         layout.addView(this)
     }
 
-    fun availableAt(position: Int): ProgressTokenView {
+    fun availableAt(position: Int) {
         layout.transform {
             connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.TOP, dpsToPx(7))
             when (position) {
@@ -48,7 +49,19 @@ class ProgressTokenView(override val gameActivity: GameActivity, progressToken: 
                 else -> throw IllegalArgumentException("Illegal progress token position: $position")
             }
         }
-        return this
+    }
+
+    fun positionForPlayer(playerNumber: Int, position: Int) {
+        layout.transform {
+            clear(id, ConstraintSet.TOP)
+            clear(id, ConstraintSet.START)
+            clear(id, ConstraintSet.END)
+            connect(id, ConstraintSet.BOTTOM, gameActivity.board.id, ConstraintSet.BOTTOM, dpsToPx(8))
+            when (playerNumber) {
+                1 -> connect(id, ConstraintSet.START, gameActivity.firstPlayerCoins.id, ConstraintSet.END, dpsToPx(position * 30 + 5))
+                2 -> connect(id, ConstraintSet.END, gameActivity.secondPlayerCoins.id, ConstraintSet.START, dpsToPx(position * 30 + 5))
+            }
+        }
     }
 
     companion object {

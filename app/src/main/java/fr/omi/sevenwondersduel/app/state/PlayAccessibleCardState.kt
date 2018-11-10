@@ -51,6 +51,7 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : GameActivityState(ga
             ACTION_DRAG_EXITED -> buildDropZone.alpha = 0.5F
             ACTION_DROP -> if (constructionEnabled) {
                 buildingView.positionToNextBuildingPlace(game)
+                buildingView.visibility = View.VISIBLE
                 model.execute(ConstructBuilding(checkNotNull(buildingView.building)))
             } else return false
             ACTION_DRAG_ENDED -> buildDropZone.alpha = 0F
@@ -101,6 +102,7 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : GameActivityState(ga
             ACTION_DROP -> {
                 if (constructionEnabled) {
                     buildingView.positionUnder(wonderView, checkNotNull(game.currentPlayerNumber))
+                    buildingView.visibility = View.VISIBLE
                     model.execute(ConstructWonder(wonder, checkNotNull(buildingView.building)))
                 } else return false
             }
@@ -110,8 +112,17 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : GameActivityState(ga
     }
 
     override fun leave() {
+        layout.removeView(buildDropZone)
         discard.removeDragListener()
+        discardCoins.alpha = 0F
+        discard.scaleX = 1F
+        discard.scaleY = 1F
         accessibleBuildings.forEach { gameActivity.getView(it).disableDragAndDrop() }
-        buildableWonders.forEach { gameActivity.getView(it).removeDragListener() }
+        buildableWonders.forEach {
+            gameActivity.getView(it).apply {
+                hideConstructionAvailability()
+                removeDragListener()
+            }
+        }
     }
 }

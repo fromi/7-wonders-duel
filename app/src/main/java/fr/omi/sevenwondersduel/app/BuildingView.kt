@@ -30,7 +30,7 @@ class BuildingView(override val gameActivity: GameActivity, private val deck: De
         }
     }
 
-    fun positionForPlayer(player: Int, position: Int): BuildingView {
+    fun positionForPlayer(player: Int, position: Int) {
         layout.transform {
             clear(id, ConstraintSet.START)
             clear(id, ConstraintSet.END)
@@ -38,7 +38,6 @@ class BuildingView(override val gameActivity: GameActivity, private val deck: De
             val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
             connect(id, constraint, R.id.layout, constraint, dpsToPx(100))
         }
-        return this
     }
 
     fun positionToNextBuildingPlace(game: SevenWondersDuel) {

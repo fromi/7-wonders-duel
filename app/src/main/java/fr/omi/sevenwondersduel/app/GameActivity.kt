@@ -6,10 +6,8 @@ import android.support.v7.app.AppCompatActivity
 import fr.omi.sevenwondersduel.PlayerWonder
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.Structure
-import fr.omi.sevenwondersduel.app.state.GameActivityState
-import fr.omi.sevenwondersduel.app.state.GameOverState
-import fr.omi.sevenwondersduel.app.state.PlayAccessibleCardState
-import fr.omi.sevenwondersduel.app.state.TakeWonderState
+import fr.omi.sevenwondersduel.app.state.*
+import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.event.*
 import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.BuildingCard
@@ -34,20 +32,26 @@ class GameActivity : AppCompatActivity() {
 
         model = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
-        game.wondersAvailable.forEachIndexed(this::createAvailableWonderView)
-        game.progressTokensAvailable.forEachIndexed { position, progressToken -> progressTokensViews[progressToken] = ProgressTokenView(this, progressToken).availableAt(position) }
-        game.players.first.wonders.forEachIndexed { index, wonder -> createView(wonder, 1, index) }
-        game.players.second.wonders.forEachIndexed { index, wonder -> createView(wonder, 2, index) }
-        game.players.first.buildings.forEachIndexed { index, it -> buildingsViews[it] = BuildingView(this, it, faceUp = true).positionForPlayer(1, index) }
-        game.players.second.buildings.forEachIndexed { index, it -> buildingsViews[it] = BuildingView(this, it, faceUp = true).positionForPlayer(2, index) }
-        firstPlayerCoins.text = game.players.first.coins.toString()
-        secondPlayerCoins.text = game.players.second.coins.toString()
+        game.progressTokensAvailable.forEachIndexed { position, progressToken -> createView(progressToken).availableAt(position) }
         conflictPawnView = ConflictPawnView(this, game.conflictPawnPosition)
-        if (game.players.first.militaryTokensLooted >= 1) layout.removeView(loot2player1)
-        if (game.players.first.militaryTokensLooted >= 2) layout.removeView(loot5player1)
-        if (game.players.second.militaryTokensLooted >= 1) layout.removeView(loot2player2)
-        if (game.players.second.militaryTokensLooted >= 2) layout.removeView(loot5player2)
+        game.wondersAvailable.forEachIndexed(this::createAvailableWonderView)
         game.structure?.let { display(it) }
+        game.players.first.apply {
+            wonders.forEachIndexed { index, wonder -> createView(wonder, 1, index) }
+            buildings.forEachIndexed { index, it -> createView(it).positionForPlayer(1, index) }
+            firstPlayerCoins.text = coins.toString()
+            if (militaryTokensLooted >= 1) layout.removeView(loot2player1)
+            if (militaryTokensLooted >= 2) layout.removeView(loot5player1)
+            progressTokens.forEachIndexed { index, progressToken -> createView(progressToken).positionForPlayer(1, index) }
+        }
+        game.players.second.apply {
+            wonders.forEachIndexed { index, wonder -> createView(wonder, 2, index) }
+            buildings.forEachIndexed { index, it -> createView(it).positionForPlayer(2, index) }
+            secondPlayerCoins.text = coins.toString()
+            if (militaryTokensLooted >= 1) layout.removeView(loot2player2)
+            if (militaryTokensLooted >= 2) layout.removeView(loot5player2)
+            progressTokens.forEachIndexed { index, progressToken -> createView(progressToken).positionForPlayer(2, index) }
+        }
 
         model.actions.observe(this) { action ->
             if (state != null) handle(action)
@@ -66,6 +70,7 @@ class GameActivity : AppCompatActivity() {
         state = when {
             game.wondersAvailable.isNotEmpty() -> TakeWonderState(this)
             game.isOver -> GameOverState(this)
+            game.pendingActions.isNotEmpty() && game.pendingActions.first() is ProgressTokenToChoose -> ChooseProgressTokenState(this)
             else -> PlayAccessibleCardState(this)
         }
     }
@@ -110,9 +115,15 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun createView(wonder: Wonder): WonderView {
-        val wonderView = WonderView(this, wonder)
-        wondersViews[wonder] = wonderView
-        return wonderView
+        return WonderView(this, wonder).apply {
+            wondersViews[wonder] = this
+        }
+    }
+
+    private fun createView(progressToken: ProgressToken): ProgressTokenView {
+        return ProgressTokenView(this, progressToken).apply {
+            progressTokensViews[progressToken] = this
+        }
     }
 
     private fun display(structure: Structure) {
@@ -122,8 +133,15 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun createView(buildingCard: BuildingCard, row: Int, column: Int): BuildingView {
-        return buildingsViews.getOrPut(buildingCard.building) { BuildingView(this, buildingCard) }.apply {
+        return BuildingView(this, buildingCard).apply {
+            buildingsViews[building] = this
             positionInStructure(row, column)
+        }
+    }
+
+    private fun createView(building: Building): BuildingView {
+        return BuildingView(this, building, faceUp = true).apply {
+            buildingsViews[building] = this
         }
     }
 
@@ -137,5 +155,9 @@ class GameActivity : AppCompatActivity() {
 
     fun getView(wonder: Wonder): WonderView {
         return checkNotNull(wondersViews[wonder])
+    }
+
+    fun getView(progressToken: ProgressToken): ProgressTokenView {
+        return checkNotNull(progressTokensViews[progressToken])
     }
 }
