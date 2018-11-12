@@ -1,5 +1,6 @@
 package fr.omi.sevenwondersduel
 
+import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.effects.ScientificSymbol
 import fr.omi.sevenwondersduel.material.*
@@ -96,6 +97,32 @@ class ProgressTokensTest {
                         wonders = listOf(PlayerWonder(ThePyramids))),
                 Player(buildings = setOf(Sawmill))))
         game = game.construct(ThePyramids, Palace)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
+    }
+
+    @Test
+    fun play_again_with_theology_comes_after_the_great_library_progress_token_choice() {
+        var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Palace, Observatory)), players = Pair(
+                Player(coins = 42, progressTokens = setOf(THEOLOGY),
+                        wonders = listOf(PlayerWonder(TheGreatLibrary))),
+                Player(buildings = setOf(Sawmill))))
+        game = game.construct(TheGreatLibrary, Palace)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
+        assertThat(game.pendingActions.first()).isInstanceOf(ProgressTokenToChoose::class.java)
+        game = game.choose((game.pendingActions.first() as ProgressTokenToChoose).tokens.first())
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
+    }
+
+    @Test
+    fun play_again_with_theology_comes_after_building_destruction() {
+        var game = SevenWondersDuel(structure = Structure(age = 3, buildings = listOf(Palace, Observatory)), players = Pair(
+                Player(coins = 42, progressTokens = setOf(THEOLOGY),
+                        wonders = listOf(PlayerWonder(TheStatueOfZeus))),
+                Player(buildings = setOf(Sawmill))))
+        game = game.construct(TheStatueOfZeus, Palace)
+        assertThat(game.currentPlayer).isEqualTo(game.players.first)
+        assertThat(game.pendingActions.first()).isInstanceOf(OpponentBuildingToDestroy::class.java)
+        game = game.destroy(Sawmill)
         assertThat(game.currentPlayer).isEqualTo(game.players.first)
     }
 

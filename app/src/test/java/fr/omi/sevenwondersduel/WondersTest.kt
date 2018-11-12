@@ -1,5 +1,6 @@
 package fr.omi.sevenwondersduel
 
+import fr.omi.sevenwondersduel.effects.OpponentManufactureBuildingToDestroy
 import fr.omi.sevenwondersduel.effects.PlayAgain
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.*
@@ -87,14 +88,14 @@ class WondersTest {
     @Test(expected = IllegalArgumentException::class)
     fun cannot_destroy_any_opponent_building() {
         val game = SevenWondersDuel(players = Pair(Player(), Player(buildings = setOf(Glassworks, Sawmill))),
-                pendingActions = listOf(CircusMaximus))
+                pendingActions = listOf(OpponentManufactureBuildingToDestroy))
         game.destroy(Sawmill)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun cannot_destroy_a_building_opponent_does_not_have() {
         val game = SevenWondersDuel(players = Pair(Player(), Player(buildings = setOf(Glassworks, Sawmill))),
-                pendingActions = listOf(CircusMaximus))
+                pendingActions = listOf(OpponentManufactureBuildingToDestroy))
         game.destroy(Press)
     }
 
