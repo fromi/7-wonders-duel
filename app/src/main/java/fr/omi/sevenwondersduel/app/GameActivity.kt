@@ -8,6 +8,7 @@ import fr.omi.sevenwondersduel.PlayerWonder
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.Structure
 import fr.omi.sevenwondersduel.app.state.*
+import fr.omi.sevenwondersduel.effects.DiscardedBuildingToBuild
 import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
 import fr.omi.sevenwondersduel.effects.PendingAction
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
@@ -87,6 +88,7 @@ class GameActivity : AppCompatActivity() {
         return when (action) {
             is ProgressTokenToChoose -> ChooseProgressTokenState(this, action)
             is OpponentBuildingToDestroy -> DestroyBuildingState(this)
+            is DiscardedBuildingToBuild -> BuildDiscardedBuildingState(this)
             else -> PlayAccessibleCardState(this)
         }
     }
@@ -189,7 +191,7 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayDiscard() {
+    fun displayDiscard() {
         discardedCardsLayer.visibility = View.VISIBLE
         discardedCardsLayer.bringToFront()
         discard.bringToFront()
@@ -203,7 +205,7 @@ class GameActivity : AppCompatActivity() {
         discardDisplayed = true
     }
 
-    private fun hideDiscard() {
+    fun hideDiscard() {
         game.discardedCards.forEach { building -> getView(building).visibility = View.INVISIBLE }
         discardedCardsLayer.visibility = View.INVISIBLE
         discardDisplayed = false
