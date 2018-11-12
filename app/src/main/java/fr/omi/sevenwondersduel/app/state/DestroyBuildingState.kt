@@ -4,12 +4,15 @@ import android.transition.TransitionManager
 import android.view.DragEvent
 import android.view.View
 import android.widget.TextView
+import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.ai.DestroyBuilding
 import fr.omi.sevenwondersduel.app.*
 import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
+import fr.omi.sevenwondersduel.effects.OpponentRawMaterialBuildingToDestroy
 import kotlinx.android.synthetic.main.activity_game.*
 
-class DestroyBuildingState(gameActivity: GameActivity) : GameActivityState(gameActivity) {
+class DestroyBuildingState(gameActivity: GameActivity) : OngoingGameState(gameActivity) {
+
     private val discard: TextView get() = gameActivity.discard
     private val action get() = game.pendingActions.first() as OpponentBuildingToDestroy
     private val eligibleBuildings = game.opponent.buildings.filter { action.isEligible(it) }
@@ -49,6 +52,13 @@ class DestroyBuildingState(gameActivity: GameActivity) : GameActivityState(gameA
             }
         }
         return true
+    }
+
+    override fun getCurrentPlayerStatus(playerName: String, opponentName: String): String {
+        return if (action is OpponentRawMaterialBuildingToDestroy)
+            gameActivity.resources.getString(R.string.player_must_destroy_a_raw_material_building, playerName, opponentName)
+        else
+            gameActivity.resources.getString(R.string.player_must_destroy_a_manufacture_building, playerName, opponentName)
     }
 
     override fun leave() {

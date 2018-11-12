@@ -25,6 +25,7 @@ object RandomBot {
     }
 
     private fun possibleMoves(game: SevenWondersDuel): List<SevenWondersDuelMove> {
+        if (game.isOver) return emptyList()
         if (game.wondersAvailable.isNotEmpty()) {
             return game.wondersAvailable.map { TakeWonder(it) }
         }
@@ -37,9 +38,7 @@ object RandomBot {
                 is PlayerBeginningAgeToChoose -> return listOf(ChoosePlayerBeginningAge(1), ChoosePlayerBeginningAge(2))
             }
         }
-        if (game.structure != null)
-            return game.structure.accessibleBuildings().flatMap { building -> possibleMovesWith(game, building) }
-        return emptyList()
+        return checkNotNull(game.structure).accessibleBuildings().flatMap { building -> possibleMovesWith(game, building) }
     }
 
     private fun possibleMovesWith(game: SevenWondersDuel, building: Building): Iterable<SevenWondersDuelMove> {

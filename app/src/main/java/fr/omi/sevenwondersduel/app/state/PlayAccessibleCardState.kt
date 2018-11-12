@@ -28,6 +28,10 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : ConstructBuildingSta
 
     override fun canConstruct(building: Building): Boolean = game.coinsToPay(building) <= game.currentPlayer.coins
 
+    override fun getCurrentPlayerStatus(playerName: String, opponentName: String): String {
+        return gameActivity.resources.getString(R.string.player_must_play_a_card, playerName)
+    }
+
     private fun discardDragListener(event: DragEvent): Boolean {
         if (event.localState !is BuildingView) return false
         val buildingView = event.localState as BuildingView

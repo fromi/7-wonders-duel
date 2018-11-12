@@ -172,7 +172,8 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun remove(buildingView: BuildingView) {
-        buildingView.visibility = View.INVISIBLE
+        layout.removeView(buildingView)
+        buildingsViews.remove(buildingView.building)
     }
 
     fun getView(wonder: Wonder): WonderView {

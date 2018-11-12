@@ -2,6 +2,7 @@ package fr.omi.sevenwondersduel.app.state
 
 import android.view.DragEvent
 import android.view.View
+import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.ai.ChooseProgressToken
 import fr.omi.sevenwondersduel.app.GameActivity
 import fr.omi.sevenwondersduel.app.ProgressTokenView
@@ -10,7 +11,7 @@ import fr.omi.sevenwondersduel.app.enableDragAndDrop
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.material.ProgressToken
 
-class ChooseProgressTokenState(gameActivity: GameActivity, val action: ProgressTokenToChoose) : GameActivityState(gameActivity) {
+class ChooseProgressTokenState(gameActivity: GameActivity, val action: ProgressTokenToChoose) : OngoingGameState(gameActivity) {
     private val progressTokenDropZone = ProgressTokenView(gameActivity, ProgressToken.LAW).apply {
         alpha = 0F
         positionForPlayer(checkNotNull(game.currentPlayerNumber), game.currentPlayer.progressTokens.size)
@@ -60,6 +61,10 @@ class ChooseProgressTokenState(gameActivity: GameActivity, val action: ProgressT
             }
         }
         return true
+    }
+
+    override fun getCurrentPlayerStatus(playerName: String, opponentName: String): String {
+        return gameActivity.resources.getString(R.string.player_must_choose_a_progress_token, playerName)
     }
 
     override fun leave() {

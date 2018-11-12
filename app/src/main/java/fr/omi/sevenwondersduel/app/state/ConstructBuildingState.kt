@@ -10,7 +10,7 @@ import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.Deck
 import fr.omi.sevenwondersduel.material.LumberYard
 
-abstract class ConstructBuildingState(gameActivity: GameActivity) : GameActivityState(gameActivity) {
+abstract class ConstructBuildingState(gameActivity: GameActivity) : OngoingGameState(gameActivity) {
     private val buildDropZone = BuildingView(gameActivity, Deck.AGE_I, LumberYard, faceUp = false).apply {
         alpha = 0F
         positionToNextBuildingPlace(game)

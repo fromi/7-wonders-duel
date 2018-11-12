@@ -3,13 +3,14 @@ package fr.omi.sevenwondersduel.app.state
 import android.view.DragEvent
 import android.view.DragEvent.*
 import android.view.View
+import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.ai.TakeWonder
 import fr.omi.sevenwondersduel.app.GameActivity
 import fr.omi.sevenwondersduel.app.WonderView
 import fr.omi.sevenwondersduel.app.disableDragAndDrop
 import fr.omi.sevenwondersduel.app.enableDragAndDrop
 
-class TakeWonderState(gameActivity: GameActivity) : GameActivityState(gameActivity) {
+class TakeWonderState(gameActivity: GameActivity) : OngoingGameState(gameActivity) {
     private val wonderDropZone = WonderView(this.gameActivity).apply {
         alpha = 0F
         setOnDragListener { _, event -> wonderDropListener(event) }
@@ -49,6 +50,10 @@ class TakeWonderState(gameActivity: GameActivity) : GameActivityState(gameActivi
         wonderView.visibility = View.INVISIBLE
         wonderDropZone.alpha = 0.5F
         wonderDropZone.setImageResource(WonderView.getResource(checkNotNull(wonderView.wonder)))
+    }
+
+    override fun getCurrentPlayerStatus(playerName: String, opponentName: String): String {
+        return gameActivity.resources.getString(R.string.player_must_take_a_wonder, playerName)
     }
 
     override fun leave() {

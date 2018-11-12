@@ -10,6 +10,23 @@
     <string name="plus_coins">+%d</string>
     <string name="minus_coins">-%d</string>
 
+    <string name="player_must_wait">%s attend son tour</string>
+    <string name="player_must_take_a_wonder">%s doit prendre une merveille</string>
+    <string name="player_must_play_a_card">%s doit jouer une carte accessible de la structure</string>
+    <string name="player_must_choose_a_progress_token">%s doit choisir un jeton progrès</string>
+    <string name="player_must_destroy_a_raw_material_building">%s doit détruire un bâtiment de production marron de %s</string>
+    <string name="player_must_destroy_a_manufacture_building">%s doit détruire un bâtiment de production gris de %s</string>
+    <string name="player_must_construct_a_building_from_the_discard">%s construit gratuitement un des bâtiments défaussés</string>
+    <string name="player_win_by_military_supremacy">%s gagne par suprématie militaire !</string>
+    <string name="player_win_by_scientific_supremacy">%s gagne par suprématie scientifique !</string>
+    <string name="player_civilian_victory">%s remporte une victoire civile, avec %d points de victoire !</string>
+    <string name="player_short_civilian_victory">%s remporte de peu une victoire civile, avec %d points de victoire et plus de points que %s avec ses bâtiments civiques !</string>
+    <string name="player_lost_by_military_supremacy">%s a perdu, terrassé par les armées de %s</string>
+    <string name="player_lost_by_scientific_supremacy">%s a perdu, dépassé par les progrès scientifiques de %s</string>
+    <string name="player_civilian_defeat">%s a perdu, avec %d points de victoire</string>
+    <string name="player_short_civilian_defeat">%s a perdu de justesse, avec %d points de victoire, mais moins de points que %s avec ses bâtiments civiques</string>
+    <string name="player_equality">Egalité parfaite ! Chaque joueur a %d point de victoire, dont %d grâce aux bâtiments civiques</string>
+
     <string name="wonders_back">A wonder card face down</string>
     <string name="circus_maximus">Circus Maximus</string>
     <string name="piraeus">Piraeus</string>
