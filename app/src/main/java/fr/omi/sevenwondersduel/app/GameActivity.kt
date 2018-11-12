@@ -3,6 +3,7 @@ package fr.omi.sevenwondersduel.app
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import fr.omi.sevenwondersduel.PlayerWonder
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.Structure
@@ -27,6 +28,7 @@ class GameActivity : AppCompatActivity() {
     private var structureBuildingsViews: List<Map<Int, BuildingView>> = listOf()
     private lateinit var conflictPawnView: ConflictPawnView
     private val progressTokensViews: MutableMap<ProgressToken, ProgressTokenView> = hashMapOf()
+    private var discardDisplayed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,10 +64,13 @@ class GameActivity : AppCompatActivity() {
         }
         updateState()
 
+        discard.setOnClickListener { toggleDiscardDisplay() }
+
         resetButton.setOnClickListener {
             model.reset()
             recreate()
         }
+
     }
 
     private fun updateState() {
@@ -157,9 +162,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun createView(building: Building): BuildingView {
-        return BuildingView(this, building, faceUp = true).apply {
-            buildingsViews[building] = this
-        }
+        return buildingsViews.getOrPut(building) { BuildingView(this, building, faceUp = true) }
     }
 
     fun getView(building: Building): BuildingView {
@@ -167,7 +170,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun remove(buildingView: BuildingView) {
-        layout.removeView(buildingView)
+        buildingView.visibility = View.INVISIBLE
     }
 
     fun getView(wonder: Wonder): WonderView {
@@ -176,5 +179,33 @@ class GameActivity : AppCompatActivity() {
 
     fun getView(progressToken: ProgressToken): ProgressTokenView {
         return checkNotNull(progressTokensViews[progressToken])
+    }
+
+    private fun toggleDiscardDisplay() {
+        if (discardDisplayed) {
+            hideDiscard()
+        } else if (game.discardedCards.isNotEmpty()) {
+            displayDiscard()
+        }
+    }
+
+    private fun displayDiscard() {
+        discardedCardsLayer.visibility = View.VISIBLE
+        discardedCardsLayer.bringToFront()
+        discard.bringToFront()
+        game.discardedCards.forEachIndexed { index, building ->
+            createView(building).apply {
+                bringToFront()
+                visibility = View.VISIBLE
+                positionInDiscard(index)
+            }
+        }
+        discardDisplayed = true
+    }
+
+    private fun hideDiscard() {
+        game.discardedCards.forEach { building -> getView(building).visibility = View.INVISIBLE }
+        discardedCardsLayer.visibility = View.INVISIBLE
+        discardDisplayed = false
     }
 }

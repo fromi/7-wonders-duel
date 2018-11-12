@@ -8,6 +8,7 @@ import fr.omi.sevenwondersduel.ai.RandomBot
 import fr.omi.sevenwondersduel.ai.SevenWondersDuelMove
 import fr.omi.sevenwondersduel.effects.PlayerBeginningAgeToChoose
 import fr.omi.sevenwondersduel.event.Action
+import fr.omi.sevenwondersduel.material.Deck
 
 class GameViewModel : ViewModel() {
     var game = SevenWondersDuel()
@@ -15,6 +16,7 @@ class GameViewModel : ViewModel() {
 
     init {
         repeat(8) { game = RandomBot.play(game) }
+        game = game.copy(discardedCards = Deck.AGE_II.buildings.toList())
         //game = RandomBot.playUntilMoveAvailable { _, move -> move is ConstructWonder && move.wonder == TheGreatLibrary }
     }
 

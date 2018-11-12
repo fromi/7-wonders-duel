@@ -95,11 +95,22 @@
         app:layout_constraintEnd_toEndOf="@+id/board"
         app:srcCompat="@drawable/loot_token_5" />
 
+    <View
+        android:id="@+id/discardedCardsLayer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="@id/layout"
+        app:layout_constraintEnd_toEndOf="@id/board"
+        app:layout_constraintStart_toStartOf="@id/board"
+        app:layout_constraintTop_toTopOf="@id/layout" />
+
     <TextView
         android:id="@+id/discard"
         android:layout_width="37dp"
         android:layout_height="33dp"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="27dp"
         android:layout_marginTop="2dp"
         android:background="@drawable/discard"
         android:gravity="center"

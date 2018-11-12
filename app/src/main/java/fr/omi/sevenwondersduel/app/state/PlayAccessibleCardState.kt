@@ -65,6 +65,7 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : GameActivityState(ga
                 discard.scaleY = 1.2F
                 discardCoins.text = discardCoins.resources.getString(R.string.plus_coins, 2 + game.currentPlayer.buildings.count { it is CommercialBuilding })
                 discardCoins.alpha = 0.5F
+                discardCoins.bringToFront()
                 buildingView.visibility = View.INVISIBLE
             }
             ACTION_DRAG_ENTERED -> discardCoins.alpha = 1F

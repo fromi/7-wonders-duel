@@ -7,6 +7,7 @@ import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.SevenWondersDuel
 import fr.omi.sevenwondersduel.material.*
+import kotlinx.android.synthetic.main.activity_game.*
 
 @SuppressLint("ViewConstructor")
 class BuildingView(override val gameActivity: GameActivity, private val deck: Deck, val building: Building, var faceUp: Boolean) : ImageView(gameActivity), GameView {
@@ -73,6 +74,17 @@ class BuildingView(override val gameActivity: GameActivity, private val deck: De
         faceUp = false
         setImageResource(getResource(deck))
         contentDescription = resources.getString(getContentDescription(deck))
+    }
+
+    fun positionInDiscard(position: Int) {
+        layout.transform {
+            clear(id, ConstraintSet.START)
+            clear(id, ConstraintSet.END)
+            clear(id, ConstraintSet.TOP)
+            clear(id, ConstraintSet.BOTTOM)
+            connect(id, ConstraintSet.TOP, gameActivity.discardedCardsLayer.id, ConstraintSet.TOP, dpsToPx(40 + position / 7 * 60))
+            connect(id, ConstraintSet.START, gameActivity.discardedCardsLayer.id, ConstraintSet.START, dpsToPx(position % 7 * 41 + 10))
+        }
     }
 
     companion object {
