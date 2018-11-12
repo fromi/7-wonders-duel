@@ -45,7 +45,7 @@ class WonderView(override val gameActivity: GameActivity, val wonder: Wonder? = 
         }
     }
 
-    private lateinit var constructionAvailability: TextView
+    private var constructionAvailability: TextView? = null
 
     fun showConstructionAvailable(cost: Int) {
         createConstructionAvailabilityView(cost, android.R.color.black)
@@ -67,24 +67,31 @@ class WonderView(override val gameActivity: GameActivity, val wonder: Wonder? = 
         }
         layout.addView(constructionAvailability)
         layout.transform {
-            connect(constructionAvailability.id, ConstraintSet.TOP, id, ConstraintSet.TOP)
-            connect(constructionAvailability.id, ConstraintSet.BOTTOM, id, ConstraintSet.BOTTOM)
-            connect(constructionAvailability.id, ConstraintSet.LEFT, id, ConstraintSet.LEFT, dpsToPx(20))
+            connect(constructionAvailability!!.id, ConstraintSet.TOP, id, ConstraintSet.TOP)
+            connect(constructionAvailability!!.id, ConstraintSet.BOTTOM, id, ConstraintSet.BOTTOM)
+            connect(constructionAvailability!!.id, ConstraintSet.LEFT, id, ConstraintSet.LEFT, dpsToPx(20))
         }
     }
 
     fun showConstructionDrop() {
-        constructionAvailability.scaleX = 1.2F
-        constructionAvailability.scaleY = 1.2F
+        constructionAvailability?.let {
+            it.scaleX = 1.2F
+            it.scaleY = 1.2F
+        }
     }
 
     fun hideConstructionDrop() {
-        constructionAvailability.scaleX = 1F
-        constructionAvailability.scaleY = 1F
+        constructionAvailability?.let {
+            it.scaleX = 1F
+            it.scaleY = 1F
+        }
     }
 
     fun hideConstructionAvailability() {
-        layout.removeView(constructionAvailability)
+        if (constructionAvailability != null) {
+            layout.removeView(constructionAvailability)
+            constructionAvailability = null
+        }
     }
 
     companion object {

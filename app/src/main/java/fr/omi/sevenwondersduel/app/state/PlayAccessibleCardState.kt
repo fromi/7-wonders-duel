@@ -1,13 +1,16 @@
 package fr.omi.sevenwondersduel.app.state
 
+import android.support.constraint.ConstraintSet
 import android.view.DragEvent
 import android.view.DragEvent.*
 import android.view.View
 import android.widget.TextView
 import fr.omi.sevenwondersduel.R
+import fr.omi.sevenwondersduel.ai.ChoosePlayerBeginningAge
 import fr.omi.sevenwondersduel.ai.ConstructWonder
 import fr.omi.sevenwondersduel.ai.Discard
 import fr.omi.sevenwondersduel.app.*
+import fr.omi.sevenwondersduel.effects.PlayerBeginningAgeToChoose
 import fr.omi.sevenwondersduel.material.Building
 import fr.omi.sevenwondersduel.material.CommercialBuilding
 import kotlinx.android.synthetic.main.activity_game.*
@@ -24,6 +27,22 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : ConstructBuildingSta
         discard.setOnDragListener { _, event -> discardDragListener(event) }
         accessibleBuildings.forEach { gameActivity.getView(it).enableDragAndDrop() }
         buildableWonders.forEach { gameActivity.getView(it).setOnDragListener { view, event -> wonderDragListener(view as WonderView, event) } }
+        if (game.pendingActions.isNotEmpty() && game.pendingActions.first() is PlayerBeginningAgeToChoose) {
+            val opponentName = if (game.currentPlayerNumber == 1) "Joueur 2" else "Joueur 1"
+            gameActivity.opponentBeginNewAgeButton.apply {
+                visibility = View.VISIBLE
+                text = gameActivity.resources.getString(R.string.let_opponent_start_new_age, opponentName)
+                setOnClickListener { model.execute(ChoosePlayerBeginningAge(if (game.currentPlayerNumber == 1) 2 else 1)) }
+            }
+            layout.transform {
+                clear(gameActivity.opponentBeginNewAgeButton.id, ConstraintSet.START)
+                clear(gameActivity.opponentBeginNewAgeButton.id, ConstraintSet.END)
+                if (game.currentPlayerNumber == 1)
+                    connect(gameActivity.opponentBeginNewAgeButton.id, ConstraintSet.START, layout.id, ConstraintSet.START)
+                else
+                    connect(gameActivity.opponentBeginNewAgeButton.id, ConstraintSet.END, layout.id, ConstraintSet.END)
+            }
+        }
     }
 
     override fun canConstruct(building: Building): Boolean = game.coinsToPay(building) <= game.currentPlayer.coins
@@ -96,5 +115,6 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : ConstructBuildingSta
                 removeDragListener()
             }
         }
+        gameActivity.opponentBeginNewAgeButton.visibility = View.INVISIBLE
     }
 }

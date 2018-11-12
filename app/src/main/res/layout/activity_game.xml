@@ -164,4 +164,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/opponentBeginNewAgeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:textSize="8sp"
+        app:layout_constraintStart_toStartOf="@+id/layout"
+        app:layout_constraintTop_toTopOf="@id/layout"
+        android:layout_marginTop="35dp"
+        android:visibility="invisible" />
+
 </android.support.constraint.ConstraintLayout>

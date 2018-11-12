@@ -9,6 +9,7 @@
     <string name="discard_pile">Discard pile</string>
     <string name="plus_coins">+%d</string>
     <string name="minus_coins">-%d</string>
+    <string name="let_opponent_start_new_age">Laisser %s commencer</string>
 
     <string name="player_must_wait">%s attend son tour</string>
     <string name="player_must_take_a_wonder">%s doit prendre une merveille</string>
