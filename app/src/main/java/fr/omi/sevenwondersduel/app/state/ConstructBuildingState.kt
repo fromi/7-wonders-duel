@@ -37,7 +37,7 @@ abstract class ConstructBuildingState(gameActivity: GameActivity) : OngoingGameS
             } else return false
             DragEvent.ACTION_DRAG_ENDED -> {
                 buildDropZone.alpha = 0F
-                buildingView.visibility = View.VISIBLE
+                if (!event.result) buildingView.visibility = View.VISIBLE
             }
         }
         return true

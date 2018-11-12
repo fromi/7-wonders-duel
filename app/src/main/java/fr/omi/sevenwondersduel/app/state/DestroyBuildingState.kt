@@ -48,7 +48,7 @@ class DestroyBuildingState(gameActivity: GameActivity) : OngoingGameState(gameAc
             DragEvent.ACTION_DRAG_ENDED -> {
                 discard.scaleX = 1F
                 discard.scaleY = 1F
-                buildingView.visibility = View.VISIBLE
+                if (!event.result) buildingView.visibility = View.VISIBLE
             }
         }
         return true

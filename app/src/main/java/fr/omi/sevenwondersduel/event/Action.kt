@@ -5,6 +5,7 @@ import fr.omi.sevenwondersduel.ai.ConstructBuilding
 import fr.omi.sevenwondersduel.ai.ConstructWonder
 import fr.omi.sevenwondersduel.ai.SevenWondersDuelMove
 import fr.omi.sevenwondersduel.ai.TakeWonder
+import fr.omi.sevenwondersduel.material.Wonder
 
 class Action(val game: SevenWondersDuel, private val move: SevenWondersDuelMove) {
     fun inferEventsLeadingTo(newState: SevenWondersDuel): List<GameEvent> {
@@ -14,7 +15,8 @@ class Action(val game: SevenWondersDuel, private val move: SevenWondersDuelMove)
                 newState.wondersAvailable.isEmpty() -> listOf(PrepareStructureEvent(checkNotNull(newState.structure)))
                 else -> emptyList()
             }
-            is ConstructBuilding, is ConstructWonder -> inferConstructionEffects(newState)
+            is ConstructBuilding -> inferConstructionEffects(newState)
+            is ConstructWonder -> inferWonderConstructionEffects(move.wonder, newState)
             else -> emptyList()
         }.plus(inferStructureConsequences(newState))
     }
@@ -32,6 +34,12 @@ class Action(val game: SevenWondersDuel, private val move: SevenWondersDuelMove)
             }
         }
         return events
+    }
+
+    private fun inferWonderConstructionEffects(wonder: Wonder, newState: SevenWondersDuel): List<GameEvent> {
+        return if (newState.players.toList().sumBy { player -> player.wonders.count { it.isConstructed() } } == 7)
+            inferConstructionEffects(newState) + LastWonderDiscarded(game.players.toList().flatMap { it.wonders }.filter { !it.isConstructed() }.map { it.wonder }.minus(wonder).first())
+        else inferConstructionEffects(newState)
     }
 
     private fun inferStructureConsequences(newState: SevenWondersDuel): List<GameEvent> {

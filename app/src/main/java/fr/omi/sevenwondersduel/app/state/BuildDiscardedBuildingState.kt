@@ -19,6 +19,7 @@ class BuildDiscardedBuildingState(gameActivity: GameActivity) : ConstructBuildin
     }
 
     override fun leave() {
+        super.leave()
         gameActivity.hideDiscard()
         game.discardedCards.forEach { building -> gameActivity.getView(building).disableDragAndDrop() }
     }

@@ -118,6 +118,7 @@ class GameActivity : AppCompatActivity() {
                     2 -> layout.removeView(loot5player2)
                 }
             }
+            is LastWonderDiscarded -> layout.removeView(getView(event.wonder))
         }
     }
 
@@ -172,8 +173,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun remove(buildingView: BuildingView) {
-        layout.removeView(buildingView)
-        buildingsViews.remove(buildingView.building)
+        buildingView.visibility = View.INVISIBLE
     }
 
     fun getView(wonder: Wonder): WonderView {
