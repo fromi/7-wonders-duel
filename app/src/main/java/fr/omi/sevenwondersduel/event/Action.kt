@@ -15,10 +15,10 @@ class Action(val game: SevenWondersDuel, private val move: SevenWondersDuelMove)
                 newState.wondersAvailable.isEmpty() -> listOf(PrepareStructureEvent(checkNotNull(newState.structure)))
                 else -> emptyList()
             }
-            is ConstructBuilding -> inferConstructionEffects(newState)
-            is ConstructWonder -> inferWonderConstructionEffects(move.wonder, newState)
-            else -> emptyList()
-        }.plus(inferStructureConsequences(newState))
+            is ConstructBuilding -> inferConstructionEffects(newState) + inferStructureConsequences(newState)
+            is ConstructWonder -> inferWonderConstructionEffects(move.wonder, newState) + inferStructureConsequences(newState)
+            else -> inferStructureConsequences(newState)
+        }
     }
 
     private fun inferConstructionEffects(newState: SevenWondersDuel): List<GameEvent> {

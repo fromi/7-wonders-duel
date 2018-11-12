@@ -5,7 +5,7 @@ import fr.omi.sevenwondersduel.app.GameActivity
 import kotlinx.android.synthetic.main.activity_game.*
 
 class GameOverState(gameActivity: GameActivity) : GameActivityState(gameActivity) {
-    init {
+    override fun displayPlayerStatuses() {
         when {
             game.conflictPawnPosition == 9 -> {
                 gameActivity.firstPlayerStatus.text = gameActivity.resources.getString(R.string.player_win_by_military_supremacy, "Joueur 1")

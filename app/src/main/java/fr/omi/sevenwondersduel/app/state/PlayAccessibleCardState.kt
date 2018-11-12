@@ -84,6 +84,7 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : ConstructBuildingSta
     }
 
     override fun leave() {
+        super.leave()
         discard.removeDragListener()
         discardCoins.alpha = 0F
         discard.scaleX = 1F

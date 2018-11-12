@@ -16,5 +16,6 @@ abstract class GameActivityState(internal val gameActivity: GameActivity) {
     internal val model: GameViewModel
         get() = gameActivity.model
 
+    abstract fun displayPlayerStatuses()
     abstract fun leave()
 }

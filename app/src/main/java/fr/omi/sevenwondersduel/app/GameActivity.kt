@@ -82,6 +82,7 @@ class GameActivity : AppCompatActivity() {
             game.pendingActions.isNotEmpty() -> getPendingActionState(game.pendingActions.first())
             else -> PlayAccessibleCardState(this)
         }
+        state?.displayPlayerStatuses()
     }
 
     private fun getPendingActionState(action: PendingAction): GameActivityState {
