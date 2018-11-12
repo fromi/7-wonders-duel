@@ -25,11 +25,9 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : GameActivityState(ga
     private val accessibleBuildings = checkNotNull(game.structure).accessibleBuildings()
     private val buildableWonders = game.currentPlayer.wonders.filter { !it.isConstructed() }.map { it.wonder }
 
-    private val discard: ImageView
-        get() = gameActivity.discard
+    private val discard: ImageView get() = gameActivity.discard
 
-    private val discardCoins: TextView
-        get() = gameActivity.discardCoins
+    private val discardCoins: TextView get() = gameActivity.discardCoins
 
     init {
         discard.setOnDragListener { _, event -> discardDragListener(event) }

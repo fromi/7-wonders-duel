@@ -8,13 +8,9 @@ import fr.omi.sevenwondersduel.material.Resource.*
 
 sealed class Wonder : Construction
 
-object CircusMaximus : Wonder(), OpponentBuildingToDestroy {
+object CircusMaximus : Wonder() {
     override val cost = Cost(resources = mapOf(GLASS to 1, WOOD to 1, STONE to 2))
-    override val effects = listOf(this, Shield(1), VictoryPoints(3))
-
-    override fun isEligible(building: Building): Boolean {
-        return building is ManufactureBuilding
-    }
+    override val effects = listOf(OpponentManufactureBuildingToDestroy, Shield(1), VictoryPoints(3))
 }
 
 object Piraeus : Wonder() {
@@ -62,13 +58,9 @@ object TheSphinx : Wonder() {
     override val effects = listOf(PlayAgain, VictoryPoints(6))
 }
 
-object TheStatueOfZeus : Wonder(), OpponentBuildingToDestroy {
+object TheStatueOfZeus : Wonder() {
     override val cost = Cost(resources = mapOf(PAPYRUS to 2, CLAY to 1, WOOD to 1, STONE to 1))
-    override val effects = listOf(this, Shield(1), VictoryPoints(3))
-
-    override fun isEligible(building: Building): Boolean {
-        return building is RawMaterialBuilding
-    }
+    override val effects = listOf(OpponentRawMaterialBuildingToDestroy, Shield(1), VictoryPoints(3))
 }
 
 object TheTempleOfArtemis : Wonder() {

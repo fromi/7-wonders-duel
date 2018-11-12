@@ -7,6 +7,7 @@ import fr.omi.sevenwondersduel.PlayerWonder
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.Structure
 import fr.omi.sevenwondersduel.app.state.*
+import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.event.*
 import fr.omi.sevenwondersduel.material.Building
@@ -71,6 +72,7 @@ class GameActivity : AppCompatActivity() {
             game.wondersAvailable.isNotEmpty() -> TakeWonderState(this)
             game.isOver -> GameOverState(this)
             game.pendingActions.isNotEmpty() && game.pendingActions.first() is ProgressTokenToChoose -> ChooseProgressTokenState(this)
+            game.pendingActions.isNotEmpty() && game.pendingActions.first() is OpponentBuildingToDestroy -> DestroyBuildingState(this)
             else -> PlayAccessibleCardState(this)
         }
     }
@@ -88,7 +90,7 @@ class GameActivity : AppCompatActivity() {
         when (event) {
             is PlaceFourAvailableWondersEvent -> event.wonders.forEachIndexed(this::createAvailableWonderView)
             is PrepareStructureEvent -> display(event.structure)
-            is BuildingMadeAccessibleEvent -> getView(event.building).reveal()
+            is BuildingRevealedEvent -> getView(event.building).reveal()
             is MilitaryTokenLooted -> when (event.playerNumber) {
                 1 -> when (event.tokenNumber) {
                     1 -> layout.removeView(loot2player1)
