@@ -8,6 +8,7 @@ import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.material.ProgressToken
 import fr.omi.sevenwondersduel.material.ProgressToken.*
+import fr.omi.sevenwondersduel.material.TheGreatLibrary
 import kotlinx.android.synthetic.main.activity_game.*
 
 @SuppressLint("ViewConstructor")
@@ -61,6 +62,14 @@ class ProgressTokenView(override val gameActivity: GameActivity, val progressTok
                 1 -> connect(id, ConstraintSet.START, gameActivity.firstPlayerCoins.id, ConstraintSet.END, dpsToPx(position * 30 + 5))
                 2 -> connect(id, ConstraintSet.END, gameActivity.secondPlayerCoins.id, ConstraintSet.START, dpsToPx(position * 30 + 5))
             }
+        }
+    }
+
+    fun positionOnTheGreatLibrary(position: Int) {
+        layout.transform {
+            connect(id, ConstraintSet.START, gameActivity.getView(TheGreatLibrary).id, ConstraintSet.START, dpsToPx(position * 21 + 1))
+            connect(id, ConstraintSet.TOP, gameActivity.getView(TheGreatLibrary).id, ConstraintSet.TOP)
+            connect(id, ConstraintSet.BOTTOM, gameActivity.getView(TheGreatLibrary).id, ConstraintSet.BOTTOM)
         }
     }
 

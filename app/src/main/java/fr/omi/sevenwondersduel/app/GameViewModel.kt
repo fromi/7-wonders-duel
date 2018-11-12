@@ -4,11 +4,12 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import fr.omi.sevenwondersduel.SevenWondersDuel
 import fr.omi.sevenwondersduel.ai.ChoosePlayerBeginningAge
-import fr.omi.sevenwondersduel.ai.DestroyBuilding
+import fr.omi.sevenwondersduel.ai.ConstructWonder
 import fr.omi.sevenwondersduel.ai.RandomBot
 import fr.omi.sevenwondersduel.ai.SevenWondersDuelMove
 import fr.omi.sevenwondersduel.effects.PlayerBeginningAgeToChoose
 import fr.omi.sevenwondersduel.event.Action
+import fr.omi.sevenwondersduel.material.TheGreatLibrary
 
 class GameViewModel : ViewModel() {
     var game = SevenWondersDuel()
@@ -16,7 +17,7 @@ class GameViewModel : ViewModel() {
 
     init {
         //repeat(8) { game = RandomBot.play(game) }
-        game = RandomBot.playUntilMoveAvailable { _, move -> move is DestroyBuilding }
+        game = RandomBot.playUntilMoveAvailable { _, move -> move is ConstructWonder && move.wonder == TheGreatLibrary }
     }
 
     fun execute(move: SevenWondersDuelMove) {

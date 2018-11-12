@@ -8,6 +8,7 @@ import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.Structure
 import fr.omi.sevenwondersduel.app.state.*
 import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
+import fr.omi.sevenwondersduel.effects.PendingAction
 import fr.omi.sevenwondersduel.effects.ProgressTokenToChoose
 import fr.omi.sevenwondersduel.event.*
 import fr.omi.sevenwondersduel.material.Building
@@ -71,8 +72,15 @@ class GameActivity : AppCompatActivity() {
         state = when {
             game.wondersAvailable.isNotEmpty() -> TakeWonderState(this)
             game.isOver -> GameOverState(this)
-            game.pendingActions.isNotEmpty() && game.pendingActions.first() is ProgressTokenToChoose -> ChooseProgressTokenState(this)
-            game.pendingActions.isNotEmpty() && game.pendingActions.first() is OpponentBuildingToDestroy -> DestroyBuildingState(this)
+            game.pendingActions.isNotEmpty() -> getPendingActionState(game.pendingActions.first())
+            else -> PlayAccessibleCardState(this)
+        }
+    }
+
+    private fun getPendingActionState(action: PendingAction): GameActivityState {
+        return when (action) {
+            is ProgressTokenToChoose -> ChooseProgressTokenState(this, action)
+            is OpponentBuildingToDestroy -> DestroyBuildingState(this)
             else -> PlayAccessibleCardState(this)
         }
     }
@@ -122,10 +130,15 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun createView(progressToken: ProgressToken): ProgressTokenView {
+    fun createView(progressToken: ProgressToken): ProgressTokenView {
         return ProgressTokenView(this, progressToken).apply {
             progressTokensViews[progressToken] = this
         }
+    }
+
+    fun removeView(progressToken: ProgressToken) {
+        layout.removeView(getView(progressToken))
+        progressTokensViews.remove(progressToken)
     }
 
     private fun display(structure: Structure) {
