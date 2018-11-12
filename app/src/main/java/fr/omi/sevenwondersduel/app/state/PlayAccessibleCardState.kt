@@ -3,7 +3,6 @@ package fr.omi.sevenwondersduel.app.state
 import android.view.DragEvent
 import android.view.DragEvent.*
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
 import fr.omi.sevenwondersduel.R
 import fr.omi.sevenwondersduel.ai.ConstructBuilding
@@ -25,7 +24,7 @@ class PlayAccessibleCardState(gameActivity: GameActivity) : GameActivityState(ga
     private val accessibleBuildings = checkNotNull(game.structure).accessibleBuildings()
     private val buildableWonders = game.currentPlayer.wonders.filter { !it.isConstructed() }.map { it.wonder }
 
-    private val discard: ImageView get() = gameActivity.discard
+    private val discard: TextView get() = gameActivity.discard
 
     private val discardCoins: TextView get() = gameActivity.discardCoins
 

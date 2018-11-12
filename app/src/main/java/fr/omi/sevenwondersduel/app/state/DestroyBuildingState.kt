@@ -3,14 +3,14 @@ package fr.omi.sevenwondersduel.app.state
 import android.transition.TransitionManager
 import android.view.DragEvent
 import android.view.View
-import android.widget.ImageView
+import android.widget.TextView
 import fr.omi.sevenwondersduel.ai.DestroyBuilding
 import fr.omi.sevenwondersduel.app.*
 import fr.omi.sevenwondersduel.effects.OpponentBuildingToDestroy
 import kotlinx.android.synthetic.main.activity_game.*
 
 class DestroyBuildingState(gameActivity: GameActivity) : GameActivityState(gameActivity) {
-    private val discard: ImageView get() = gameActivity.discard
+    private val discard: TextView get() = gameActivity.discard
     private val action get() = game.pendingActions.first() as OpponentBuildingToDestroy
     private val eligibleBuildings = game.opponent.buildings.filter { action.isEligible(it) }
 

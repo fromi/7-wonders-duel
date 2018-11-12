@@ -38,6 +38,7 @@ class GameActivity : AppCompatActivity() {
         conflictPawnView = ConflictPawnView(this, game.conflictPawnPosition)
         game.wondersAvailable.forEachIndexed(this::createAvailableWonderView)
         game.structure?.let { display(it) }
+        discard.text = game.discardedCards.size.toString()
         game.players.first.apply {
             wonders.forEachIndexed { index, wonder -> createView(wonder, 1, index) }
             buildings.forEachIndexed { index, it -> createView(it).positionForPlayer(1, index) }
@@ -91,6 +92,7 @@ class GameActivity : AppCompatActivity() {
         if (game.conflictPawnPosition != conflictPawnView.position) {
             conflictPawnView.position = game.conflictPawnPosition
         }
+        discard.text = game.discardedCards.size.toString()
         action.inferEventsLeadingTo(model.game).forEach(::handleEvent)
     }
 

@@ -95,17 +95,18 @@
         app:layout_constraintEnd_toEndOf="@+id/board"
         app:srcCompat="@drawable/loot_token_5" />
 
-    <ImageView
+    <TextView
         android:id="@+id/discard"
         android:layout_width="37dp"
-        android:layout_height="wrap_content"
+        android:layout_height="33dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="2dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/discard_pile"
+        android:background="@drawable/discard"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
         app:layout_constraintStart_toStartOf="@+id/board"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/discard" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/discardCoins"
