@@ -3,7 +3,6 @@ package fr.omi.sevenwondersduel.app
 import android.annotation.SuppressLint
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
-import android.transition.TransitionManager
 import android.widget.ImageView
 import fr.omi.sevenwondersduel.R
 import kotlinx.android.synthetic.main.activity_game.*
@@ -21,13 +20,7 @@ class ConflictPawnView(override val gameActivity: GameActivity, position: Int) :
         updatePosition(position)
     }
 
-    var position = position
-        set(position) {
-            TransitionManager.beginDelayedTransition(layout)
-            updatePosition(position)
-        }
-
-    private fun updatePosition(position: Int) {
+    fun updatePosition(position: Int) {
         layout.transform {
             val margin = dpsToPx(256 * abs(position) / 9)
             connect(id, ConstraintSet.START, gameActivity.board.id, ConstraintSet.START, if (position > 0) margin else 0)

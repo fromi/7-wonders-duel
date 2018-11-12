@@ -35,9 +35,9 @@ class BuildingView(override val gameActivity: GameActivity, private val deck: De
         layout.transform {
             clear(id, ConstraintSet.START)
             clear(id, ConstraintSet.END)
-            connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(position * 12))
+            connect(id, ConstraintSet.TOP, R.id.board, ConstraintSet.BOTTOM, dpsToPx(position % 14 * 12))
             val constraint = if (player == 1) ConstraintSet.START else ConstraintSet.END
-            connect(id, constraint, R.id.layout, constraint, dpsToPx(100))
+            connect(id, constraint, R.id.layout, constraint, dpsToPx(position / 14 * 41 + 100))
         }
     }
 

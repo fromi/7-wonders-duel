@@ -25,6 +25,7 @@ class Action(val game: SevenWondersDuel, private val move: SevenWondersDuelMove)
         val events = mutableListOf<GameEvent>()
         val opponentNumber = if (game.currentPlayerNumber == 1) 2 else 1
         val newStateOpponent = if (game.currentPlayerNumber == 1) newState.players.second else newState.players.first
+        if (game.conflictPawnPosition != newState.conflictPawnPosition) events.add(ConflictPawnMoved)
         when {
             newStateOpponent.militaryTokensLooted == 1 -> events.add(MilitaryTokenLooted(opponentNumber, 1))
             newStateOpponent.militaryTokensLooted == 2 && game.opponent.militaryTokensLooted == 1 -> events.add(MilitaryTokenLooted(opponentNumber, 2))

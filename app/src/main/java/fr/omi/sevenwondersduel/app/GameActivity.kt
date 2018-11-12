@@ -3,6 +3,7 @@ package fr.omi.sevenwondersduel.app
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.transition.TransitionManager
 import android.view.View
 import fr.omi.sevenwondersduel.PlayerWonder
 import fr.omi.sevenwondersduel.R
@@ -97,9 +98,6 @@ class GameActivity : AppCompatActivity() {
     private fun handle(action: Action) {
         firstPlayerCoins.text = game.players.first.coins.toString()
         secondPlayerCoins.text = game.players.second.coins.toString()
-        if (game.conflictPawnPosition != conflictPawnView.position) {
-            conflictPawnView.position = game.conflictPawnPosition
-        }
         discard.text = game.discardedCards.size.toString()
         action.inferEventsLeadingTo(model.game).forEach(::handleEvent)
     }
@@ -109,6 +107,10 @@ class GameActivity : AppCompatActivity() {
             is PlaceFourAvailableWondersEvent -> event.wonders.forEachIndexed(this::createAvailableWonderView)
             is PrepareStructureEvent -> display(event.structure)
             is BuildingRevealedEvent -> getView(event.building).reveal()
+            is ConflictPawnMoved -> {
+                TransitionManager.beginDelayedTransition(layout)
+                conflictPawnView.updatePosition(game.conflictPawnPosition)
+            }
             is MilitaryTokenLooted -> when (event.playerNumber) {
                 1 -> when (event.tokenNumber) {
                     1 -> layout.removeView(loot2player1)
